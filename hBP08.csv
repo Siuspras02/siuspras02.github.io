@@ -3,18 +3,20 @@ hBP08-001,IRyS,,Oshi holomem,OSR,White,5,,,"Oshi Skill holo Power -2: Nephilim's
 [1/Turn] Choose 1 holomem on your stage. During this turn, the chosen holomem gets Arts+20. If the chosen holomem has purple cheer attached, it gets Arts+50 instead.
 
 SP Oshi Skill holo Power -2: HOPE and DESPAIR
-[1/Game] Draw 1 card for each cheer attached to all of your <IRyS>. Put 1 card from the top of your deck to holo Power for each purple cheer attached to all of your <IRyS>.",,,,
+[1/Game] Draw 1 card for each cheer attached to all of your <IRyS>. Put 1 card from the top of your deck to holo Power for each purple cheer attached to all of your <IRyS>.",,OUR,,
 hBP08-002,"セシリア・イマーグリーン
 (Cecilia Immergreen)",,Oshi holomem,OSR,Green,5,,,"Oshi Stage Skill: Justice's Ancient Automaton
 All of your <Cecilia Immergreen> are not set to active during your reset phase.
 
 Oshi Skill holo Power -2: SPIN TO WIN!
-[1/Turn] Send the top 2 cards of your cheer deck divided as you choose to your resting <Cecilia Immergreen>. Then, set all holomem who received cheers from this ability to active.",,,,
+[1/Turn] Send the top 2 cards of your cheer deck divided as you choose to your resting <Cecilia Immergreen>. Then, set all holomem who received cheers from this ability to active.",,OUR,,
 hBP08-003,FUWAMOCO,,Oshi holomem,OSR,Red,5,,,"Oshi Stage Skill: Are You Ready?
 All red cheers attached to your [<Fuwawa Abyssgard> and <Mococo Abyssgard>] are also regarded as blue cheers.
 
 Oshi Skill holo Power -2: Mococo Will Protect Everyone's Smiles!
-[1/Turn] If you have red cheer on your stage, return 1 holomem with #Advent from your archive to hand. If you have blue cheer on your stage, send 1 cheer from your archive to your holomem with #Advent.",,,,
+[1/Turn] If you have red cheer on your stage, return 1 holomem with #Advent from your archive to hand. If you have blue cheer on your stage, send 1 cheer from your archive to your holomem with #Advent.
+
+[OUR is the same as SEC but without the signatures]",,SEC,,
 hBP08-004,"水宮枢
 (Mizumiya Su)",,Oshi holomem,OSR,Blue,5,,,"Oshi Skill holo Power -1: It Would Be Great If You Just Watched Su
 [1/Turn] Choose your opponent's center holomem. Until the end of your opponent's next turn, the chosen holomem requires +3 colorless for its baton pass.
@@ -34,13 +36,15 @@ hBP08-006,"一伊那尓栖
 If all holomem on your opponent's stage have a different color to their Oshi holomem, the Arts of all of your <Ninomae Ina'nis> may be used without cheer requirements.
 
 Oshi Skill holo Power -X: Colors of Ina'nis
-[1/Turn] For each holo Power archived for this ability, choose 1 holomem on your opponent's stage. During this turn, the chosen holomem are regarded as holomem with all colors.",,,,SEC
+[1/Turn] For each holo Power archived for this ability, choose 1 holomem on your opponent's stage. During this turn, the chosen holomem are regarded as holomem with all colors.",,OUR,,SEC
 hBP08-007,"音乃瀬奏
 (Otonose Kanade)",,Oshi holomem,OSR,Yellow,5,,,"Oshi Skill holo Power -2: Kanade Melody
 [1/Turn] Usable at the end of your turn if your center holomem <Otonose Kanade> used Arts during this turn: Swap your center holomem with 1 of your back holomem with #ReGLOSS.
 
 SP Oshi Skill holo Power -1: Thank You for the Applause!
-[1/Game] Send the top 3 cards of your cheer deck to your center holomem <Otonose Kanade>. At the end of this turn, archive 3 cheers on your stage.",,,,
+[1/Game] Send the top 3 cards of your cheer deck to your center holomem <Otonose Kanade>. At the end of this turn, archive 3 cheers on your stage.
+
+[OUR is the same as SEC but without the signature]",,SEC,,
 hBP08-008,IRyS,,Debut holomem,C,White,130,#EN #Promise #Singing,1,"Collab Effect: Promise of Spring
 If you went second and it is your first turn, choose 1 holomem on your stage with #Promise. During this turn, the chosen holomem gets Arts+30. Then, if there is purple cheer on your stage, draw 1 card.
 
@@ -86,7 +90,7 @@ Deal 30 special damage to your opponent's center holomem. Additionally, if a pur
 Arts: Prismatic Anthem
 Cost: 1 white, 2 any color
 Power: 130+, +50 vs red
-During this turn, all holomem on your stage get Arts+20 for each purple cheer attached to this holomem.",,,,
+During this turn, all holomem on your stage get Arts+20 for each purple cheer attached to this holomem.",,UR,,
 hBP08-015,"ときのそら
 (Tokino Sora)",,Debut holomem,C,White,120,#JP #Gen 0 #Singing,1,"Gift: Can You Beat Me?
 This holomem takes -10 Arts damage from your opponent's holomem.
@@ -186,7 +190,7 @@ Send 1 cheer from your archive to this holomem for each of your resting holomem 
 Arts: Verdant Sturm
 Cost: 1 green, 3 any color
 Power: 200, +50 vs yellow
-Draw 1 card for each of your resting holomem with #Justice. Then, rest this holomem.",,,,
+Draw 1 card for each of your resting holomem with #Justice. Then, rest this holomem.",,UR,,
 hBP08-028,"アキ・ローゼンタール
 (Aki Rosenthal)",,1st holomem,R,Green,170,#JP #Gen 1 #Half-Elf #Alcohol #Summer,1,"Bloom Effect: holonatsu Extra Large Parfait
 Choose 1 of your <Aki Rosenthal> with tool attached. During this turn, the chosen holomem gets Arts+20. If the chosen holomem is a Buzz holomem or 2nd holomem, that holomem gets Arts+50 instead.
@@ -317,9 +321,9 @@ hBP08-044,"小鳥遊キアラ
 During your main phase, if your archive has 10 or more holomem, you may bloom 1 of your holomem using this holomem from your archive. (This ability can only be used while this holomem is in archive)
 
 Arts: Fearless Fire Vogel
-Cost: 2 any color
+Cost: 2 red
 Power: 100, +50 vs purple
-Archive 1~3 cards from the top of your deck.",,,,
+Archive 1~3 cards from the top of your deck.",,UR,,
 hBP08-045,"ハコス・ベールズ
 (Hakos Baelz)",,2nd holomem,R,Red,200,#EN #Promise #Kemomimi,2,"Collab Effect: Looks Like a Bountiful Harvest This Year!
 During this turn, when you roll a die for the ability of your Oshi holomem <Hakos Baelz> or your holomem <Hakos Baelz>, regard all numbers on the die as doubled.
@@ -503,7 +507,7 @@ Power: 130+, +50 vs green
 If your hand has 2 or less cards, this Arts gets +50. If your hand has no cards, this Arts gets +70 instead.",,UR,,
 hBP08-068,"一伊那尓栖
 (Ninomae Ina'nis)",,Debut holomem,C,Purple,140,#EN #Myth #Painting #Sea,1,"Collab Effect: Tako This!
-If you went second and it is your first turn, all of your opponent's holomem are regarded as holomem with all colors.
+If you went second and it is your first turn, during this turn, all of your opponent's holomem are regarded as holomem with all colors.
 
 Arts: Dreamt I Went Outside
 Cost: 1 purple
@@ -621,7 +625,7 @@ If the number of cheers on your stage is less than or equal to your opponent's, 
 Arts: Kanade On Stage
 Cost: 2 yellow, 1 any color
 Power: 120+, +50 vs blue
-If the number of cheers on your stage is more than your opponent's, this Arts gets +20 for each cheer more.",,,,
+If the number of cheers on your stage is more than your opponent's, this Arts gets +20 for each cheer more.",,UR,,
 hBP08-084,"夏色まつり
 (Natsuiro Matsuri)",,1st holomem,R,Yellow,190,#JP #Gen 1 #Shooter,2,"Collab Effect: Elegant Tea Time!
 If your life is 3 or less, during this turn, all holomem with #Gen 1 on your stage get Arts+20.
@@ -780,13 +784,13 @@ hBP01-028,IRyS,,Debut holomem,C,White,100,#EN #Promise #Singing,1,"Arts: HiRyS!
 Cost: 1 any color
 Power: 30
 
-Extra: You may include any number of this holomem in the deck",,,,
+Extra: You may include any number of this holomem in the deck",,HR,,
 hBP02-018,"パヴォリア・レイネ
 (Pavolia Reine)",,Debut holomem,C,Green,100,#ID #ID Gen 2 #Bird #Painting,1,"Arts: Perhatian!
 Cost: 1 any color
 Power: 30
 
-Extra: You may include any number of this holomem in the deck",,,,
+Extra: You may include any number of this holomem in the deck",,HR,,
 hBP04-028,"セシリア・イマーグリーン
 (Cecilia Immergreen)",,Debut holomem,C,Green,100,#EN #Justice #Language,1,"Arts: Melody of Justice
 Cost: 1 any color
@@ -798,7 +802,7 @@ hBP01-056,"鷹嶺ルイ
 Cost: 1 any color
 Power: 30
 
-Extra: You may include any number of this holomem in the deck",,,,
+Extra: You may include any number of this holomem in the deck",,HR,,
 hBP01-062,"小鳥遊キアラ
 (Takanashi Kiara)",,Debut holomem,C,Red,90,#EN #Myth #Bird,1,"Arts: Kikkeriki!
 Cost: 1 any color
@@ -826,13 +830,13 @@ Cost: 1 any color
 Power: 20
 Until the end of your opponent's next turn, 1 of your opponent's center holomem requires +1 colorless for its baton pass.
 
-Extra: You may include any number of this holomem in the deck",,,,
+Extra: You may include any number of this holomem in the deck",,HR,,
 hBP02-061,"一伊那尓栖
 (Ninomae Ina'nis)",,Debut holomem,C,Purple,140,#EN #Myth #Painting #Sea,1,"Arts: WAH!
 Cost: 1 any color
 Power: 10
 
-Extra: You may include any number of this holomem in the deck",,,,
+Extra: You may include any number of this holomem in the deck",,HR,,
 hBP03-080,"音乃瀬奏
 (Otonose Kanade)",,Debut holomem,C,Yellow,130,#DEV_IS #ReGLOSS #Singing,1,"Arts: Do-Re-Mi-Fa-So-La-Si-Do!
 Cost: 1 any color
@@ -842,19 +846,19 @@ Arts: Aspiring Musician, Otonose Kanade~!
 Cost: 3 any color
 Power: 50
 
-Extra: You may include any number of this holomem in the deck",,,,
+Extra: You may include any number of this holomem in the deck",,HR,,
 hSD14-010,holoAN,,Support (Staff),C,,,,,"LIMITED: Only one can be used per turn.
 
 Draw 3 cards.",,,,
-,"白エール
+hY01-013,"白エール
 (White Cheer)",,Cheer,SY,White,,,,[the base version cheer is likely to not be available in BP08 packs],,,,
-,"緑エール
+hY02-011,"緑エール
 (Green Cheer)",,Cheer,SY,Green,,,,[the base version cheer is likely to not be available in BP08 packs],,,,
-,"赤エール
+hY03-015,"赤エール
 (Red Cheer)",,Cheer,SY,Red,,,,[the base version cheer is likely to not be available in BP08 packs],,,,
-,"青エール
+hY04-012,"青エール
 (Blue Cheer)",,Cheer,SY,Blue,,,,[the base version cheer is likely to not be available in BP08 packs],,,,
-,"紫エール
+hY05-010,"紫エール
 (Purple Cheer)",,Cheer,SY,Purple,,,,[the base version cheer is likely to not be available in BP08 packs],,,,
-,"黄エール
+hY06-010,"黄エール
 (Yellow Cheer)",,Cheer,SY,Yellow,,,,[the base version cheer is likely to not be available in BP08 packs],,,,

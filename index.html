@@ -366,6 +366,50 @@
       .topbar-center{display: none;}
       .search-bar{max-width: 100%;}
   }
+ /* ── PREMIUM ALT ART SNAKE BORDER ANIMATION ── */
+  @property --angle {
+      syntax: "<angle>";
+      inherits: false;
+      initial-value: 0deg;
+  }
+
+  .premium-alt-art {
+      position: relative;
+      border: none !important; /* Hides standard border so the snake can take over */
+      /* Adds a soft, permanent ambient glow around the premium card */
+      box-shadow: 0 0 15px rgba(65, 195, 227, 0.4), inset 0 0 10px rgba(127, 255, 212, 0.2);
+  }
+
+  .premium-alt-art::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 8px; /* Perfectly matches your card corners */
+      padding: 2px; /* This determines how thick the snake is! */
+      
+      /* The gradient: Transparent tail -> Cyan body -> White core -> Aquamarine head */
+      background: conic-gradient(
+          from var(--angle), 
+          transparent 50%, 
+          #41C3E3 75%, 
+          #F8FAFC 95%, 
+          #7FFFD4 100%
+      );
+      
+      /* The Mask: Cuts out the center of the gradient so it ONLY draws on the 2px padding */
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      
+      animation: spinSnake 3s linear infinite;
+      pointer-events: none;
+      z-index: 15; /* Keeps the snake visible even when hovering */
+  }
+
+  @keyframes spinSnake {
+      0% { --angle: 0deg; }
+      100% { --angle: 360deg; }
+  }
 </style>
 </head>
 <body>
@@ -452,16 +496,32 @@
             </div>
         </div>
 
-        <div class="filter-chips" id="filter-chips">
-            <button class="chip active" onclick="setChipFilter('', this)">All Cards</button>
-            <button class="chip" onclick="setChipFilter('support', this)">Support</button>
-            <button class="chip" onclick="setChipFilter('PC', this)">PC</button>
-            <button class="chip" onclick="setChipFilter('oshi', this)">Oshi</button>
-            <button class="chip" onclick="setChipFilter('cheer', this)">Cheer</button>
-            <button class="chip" onclick="setChipFilter('#debut', this)">Debut</button>
-            <button class="chip" onclick="setChipFilter('#1st', this)">1st</button>
-            <button class="chip" onclick="setChipFilter('#2nd', this)">2nd</button>
-            <button class="chip" onclick="setChipFilter('#buzz', this)">Buzz</button>
+        <!-- FILTER CHIPS CONTAINERS -->
+        <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px;">
+            
+            <!-- Container 1: Standard Filters -->
+            <div class="filter-chips" style="margin-bottom: 0; padding-bottom: 4px;">
+                <button class="chip active" onclick="setChipFilter('', this)">All Cards</button>
+                <button class="chip" onclick="setChipFilter('support', this)">Support</button>
+                <button class="chip" onclick="setChipFilter('PC', this)">PC</button>
+                <button class="chip" onclick="setChipFilter('oshi', this)">Oshi</button>
+                <button class="chip" onclick="setChipFilter('cheer', this)">Cheer</button>
+                <button class="chip" onclick="setChipFilter('#debut', this)">Debut</button>
+                <button class="chip" onclick="setChipFilter('#1st', this)">1st</button>
+                <button class="chip" onclick="setChipFilter('#2nd', this)">2nd</button>
+                <button class="chip" onclick="setChipFilter('#buzz', this)">Buzz</button>
+            </div>
+
+            <!-- Container 2: High Rarity Filters -->
+            <div class="filter-chips" style="margin-bottom: 0; padding-bottom: 4px;">
+                <span style="font-size: 11px; color: var(--brand-main); font-weight: 800; text-transform: uppercase; margin-right: 4px; letter-spacing: 0.1em; flex-shrink: 0;">Premium:</span>
+                <button class="chip" onclick="setChipFilter('_SR', this)">SR</button>
+                <button class="chip" onclick="setChipFilter('_HR', this)">HR</button>
+                <button class="chip" onclick="setChipFilter('_UR', this)">UR</button>
+                <button class="chip" onclick="setChipFilter('_OUR', this)">OUR</button>
+                <button class="chip" onclick="setChipFilter('_SEC', this)">SEC</button>
+            </div>
+            
         </div>
 
         <div class="card-grid" id="scanned-pool">
@@ -483,13 +543,27 @@
         <button class="btn-close-modal" onclick="closeAboutModal()"><i class="ti ti-x"></i></button>
     </div>
     <div class="about-content">
-        <p><strong>Developed by:</strong> Siuspras</p>
+        <!-- Developer & Version Info -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <p style="margin: 0;"><strong>Developed by:</strong> Siuspras</p>
+            <span style="background: var(--navy-4); color: var(--brand-main); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 800; border: 1px solid var(--border-mid); letter-spacing: 0.05em;">v1.2.7</span>
+        </div>
+        
+        <!-- Contact Info -->
+        <p style="margin-bottom: 16px; line-height: 1.8;">
+            <strong>Contact & Feedback:</strong><br>
+            <i class="ti ti-brand-discord" style="color: #5865F2; font-size: 16px;"></i> Discord: <span style="color: var(--text-bright); font-weight: 600;">Siuspras</span><br>
+            <i class="ti ti-mail" style="color: var(--danger); font-size: 16px;"></i> Email: <a href="mailto:Siusprass@gmail.com" style="display: inline; border: none; margin: 0; font-weight: 600; color: var(--brand-main);">Siusprass@gmail.com</a>
+        </p>
+
+        <!-- Credits -->
         <p><strong>Translations provided by:</strong> ogbajoj<br>
            <a href="https://docs.google.com/spreadsheets/d/1IdaueY-Jw8JXjYLOhA9hUd2w0VRBao9Z1URJwmCWJ64/edit?pli=1&gid=975361685#gid=975361685" target="_blank"><i class="ti ti-external-link"></i> View Translation Sheet</a>
         </p>
         <p><strong>Card Images sourced from:</strong> hololive-official-cardgame<br>
            <a href="https://hololive-official-cardgame.com/" target="_blank"><i class="ti ti-external-link"></i> Visit holocard hololive-official-cardgame</a>
         </p>
+        
         <hr style="border-color: var(--border-dim); margin: 20px 0;">
         
         <!-- VISITOR COUNTER -->
@@ -920,6 +994,10 @@
           
           const { formattedTagsHtml, formattedSkillHtml, formattedArtsHtml } = formatSkillText(card);
           
+          
+          const isAltArt = card.card_id.match(/_(OUR|SEC|UR|HR|SR)$/i);
+          const premiumClass = isAltArt ? 'premium-alt-art' : '';
+
           let btnHtml = isSaved 
               ? `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>` 
               : `<button class="bookmark-btn unsaved" data-card-id="${card.card_id}" onclick='event.stopPropagation(); window.handleAddClick("${card.card_id}")'><i class="ti ti-star"></i></button>`;
@@ -927,7 +1005,7 @@
           let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : '';
 
           htmlBuilder += `
-              <div class="card-item" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)">
+              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)">
                   
                   <div class="card-face ${typeClass} grid-element">
                       <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
@@ -1070,9 +1148,7 @@
       const type = card.card_type || "Type";
       const level = card.bloom_level ? `[${card.bloom_level}] ` : "";
       
-      let btnHtml = isSaved 
-        ? `<button class="bookmark-btn saved" onclick="toggleBookmarkFromSheet('${card.card_id}')"><i class="ti ti-star-filled"></i></button>` 
-        : `<button class="bookmark-btn unsaved" onclick="toggleBookmarkFromSheet('${card.card_id}')"><i class="ti ti-star"></i></button>`;
+      let btnHtml = `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>`;
 
       let hpHtml = card.hp ? `<div class="tl-hp" style="font-size: 22px; color: #FFD700; font-weight: 800; text-align: center; padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--border-dim);">HP: ${card.hp}</div>` : '';
       
@@ -1153,12 +1229,17 @@
           
           const { formattedTagsHtml, formattedSkillHtml, formattedArtsHtml } = formatSkillText(card);
           
-          let btnHtml = `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>`;
+          const isAltArt = card.card_id.match(/_(OUR|SEC|UR|HR|SR)$/i);
+          const premiumClass = isAltArt ? 'premium-alt-art' : '';
+
+          let btnHtml = isSaved 
+              ? `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>` 
+              : `<button class="bookmark-btn unsaved" data-card-id="${card.card_id}" onclick='event.stopPropagation(); window.handleAddClick("${card.card_id}")'><i class="ti ti-star"></i></button>`;
 
           let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : '';
 
           htmlBuilder += `
-              <div class="card-item" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)">
+              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)">
                   
                   <div class="card-face ${typeClass} grid-element">
                       <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />

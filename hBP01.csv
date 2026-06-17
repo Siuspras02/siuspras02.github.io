@@ -900,3 +900,198 @@ Power: 100+, +50 vs Blue
 You may roll a die once:If it is odd, this Arts gets +50. Then, if it is 1, this Arts gets +50.
 
 [only the SR version is available from packs, the RR version is in Starter Deck hSD01 Tokino Sora & AZKi]",,
+hBP01-001_OUR,"天音かなた
+(Amane Kanata)",,Oshi holomem,OSR,White,5,,"Oshi Skill holo Power -3: Squish Squish
+[1/Turn]Set the opponent's center holomem's remaining HP to 50.
+
+SP Oshi Skill holo Power -2: I'll squish you!
+[1/Game]During this turn, 1 of your holomem gets Arts+50. Then, if that holomem's color is white, it gets Arts+50.",,OUR
+hBP01-002_OUR,"七詩ムメイ
+(Nanashi Mumei)",,Oshi holomem,OSR,White,5,,"Oshi Skill holo Power -2: Guardian of Civilization
+[1/Turn]Usable if your holomem with #Promise would take Damage from the opponent during the opponent's turn:1 of those holomem takes -50 Damage.
+
+SP Oshi Skill holo Power -2: Amazing Drawing
+[1/Game]Reveal 1 event from your deck, and add it to hand. Then, shuffle the deck.",,OUR
+hBP01-003_OUR,"アキ・ローゼンタール
+(Aki Rosenthal)",,Oshi holomem,OSR,Green,5,,"Oshi Skill holo Power -2: Survival Power
+[1/Turn]Reveal 1 <Stone Axe> from your deck, and attach it to your green holomem. Then, shuffle the deck.
+
+SP Oshi Skill holo Power -2: Song of the Earth
+[1/Game]Restore all HP of your green center holomem.",,OUR
+hBP01-004_OUR,"兎田ぺこら
+(Usada Pekora)",,Oshi holomem,OSR,Green,6,,"Oshi Skill holo Power -2: Little Wild Rabbits~
+[1/Turn]Usable if your holomem is downed during the opponent's turn:Reattach all green cheers from 1 of your downed holomem divided as you choose to your other holomems.
+
+SP Oshi Skill holo Power -3: Lucky Rabbit
+[1/Game]During this turn, regard all numbers on the faces of your dice as 6.",,OUR
+hBP01-005_OUR,"鷹嶺ルイ
+(Takane Lui)",,Oshi holomem,OSR,Red,5,,"Oshi Skill holo Power -X: Female Commanding Officer
+[1/Turn]Usable if you would archive cards from hand by your red holomem's ability:You may archive 1 of your holo Power instead for each hand card to be archived.
+
+SP Oshi Skill holo Power -2: Hawkeye
+[1/Game]During your opponent's next turn, your opponent's center holomem and collab holomem cannot Baton Pass, move, or swap.",,OUR
+hBP01-006_OUR,"小鳥遊キアラ
+(Takanashi Kiara)",,Oshi holomem,OSR,Red,5,,"Oshi Skill holo Power -2: Phoenix Tail
+[1/Turn]Return 1 holomem from your archive to hand.
+
+SP Oshi Skill holo Power -2: Rise from the Ashes
+[1/Game]Usable if your red holomem is downed during your opponent's turn:You take -1 Life Damage. Then, choose 1 downed card, and return all of the stacked holomem including that holomem to hand.
+
+[there is also a SEC version available, which is a signed version of the OUR]",,OUR
+hBP01-007_OUR,"星街すいせい
+(Hoshimachi Suisei)",,Oshi holomem,OSR,Blue,5,,"Oshi Skill holo Power -2: Comet
+[1/Turn]Usable when this Oshi holomem or your blue holomem deals Damage to your opponent's back holomem:Deal 50 Special Damage to that back holomem.
+
+SP Oshi Skill holo Power -2: Shooting Star
+[1/Game]Usable when your blue holomem deals Damage to your opponent's center holomem or collab holomem:Deal the same amount of Special Damage to 1 of your opponent's back holomem.
+
+[there is also a SEC version available, which is a signed version of the OUR]",,OUR
+hBP01-008_OUR,"こぼ・かなえる
+(Kobo Kanaeru)",,Oshi holomem,OSR,Blue,6,,"Oshi Skill holo Power -1: Rain Shamanism
+[1/Turn]Usable when your blue holomem's ability archives a cheer:Deal 20 Special Damage to 1 of your opponent's holomem.
+
+SP Oshi Skill holo Power -3: Rainmaking
+[1/Game]Send 1~5 cheers from your archive divided as you choose to your holomems with #ID.",,OUR
+hBP01-006_SEC,"小鳥遊キアラ
+(Takanashi Kiara)",,Oshi holomem,OSR,Red,5,,"Oshi Skill holo Power -2: Phoenix Tail
+[1/Turn]Return 1 holomem from your archive to hand.
+
+SP Oshi Skill holo Power -2: Rise from the Ashes
+[1/Game]Usable if your red holomem is downed during your opponent's turn:You take -1 Life Damage. Then, choose 1 downed card, and return all of the stacked holomem including that holomem to hand.
+
+[there is also a SEC version available, which is a signed version of the OUR]",,OUR
+hBP01-007_SEC,"星街すいせい
+(Hoshimachi Suisei)",,Oshi holomem,OSR,Blue,5,,"Oshi Skill holo Power -2: Comet
+[1/Turn]Usable when this Oshi holomem or your blue holomem deals Damage to your opponent's back holomem:Deal 50 Special Damage to that back holomem.
+
+SP Oshi Skill holo Power -2: Shooting Star
+[1/Game]Usable when your blue holomem deals Damage to your opponent's center holomem or collab holomem:Deal the same amount of Special Damage to 1 of your opponent's back holomem.
+
+[there is also a SEC version available, which is a signed version of the OUR]",,OUR
+hBP01-014_UR,"天音かなた
+(Amane Kanata)",,2nd holomem,RR,White,200,#JP #Gen 4 #Singing,"Collab Effect: Fallen Angel
+Deal 50 Special Damage to your opponent's center holomem.
+
+Arts: Wings Darker than Black
+Cost: 3 white
+Power: 100, +50 vs red
+If your opponent's holomem is downed by this Arts, and the dealt Damage was greater than the remaining HP by 50 or more, your opponent gets Life-1.",,UR
+Hbp01-023_ur,"ときのそら
+(Tokino Sora)",,2nd holomem,RR,White,210,#JP #Gen 0 #Singing,"Collab Effect: We Only Move Forward…!
+Draw 2 cards from your deck.
+
+Arts: Not gonna stop
+Cost: 2 white, 1 any color
+Power: 80, +50 vs red
+You may roll a die once:If it is odd, use this Arts once more on the same holomem (This Arts may be repeated until that holomem is downed).",,UR
+hBP01-027_UR,"ベスティア・ゼータ
+(Vestia Zeta)",,1st Buzz holomem,RR,White,200,#ID #ID Gen 3,"Gift: V.7
+[1/Turn][Collab position only]If your holomem would take Damage from your opponent, you may roll a die once:If it is odd, that Damage is not taken.
+
+Arts: Access Code: ID
+Cost: 1 white, 2 any color
+Power: 70+
+If your center holomem has #ID, this Arts gets +50.
+
+Extra: If this holomem is downed, you get Life-2",,UR
+hBP01-043_UR,"兎田ぺこら
+(Usada Pekora)",,2nd holomem,RR,Green,200,#JP #Gen 3 #Kemomimi,"Bloom Effect: Princess Dress
+Restore 50 HP to this holomem.
+
+Arts: Operation: Bunnify Humanity
+Cost: 3 green, 1 any color
+Power: 60+, +50 vs blue
+You may roll a die 3 times:This Arts gets +10x the total number rolled.",,UR
+hBP01-047_UR,AZKi,,2nd holomem,RR,Green,220,#JP #Gen 0 #Singing,"Bloom Effect: The Path Life has Taken
+Restore 40 HP to this holomem. You may roll a die once:If it is odd, you may send 1~3 green cheers from your archive to this holomem.
+
+Arts: A New Map
+Cost: 3 green, 1 any color
+Power: 120, +50 vs white",,UR
+hBP01-051_UR,"風真いろは
+(Kazama Iroha)",,1st Buzz holomem,RR,Green,250,#JP #holoX,"Arts: A Bundle of Cheers
+Cost: 1 green, 1 any color
+Power: 50+
+[Collab position only]This Arts gets +20 for each of this holomem's cheer. However, only up to 5 cheers are counted.
+
+Arts: Radiance of the Windflower
+Cost: 1 green, 2 any color
+Power: 70
+
+Extra: If this holomem is downed, you get Life-2",,UR
+hBP01-067_UR,"小鳥遊キアラ
+(Takanashi Kiara)",,2nd holomem,RR,Red,200,#EN #Myth #Bird,"Arts: Guidance of the Flame
+Cost: 2 red
+Power: 70, +50 vs Green
+
+Arts: Majestic Phoenix
+Cost: 3 red
+Power: 80+, +50 vs green
+This Arts gets +10 for each holomem in your archive. Then, return 6 holomem from your archive to deck and shuffle it.",,UR
+hBP01-071_UR,"尾丸ポルカ
+(Omaru Polka)",,1st Buzz holomem,RR,Red,240,#JP #Gen 5 #Kemomimi,"Bloom Effect: Polka Illusion
+You may return 1 <Troupe Member> from your archive to hand.
+
+Arts: Polka Circus
+Cost: 1 red, 1 any color
+Power: 50+
+This Arts gets +20 for each fan attached to all of your holomem.
+
+Extra: If this holomem is downed, you get Life-2",,UR
+hBP01-081_UR,"星街すいせい
+(Hoshimachi Suisei)",,2nd holomem,RR,Blue,210,#JP #Gen 0 #Singing,"Collab Effect: The Light that Sparks Across the Sky
+Send the top card of your cheer deck to your blue holomem.
+
+Arts: Shining Comet
+Cost: 3 blue, 1 any color
+Power: 60+, +50 vs red
+You may archive 2 blue cheers from this holomem:This Arts gets +60 for each holomem that is stacked to this holomem (This Arts can target your opponent's back holomem too).",,UR
+hBP01-091_UR,"ムーナ・ホシノヴァ
+(Moona Hoshinova)",,1st Buzz holomem,RR,Blue,240,#ID #ID Gen 1 #Singing,"Arts: The Moon is for the Night.
+Cost: 2 any color
+Power: 50
+
+Arts: Moon Night Diva
+Cost: 1 blue, 2 any color
+Power: 80
+You may archive 1 [green cheer or blue cheer] from this holomem:Deal 30 Special Damage to 1 of your opponent's back holomem.
+
+Extra: If this holomem is downed, you get Life-2",,UR
+hBP01-032_HR,"アキ・ローゼンタール
+(Aki Rosenthal)",,Debut holomem,C,Green,100,#JP #Gen 1 #Half-Elf #Alcohol,"Arts: Alo~na!
+Cost: 1 any color
+Power: 30
+
+Extra: You may include any number of this holomem in the deck",,
+hBP01-048_HR,"風真いろは
+(Kazama Iroha)",,Debut holomem,C,Green,120,#JP #holoX,"Arts: Hear ye, it is I, Kazama Iroha!
+Cost: 1 any color
+Power: 20
+
+Extra: You may include any number of this holomem in the deck",,
+hBP01-068_HR,"尾丸ポルカ
+(Omaru Polka)",,Debut holomem,C,Red,70,#JP #Gen 5 #Kemomimi,"Arts: Is Polka on the Dot? Yes She is!
+Cost: 1 any color
+Power: 20
+
+Extra: You may include any number of this holomem in the deck",,
+hBP01-076_HR,"星街すいせい
+(Hoshimachi Suisei)",,Debut holomem,C,Blue,90,#JP #Gen 0 #Singing,"Arts: The Unpolished Star
+Cost: 1 any color
+Power: 20
+Deal 10 Special Damage to 1 of your opponent's back holomem. However, your opponent's Life does not reduce even if downed.
+
+Extra: You may include any number of this holomem in the deck",,
+hBP01-041_SR,"兎田ぺこら
+(Usada Pekora)",,1st holomem,U,Green,90,#JP #Gen 3 #Kemomimi,"Bloom Effect: Usada Pekora has Improved
+Send the top card of your cheer deck to your center holomem or collab holomem.
+
+Arts: Don't you dare miss it, Peko!
+Cost: 1 any color
+Power: 30",,
+hBP01-048_HR,"風真いろは
+(Kazama Iroha)",,Debut holomem,C,Green,120,#JP #holoX,"Arts: Hear ye, it is I, Kazama Iroha!
+Cost: 1 any color
+Power: 20
+
+Extra: You may include any number of this holomem in the deck",,

@@ -276,20 +276,35 @@
         <button class="btn-close-modal" onclick="closeAboutModal()"><i class="ti ti-x"></i></button>
     </div>
     <div class="about-content">
-        <p><strong>Developed by:</strong> Siuspras</p>
+        <!-- Developer & Version Info -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <p style="margin: 0;"><strong>Developed by:</strong> Siuspras</p>
+            <span style="background: var(--navy-4); color: var(--brand-main); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 800; border: 1px solid var(--border-mid); letter-spacing: 0.05em;">v1.2.7</span>
+        </div>
+        
+        <!-- Contact Info -->
+        <p style="margin-bottom: 16px; line-height: 1.8;">
+            <strong>Contact & Feedback:</strong><br>
+            <i class="ti ti-brand-discord" style="color: #5865F2; font-size: 16px;"></i> Discord: <span style="color: var(--text-bright); font-weight: 600;">Siuspras</span><br>
+            <i class="ti ti-mail" style="color: var(--danger); font-size: 16px;"></i> Email: <a href="mailto:Siusprass@gmail.com" style="display: inline; border: none; margin: 0; font-weight: 600; color: var(--brand-main);">Siusprass@gmail.com</a>
+        </p>
+
+        <!-- Credits -->
         <p><strong>Translations provided by:</strong> ogbajoj<br>
            <a href="https://docs.google.com/spreadsheets/d/1IdaueY-Jw8JXjYLOhA9hUd2w0VRBao9Z1URJwmCWJ64/edit?pli=1&gid=975361685#gid=975361685" target="_blank"><i class="ti ti-external-link"></i> View Translation Sheet</a>
         </p>
         <p><strong>Card Images sourced from:</strong> hololive-official-cardgame<br>
-           <a href="https://hololive-official-cardgame.com/" target="_blank"><i class="ti ti-external-link"></i> Visit hololive-official-cardgame</a>
+           <a href="https://hololive-official-cardgame.com/" target="_blank"><i class="ti ti-external-link"></i> Visit holocard hololive-official-cardgame</a>
         </p>
+        
+        <hr style="border-color: var(--border-dim); margin: 20px 0;">
         
         <!-- VISITOR COUNTER -->
         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; background: rgba(0,0,0,0.2); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-dim);">
             <span style="font-weight: 700; color: var(--text-mid); font-size: 14px;">Total Visitors</span>
             <span id="visitor-count" style="font-weight: 800; color: var(--brand-main); font-size: 16px; background: var(--navy-4); padding: 2px 8px; border-radius: 4px; border: 0.5px solid var(--border-mid);">...</span>
         </div>
-
+        
         <hr style="border-color: var(--border-dim); margin: 20px 0;">
         <p style="font-size: 12px; color: var(--text-dim); margin: 0; line-height: 1.4;">
             This is an unofficial fan-made application. Not affiliated with or endorsed by COVER Corp. or Hololive Production. All intellectual property belongs to their respective owners.

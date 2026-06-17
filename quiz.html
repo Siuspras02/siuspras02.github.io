@@ -366,7 +366,7 @@
 
         if (mode === 'visual') {
             const setPrefix = correctCard.card_id.split('-')[0];
-            const imagePath = `images/${setPrefix}/${correctCard.card_id}.jpg`;
+            const imagePath = `images/${setPrefix}/${correctCard.card_id}.webp`;
             displayArea.innerHTML = `<img id="quiz-art" src="${imagePath}" class="quiz-image silhouette-mode" onerror="this.src=''; this.alt='Image not found'; this.classList.remove('silhouette-mode');" />`;
         } else {
             let hiddenText = correctCard.skills_text;

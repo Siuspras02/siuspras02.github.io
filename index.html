@@ -916,7 +916,7 @@
           const typeClass = getTypeClass(card.card_type);
           const iconClass = getIconClass(card.card_type);
           const setPrefix = card.card_id.split('-')[0];
-          const imagePath = card.thumbnail ? card.thumbnail : `images/${setPrefix}/${card.card_id}.jpg`;
+          const imagePath = card.thumbnail ? card.thumbnail : `images/${setPrefix}/${card.card_id}.webp`;
           
           const { formattedTagsHtml, formattedSkillHtml, formattedArtsHtml } = formatSkillText(card);
           
@@ -1077,7 +1077,7 @@
       let hpHtml = card.hp ? `<div class="tl-hp" style="font-size: 22px; color: #FFD700; font-weight: 800; text-align: center; padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--border-dim);">HP: ${card.hp}</div>` : '';
       
       const setPrefix = card.card_id.split('-')[0];
-      const imagePath = card.thumbnail ? card.thumbnail : `images/${setPrefix}/${card.card_id}.jpg`;
+      const imagePath = card.thumbnail ? card.thumbnail : `images/${setPrefix}/${card.card_id}.webp`;
       
       document.getElementById("sheet-content").innerHTML = `
           <div style="display: flex; gap: 16px; margin-bottom: 20px;">
@@ -1149,7 +1149,7 @@
           const typeClass = getTypeClass(card.card_type);
           const iconClass = getIconClass(card.card_type);
           const setPrefix = card.card_id.split('-')[0];
-          const imagePath = card.thumbnail ? card.thumbnail : `images/${setPrefix}/${card.card_id}.jpg`;
+          const imagePath = card.thumbnail ? card.thumbnail : `images/${setPrefix}/${card.card_id}.webp`;
           
           const { formattedTagsHtml, formattedSkillHtml, formattedArtsHtml } = formatSkillText(card);
           

@@ -158,7 +158,7 @@
     display: grid; 
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
     gap: 16px;
-    grid-auto-rows: max-content; gap: 16px; padding-bottom: 20px; flex: 1; overflow-y: auto; min-height: 0; align-content: start; padding-right: 8px; padding-top: 8px;
+    grid-auto-rows: max-content; gap: 16px; flex: 1; overflow-y: auto; min-height: 0; align-content: start; padding-top:20px; padding-bottom:20px;
   }
   
   .card-grid::-webkit-scrollbar { width: 6px; }
@@ -172,7 +172,7 @@
     background: var(--navy-3); cursor: pointer; overflow: hidden;
     display: flex; flex-direction: column; 
     min-height: 280px; 
-    
+    margin-top: 5px;
     opacity: 0;
     transform: translateY(16px);
     transition: border-color 0.15s, box-shadow 0.15s, opacity 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -348,7 +348,7 @@
       
       .card-grid { 
           grid-template-columns: repeat(2, 1fr) !important; 
-          gap: 12px; padding: 4px 0; overflow: visible; height: auto; padding-bottom: 60px;
+          gap: 12px; padding: 4px 0; overflow: visible; height: auto; padding-bottom: 60px; padding-top: 40px;
       }
       .card-item { min-height: 220px; } 
       
@@ -459,10 +459,11 @@
                 <span>Cheer: <span id="count-cheer" style="color: var(--holo-rose);">0</span>/20</span>
             </div>
             
-            <div style="display: flex; gap: 8px; margin-top: 12px;">
-                <button class="btn-action" style="flex: 1; justify-content: center;" onclick="saveCustomDeck()"><i class="ti ti-device-floppy"></i> Save</button>
-                <button class="btn-action" style="flex: 1; justify-content: center;" onclick="exportCustomDeck()"><i class="ti ti-share"></i> Export</button>
-                <button class="btn-action" style="flex: 1; justify-content: center; background: var(--brand-main); color: var(--navy);" onclick="openVisualDeck()"><i class="ti ti-eye"></i> Visual</button>
+            <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+                <button class="btn-action" style="flex: 1; min-width: 80px; justify-content: center;" onclick="saveCustomDeck()"><i class="ti ti-device-floppy"></i> Save</button>
+                <button class="btn-action" style="flex: 1; min-width: 80px; justify-content: center;" onclick="window.importCustomDeck()"><i class="ti ti-download"></i> Import</button>
+                <button class="btn-action" style="flex: 1; min-width: 80px; justify-content: center;" onclick="exportCustomDeck()"><i class="ti ti-share"></i> Export</button>
+                <button class="btn-action" style="flex: 1; min-width: 80px; justify-content: center; background: var(--brand-main); color: var(--navy);" onclick="openVisualDeck()"><i class="ti ti-eye"></i> Visual</button>
             </div>
         </div>
 
@@ -551,7 +552,7 @@
 
 <!-- VISITOR COUNTER -->
        <div id="about-overlay" class="about-overlay" onclick="closeAboutModal()"></div>
-<div id="about-modal" class="about-modal">
+    <div id="about-modal" class="about-modal">
     <div class="about-header">
         <h3>About hOCG DB</h3>
         <button class="btn-close-modal" onclick="closeAboutModal()"><i class="ti ti-x"></i></button>
@@ -608,6 +609,26 @@
     <div class="sheet-content" id="sheet-content">
     </div>
 </div>
+
+<div id="visual-deck-overlay" class="about-overlay" onclick="closeVisualDeck()"></div>
+<div id="visual-deck-modal" class="about-modal" style="width: 95%; max-width: 1400px; height: 90vh; display: flex; flex-direction: column;">
+    <div class="about-header">
+        <h3 id="visual-deck-title">Deck Visualizer</h3>
+        <button class="btn-close-modal" onclick="closeVisualDeck()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="about-content" style="flex: 1; overflow-y: auto; padding: 20px; background: var(--navy);">
+        <div class="card-grid" id="visual-deck-grid" style="padding: 0;"></div>
+    </div>
+</div>
+
+<div id="sheet-overlay" class="sheet-overlay" onclick="closeBottomSheet()"></div>
+<div id="mobile-bottom-sheet" class="bottom-sheet">
+    <div class="sheet-drag-area" id="sheet-drag-area">
+        <div class="sheet-handle"></div>
+    </div>
+    <div class="sheet-content" id="sheet-content">
+    </div>
+</div>
         
         <hr style="border-color: var(--border-dim); margin: 20px 0;">
         <p style="font-size: 12px; color: var(--text-dim); margin: 0; line-height: 1.4;">
@@ -616,12 +637,19 @@
     </div>
 </div>
 
+
 <!-- VISUAL DECK MODAL -->
 <div id="visual-deck-overlay" class="about-overlay" onclick="closeVisualDeck()"></div>
 <div id="visual-deck-modal" class="about-modal" style="width: 95%; max-width: 1400px; height: 90vh; display: flex; flex-direction: column;">
-    <div class="about-header">
-        <h3 id="visual-deck-title">Deck Visualizer</h3>
-        <button class="btn-close-modal" onclick="closeVisualDeck()"><i class="ti ti-x"></i></button>
+    <div class="about-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;">
+        <h3 id="visual-deck-title" style="margin: 0;">Deck Visualizer</h3>
+        
+        <!-- Deck Code Container in the top right -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="text" id="visual-deck-code" readonly style="width: 200px; background: var(--navy); border: 1px solid var(--border-dim); color: var(--brand-main); font-family: monospace; font-size: 12px; padding: 6px; border-radius: 4px; text-align: center;" />
+            <button class="btn-action" style="padding: 4px 10px; font-size: 12px; margin: 0;" onclick="window.copyVisualDeckCode()"><i class="ti ti-copy"></i> Copy</button>
+            <button class="btn-close-modal" onclick="closeVisualDeck()" style="margin-left: 10px;"><i class="ti ti-x"></i></button>
+        </div>
     </div>
     <div class="about-content" style="flex: 1; overflow-y: auto; padding: 20px; background: var(--navy);">
         <div class="card-grid" id="visual-deck-grid" style="padding: 0;"></div>
@@ -636,8 +664,6 @@
     </div>
     <div class="sheet-content" id="sheet-content">
     </div>
-  </div>
-  </div>
 </div>
 
 <div id="sheet-overlay" class="sheet-overlay" onclick="closeBottomSheet()"></div>
@@ -817,6 +843,9 @@
       sortPool();
       document.getElementById("search-db-input").value = "";
       renderCardPool("");
+      
+      loadSavedDeck();
+      renderDecklist();
   }
 
   function sortPool() {
@@ -1213,7 +1242,6 @@
               <div style="flex: 1;">
                   <div class="tl-header" style="margin-bottom: 8px; justify-content: flex-start; gap: 12px;">
                       <span class="tl-type badge ${typeClass}">${type.toUpperCase()}</span>
-                      ${btnHtml}
                   </div>
                   <div class="tl-title" style="font-size: 18px; color: var(--text-bright); font-weight: 800; line-height: 1.2;">${level}${card.card_name}</div>
                   <div style="font-size: 13px; color: var(--text-mid); margin-top: 6px; font-weight: 600;">${card.card_id}</div>
@@ -1291,7 +1319,7 @@
           let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : '';
 
           htmlBuilder += `
-              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)">
+              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="addCardToDeck('${card.card_id}')">
                   
                   <div class="card-face ${typeClass} grid-element">
                       <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
@@ -1308,7 +1336,6 @@
                   <div class="translation-overlay grid-element">
                       <div class="tl-header">
                           <span class="tl-type badge ${typeClass}">${type.toUpperCase()}</span>
-                          ${btnHtml}
                       </div>
                       <div class="tl-title">${level}${card.card_name}</div>
                       <div class="tl-scroll-area">
@@ -1328,7 +1355,6 @@
                           <div class="list-sub">${type.toUpperCase()} • ${card.card_id}</div>
                       </div>
                       <div class="list-actions">
-                          ${btnHtml}
                           <i class="ti ti-plus accordion-icon"></i>
                       </div>
                   </div>
@@ -1570,6 +1596,68 @@
       alert("Deck saved successfully!");
   };
 
+  // 👉 NEW: Converts the deck into a Base64 encoded string
+  window.generateDeckCode = function() {
+      let oshiStr = currentDeck.oshi ? currentDeck.oshi.card_id : "";
+      
+      let mainArr = [];
+      for (let id in currentDeck.main) mainArr.push(`${id}:${currentDeck.main[id]}`);
+      
+      let cheerArr = [];
+      for (let id in currentDeck.cheer) cheerArr.push(`${id}:${currentDeck.cheer[id]}`);
+      
+      // Creates a compact string: OSHI_ID|MAIN_ID:QTY,MAIN_ID:QTY|CHEER_ID:QTY
+      let rawString = `${oshiStr}|${mainArr.join(",")}|${cheerArr.join(",")}`;
+      
+      // btoa() converts standard text into a Base64 string
+      return btoa(rawString); 
+  };
+
+  // 👉 NEW: Prompts the user for a code, decodes it, and builds the deck
+  window.importCustomDeck = function() {
+      let code = prompt("Paste your Deck Code here:");
+      if (!code) return; // User cancelled
+      
+      try {
+          // atob() decodes the Base64 string back into standard text
+          let decoded = atob(code.trim());
+          let parts = decoded.split("|");
+          if (parts.length !== 3) throw new Error("Invalid format");
+          
+          let newDeck = { oshi: null, main: {}, cheer: {} };
+          
+          // 1. Decode Oshi
+          if (parts[0]) {
+              let oshiCard = masterCardPool.find(c => c.card_id === parts[0]);
+              if (oshiCard) newDeck.oshi = oshiCard;
+          }
+          
+          // 2. Decode Main Deck
+          if (parts[1]) {
+              parts[1].split(",").forEach(pair => {
+                  let [id, qty] = pair.split(":");
+                  if (id && qty) newDeck.main[id] = parseInt(qty);
+              });
+          }
+          
+          // 3. Decode Cheer Deck
+          if (parts[2]) {
+              parts[2].split(",").forEach(pair => {
+                  let [id, qty] = pair.split(":");
+                  if (id && qty) newDeck.cheer[id] = parseInt(qty);
+              });
+          }
+          
+          currentDeck = newDeck;
+          renderDecklist();
+          alert("Deck imported successfully!");
+          
+      } catch (e) {
+          alert("Invalid deck code! Please check the code and try again.");
+      }
+  };
+
+  // 👉 UPDATED: Now appends the Deck Code to the bottom of your exported text
   window.exportCustomDeck = function() {
       const deckName = document.getElementById("deck-name").value || "Untitled Deck";
       let exportStr = `Deck: ${deckName}\n\n`;
@@ -1581,33 +1669,31 @@
       exportStr += `[MAIN DECK]\n`;
       for (let cardId in currentDeck.main) {
           let card = masterCardPool.find(c => c.card_id === cardId);
-          if (card) {
-              exportStr += `${currentDeck.main[cardId]}x ${card.card_id} - ${card.card_name}\n`;
-          }
+          if (card) exportStr += `${currentDeck.main[cardId]}x ${card.card_id} - ${card.card_name}\n`;
       }
 
       exportStr += `\n[CHEER DECK]\n`;
       for (let cardId in currentDeck.cheer) {
           let card = masterCardPool.find(c => c.card_id === cardId);
-          if (card) {
-              exportStr += `${currentDeck.cheer[cardId]}x ${card.card_id} - ${card.card_name}\n`;
-          }
+          if (card) exportStr += `${currentDeck.cheer[cardId]}x ${card.card_id} - ${card.card_name}\n`;
       }
 
       if (Object.keys(currentDeck.main).length === 0 && Object.keys(currentDeck.cheer).length === 0 && !currentDeck.oshi) {
           return alert("Your deck is empty! Add some cards before exporting.");
       }
 
-      navigator.clipboard.writeText(exportStr.trim()).then(() => alert("Decklist copied to clipboard!"));
+      // Attaches the generated code right at the bottom!
+      exportStr += `\nDeck Code:\n${generateDeckCode()}\n`;
+
+      navigator.clipboard.writeText(exportStr.trim()).then(() => alert("Decklist & Code copied to clipboard!"));
   };
 
   // ── FULL SCREEN VISUAL DECK LOGIC ──
-  window.openVisualDeck = function() {
+ window.openVisualDeck = function() {
       const grid = document.getElementById("visual-deck-grid");
-      if (!grid) return alert("Visual deck modal HTML is missing!");
-
       const deckTitle = document.getElementById("deck-name").value || "Untitled Deck";
       document.getElementById("visual-deck-title").innerText = deckTitle + " (Visual View)";
+      document.getElementById("visual-deck-code").value = generateDeckCode();
       
       grid.innerHTML = "";
       let htmlBuilder = "";
@@ -1683,6 +1769,27 @@
   window.closeVisualDeck = function() {
       document.getElementById("visual-deck-modal").classList.remove("open");
       document.getElementById("visual-deck-overlay").classList.remove("open");
+  };
+  // 👉 NEW: Copies the code directly from the visual modal
+  window.copyVisualDeckCode = function() {
+      const codeInput = document.getElementById("visual-deck-code");
+      if (!codeInput.value) return alert("Deck code is empty!");
+      
+      navigator.clipboard.writeText(codeInput.value).then(() => {
+          alert("Deck Code copied to clipboard!");
+      });
+  };
+  window.loadSavedDeck = function() {
+      const savedData = localStorage.getItem('hocg_deckbuilder_save');
+      if (savedData) {
+          try {
+              const parsed = JSON.parse(savedData);
+              document.getElementById("deck-name").value = parsed.name || "";
+              currentDeck = parsed.deck;
+          } catch (e) {
+              console.error("Failed to load saved deck");
+          }
+      }
   };
 </script>
 <script data-goatcounter="https://swifterstar02.goatcounter.com/count"

@@ -88,7 +88,7 @@
   .btn-about-header i { font-size: 16px; color: var(--brand-main); }
 
   /* ── BODY LAYOUT ── */
-  .body-wrapper { display: flex; justify-content: center; width: 100%; overflow: hidden; height: calc(100vh - 72px); }
+  .body-wrapper { display: flex; justify-content: center; width: 100%; overflow: hidden; height: calc(100vh - 72px); position: relative; z-index: 10; }
   .main-panel { 
     display: grid; grid-template-columns: 2fr 3fr; gap: 1.5rem; flex: 1; max-width: 1600px; padding: 20px; height: 100%;
   }
@@ -410,10 +410,70 @@
       0% { --angle: 0deg; }
       100% { --angle: 360deg; }
   }
+  /* ── DYNAMIC HOLO-CYBER BACKGROUND ── */
+  .holo-bg-container {
+      position: fixed; inset: 0; z-index: 0; /* Fixed the layer bug! */
+      pointer-events: none; overflow: hidden; 
+  }
+  
+  /* 1. The subtle tech grid - Brightness increased! */
+  .holo-bg-grid {
+      position: absolute; inset: 0;
+      background-image: 
+          linear-gradient(rgba(65, 195, 227, 0.15) 1px, transparent 1px), 
+          linear-gradient(90deg, rgba(65, 195, 227, 0.15) 1px, transparent 1px);
+      background-size: 40px 40px;
+      -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+      mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+  }
+
+  /* 2. The official Hololive-style diagonal slash */
+  .holo-bg-slash {
+      position: absolute; inset: -50%;
+      background: linear-gradient(135deg, 
+          transparent 48%, 
+          rgba(255, 255, 255, 0.03) 48%, 
+          rgba(255, 255, 255, 0.03) 52%, 
+          transparent 52%);
+  }
+
+  /* 3. The floating ambient glow orbs - Brightness increased! */
+  .holo-bg-glow {
+      position: absolute; border-radius: 50%; 
+      filter: blur(80px); opacity: 0.6; 
+  }
+  .glow-cyan {
+      width: 70vw; height: 70vw; 
+      max-width: 600px; max-height: 600px;
+      top: -10%; left: -10%;
+      background: radial-gradient(circle, var(--brand-main) 0%, transparent 60%);
+      animation: floatCyan 22s infinite alternate ease-in-out;
+  }
+  .glow-pink {
+      width: 60vw; height: 60vw; 
+      max-width: 500px; max-height: 500px;
+      bottom: -10%; right: -10%;
+      background: radial-gradient(circle, var(--brand-pink) 0%, transparent 60%);
+      animation: floatPink 28s infinite alternate ease-in-out;
+  }
+
+  @keyframes floatCyan { 
+      0% { transform: translate(0,0); } 
+      100% { transform: translate(8vw, 8vh); } 
+  }
+  @keyframes floatPink { 
+      0% { transform: translate(0,0); } 
+      100% { transform: translate(-8vw, -8vh); } 
+  }
 </style>
 </head>
 <body>
-
+  <div class="holo-bg-container">
+      <div class="holo-bg-grid"></div>
+      <div class="holo-bg-slash"></div>
+      <div class="holo-bg-glow glow-cyan"></div>
+      <div class="holo-bg-glow glow-pink"></div>
+  </div>
   <header class="topbar">
     <div class="topbar-left">
       <div class="logo">Hololive OCG <span>DB</span></div>

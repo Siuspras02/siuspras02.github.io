@@ -39,7 +39,7 @@
     --radius: 12px;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; background: var(--navy); color: var(--text-bright); font-family: 'nunito', sans-serif; overflow: hidden; }
+  html, body { height: 100%; background: var(--navy); color: var(--text-bright); font-family: 'nunito', sans-serif; overflow: hidden; position: relative;z-index: 10;}
 
   /* ── UNIFIED TOPBAR ── */
   .topbar {
@@ -81,7 +81,7 @@
   .search-bar input::placeholder { color: var(--text-dim); }
 
   /* ── SIMPLE LIBRARY LAYOUT ── */
-  .body-wrapper { display: flex; justify-content: center; width: 100%; height: calc(100vh - 72px); overflow: hidden; padding: 1rem; }
+  .body-wrapper { display: flex; justify-content: center; width: 100%; height: calc(100vh - 72px); overflow: hidden; padding: 1rem; z-index: 10; position: relative;}
   .main-wrapper { display: grid; grid-template-columns: 320px 1fr 1fr; gap: 1.5rem; flex: 1; min-height: 0; max-width: 1600px; width: 100%; }
 
   .panel { background-color: var(--navy-3); border: 1px solid var(--border-dim); border-radius: var(--radius); padding: 1.25rem; box-shadow: 0 8px 16px rgba(0,0,0,0.2); display: flex; flex-direction: column; height: 100%; min-height: 0; }
@@ -204,10 +204,71 @@
   @media (max-width: 768px) {
       .topbar-right { display: flex !important; justify-content: center; width: 100%; order: 4; margin-top: 8px; }
   }
+  /* ── DYNAMIC HOLO-CYBER BACKGROUND ── */
+  .holo-bg-container {
+      position: fixed; inset: 0; z-index: -10; 
+      pointer-events: none; overflow: hidden; 
+      background: var(--navy);
+  }
+  
+  /* 1. The subtle tech grid faded at the edges */
+  .holo-bg-grid {
+      position: absolute; inset: 0;
+      background-image: 
+          linear-gradient(rgba(65, 195, 227, 0.04) 1px, transparent 1px), 
+          linear-gradient(90deg, rgba(65, 195, 227, 0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 100%);
+      mask-image: radial-gradient(circle at center, black 30%, transparent 100%);
+  }
+
+  /* 2. The official Hololive-style diagonal slash */
+  .holo-bg-slash {
+      position: absolute; inset: -50%;
+      background: linear-gradient(135deg, 
+          transparent 48%, 
+          rgba(255, 255, 255, 0.015) 48%, 
+          rgba(255, 255, 255, 0.015) 52%, 
+          transparent 52%);
+  }
+
+  /* 3. The floating ambient glow orbs */
+  .holo-bg-glow {
+      position: absolute; border-radius: 50%; 
+      filter: blur(80px); opacity: 0.4;
+  }
+  .glow-cyan {
+      width: 70vw; height: 70vw; 
+      max-width: 600px; max-height: 600px;
+      top: -10%; left: -10%;
+      background: radial-gradient(circle, var(--brand-main) 0%, transparent 70%);
+      animation: floatCyan 22s infinite alternate ease-in-out;
+  }
+  .glow-pink {
+      width: 60vw; height: 60vw; 
+      max-width: 500px; max-height: 500px;
+      bottom: -10%; right: -10%;
+      background: radial-gradient(circle, var(--brand-pink) 0%, transparent 70%);
+      animation: floatPink 28s infinite alternate ease-in-out;
+  }
+
+  @keyframes floatCyan { 
+      0% { transform: translate(0,0); } 
+      100% { transform: translate(8vw, 8vh); } 
+  }
+  @keyframes floatPink { 
+      0% { transform: translate(0,0); } 
+      100% { transform: translate(-8vw, -8vh); } 
+  }
 </style>
 </head>
 <body>
-
+  <div class="holo-bg-container">
+      <div class="holo-bg-grid"></div>
+      <div class="holo-bg-slash"></div>
+      <div class="holo-bg-glow glow-cyan"></div>
+      <div class="holo-bg-glow glow-pink"></div>
+  </div>
   <header class="topbar">
     <div class="topbar-left">
       <div class="logo">Hololive OCG <span>DB</span></div>

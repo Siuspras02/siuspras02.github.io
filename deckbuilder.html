@@ -418,10 +418,10 @@
     <div class="topbar-left">
       <div class="logo">Hololive OCG <span>DB</span></div>
       <nav class="tabs">
-        <a href="index.html" class="tab active">
+        <a href="index.html" class="tab">
           <span class="tab-title">Modern Library</span>
         </a>
-        <a href="deckbuilder.html" class="tab">
+        <a href="deckbuilder.html" class="tab active">
           <span class="tab-title">Deck Builder</span>
         </a>
         <a href="card-library.html" class="tab">
@@ -448,26 +448,43 @@
 <div class="body-wrapper">
   <main class="main-panel">
 
-    <div class="panel-col">
-        <div class="section-header">
-            <h3>
-                <i class="ti ti-bookmark"></i> Bookmarks
-                <span class="badge" style="background: var(--navy-4); color: white; margin-left: 8px;" id="deck-count">0</span>
-            </h3>
-            <div class="header-actions">
-                <button class="btn-action" onclick="window.exportDecklist()"><i class="ti ti-clipboard-text"></i> Copy</button>
-                <button class="btn-action danger" onclick="window.clearAllBookmarks()"><i class="ti ti-trash"></i> Clear</button>
+    <!-- LEFT PANEL: THE DECK BUILDER -->
+    <div class="panel-col" style="flex: 0 0 350px; background: var(--navy-2); border: 1px solid var(--border-dim); border-radius: 12px; display: flex; flex-direction: column;">
+        
+        <div style="padding: 16px; border-bottom: 1px solid var(--border-dim); background: var(--navy-3); border-top-left-radius: 12px; border-top-right-radius: 12px;">
+            <input type="text" id="deck-name" placeholder="Untitled Deck..." style="width: 100%; background: transparent; border: none; color: var(--text-bright); font-size: 20px; font-weight: 800; outline: none; margin-bottom: 12px; font-family: 'nunito', sans-serif;">
+            
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--text-mid);">
+                <span>Main: <span id="count-main" style="color: var(--brand-main);">0</span>/50</span>
+                <span>Cheer: <span id="count-cheer" style="color: var(--holo-rose);">0</span>/20</span>
             </div>
-            <div class="search-bar hide-on-desktop">
-                <i class="ti ti-search"></i>
-                <input type="search" id="search-db-input2" placeholder="Search name, ID, type, or #tag (e.g. #buzz)..." />
+            
+            <div style="display: flex; gap: 8px; margin-top: 12px;">
+                <button class="btn-action" style="flex: 1; justify-content: center;" onclick="saveCustomDeck()"><i class="ti ti-device-floppy"></i> Save</button>
+                <button class="btn-action" style="flex: 1; justify-content: center;" onclick="exportCustomDeck()"><i class="ti ti-share"></i> Export</button>
+                <button class="btn-action" style="flex: 1; justify-content: center; background: var(--brand-main); color: var(--navy);" onclick="openVisualDeck()"><i class="ti ti-eye"></i> Visual</button>
             </div>
         </div>
-        
-        <div class="card-grid list-view" id="current-deck">
+
+        <div style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 20px;">
+            <div>
+                <h4 style="color: var(--holo-gold); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; border-bottom: 1px solid rgba(186,117,23,0.3); padding-bottom: 4px;">Oshi (Max 1)</h4>
+                <div id="deck-zone-oshi" style="display: flex; flex-direction: column; gap: 4px;"></div>
+            </div>
+
+            <div>
+                <h4 style="color: var(--brand-main); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; border-bottom: 1px solid var(--border-dim); padding-bottom: 4px;">Main Deck</h4>
+                <div id="deck-zone-main" style="display: flex; flex-direction: column; gap: 4px;"></div>
+            </div>
+
+            <div>
+                <h4 style="color: var(--holo-rose); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; border-bottom: 1px solid rgba(255,44,44,0.3); padding-bottom: 4px;">Cheer Deck</h4>
+                <div id="deck-zone-cheer" style="display: flex; flex-direction: column; gap: 4px;"></div>
+            </div>
         </div>
     </div>
 
+    <!-- RIGHT PANEL: THE DATABASE -->
     <div class="panel-col">
         <div class="section-header">
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -499,10 +516,7 @@
             </div>
         </div>
 
-        <!-- FILTER CHIPS CONTAINERS -->
         <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px;">
-            
-            <!-- Container 1: Standard Filters -->
             <div class="filter-chips" style="margin-bottom: 0; padding-bottom: 4px;">
                 <button class="chip active" onclick="setChipFilter('', this)">All Cards</button>
                 <button class="chip" onclick="setChipFilter('support', this)">Support</button>
@@ -514,8 +528,6 @@
                 <button class="chip" onclick="setChipFilter('#2nd', this)">2nd</button>
                 <button class="chip" onclick="setChipFilter('#buzz', this)">Buzz</button>
             </div>
-
-            <!-- Container 2: High Rarity Filters -->
             <div class="filter-chips" style="margin-bottom: 0; padding-bottom: 4px;">
                 <span style="font-size: 11px; color: var(--brand-main); font-weight: 800; text-transform: uppercase; margin-right: 4px; letter-spacing: 0.1em; flex-shrink: 0;">Premium:</span>
                 <button class="chip" onclick="setChipFilter('_SR', this)">SR</button>
@@ -524,7 +536,6 @@
                 <button class="chip" onclick="setChipFilter('_OUR', this)">OUR</button>
                 <button class="chip" onclick="setChipFilter('_SEC', this)">SEC</button>
             </div>
-            
         </div>
 
         <div class="card-grid" id="scanned-pool">
@@ -538,28 +549,25 @@
   </main>
 </div>
 
-<!-- ABOUT CREDITS MODAL -->
-<div id="about-overlay" class="about-overlay" onclick="closeAboutModal()"></div>
+<!-- VISITOR COUNTER -->
+       <div id="about-overlay" class="about-overlay" onclick="closeAboutModal()"></div>
 <div id="about-modal" class="about-modal">
     <div class="about-header">
         <h3>About hOCG DB</h3>
         <button class="btn-close-modal" onclick="closeAboutModal()"><i class="ti ti-x"></i></button>
     </div>
     <div class="about-content">
-        <!-- Developer & Version Info -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <p style="margin: 0;"><strong>Developed by:</strong> Siuspras</p>
             <span style="background: var(--navy-4); color: var(--brand-main); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 800; border: 1px solid var(--border-mid); letter-spacing: 0.05em;">v1.3.0</span>
         </div>
         
-        <!-- Contact Info -->
         <p style="margin-bottom: 16px; line-height: 1.8;">
             <strong>Contact & Feedback:</strong><br>
             <i class="ti ti-brand-discord" style="color: #5865F2; font-size: 16px;"></i> Discord: <span style="color: var(--text-bright); font-weight: 600;">Siuspras</span><br>
             <i class="ti ti-mail" style="color: var(--danger); font-size: 16px;"></i> Email: <a href="mailto:Siusprass@gmail.com" style="display: inline; border: none; margin: 0; font-weight: 600; color: var(--brand-main);">Siusprass@gmail.com</a>
         </p>
 
-        <!-- Credits -->
         <p><strong>Translations provided by:</strong> ogbajoj<br>
            <a href="https://docs.google.com/spreadsheets/d/1IdaueY-Jw8JXjYLOhA9hUd2w0VRBao9Z1URJwmCWJ64/edit?pli=1&gid=975361685#gid=975361685" target="_blank"><i class="ti ti-external-link"></i> View Translation Sheet</a>
         </p>
@@ -569,7 +577,6 @@
         
         <hr style="border-color: var(--border-dim); margin: 20px 0;">
         
-        <!-- VISITOR COUNTER -->
         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; background: rgba(0,0,0,0.2); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-dim);">
             <span style="font-weight: 700; color: var(--text-mid); font-size: 14px;">Total Visitors</span>
             <span id="visitor-count" style="font-weight: 800; color: var(--brand-main); font-size: 16px; background: var(--navy-4); padding: 2px 8px; border-radius: 4px; border: 0.5px solid var(--border-mid);">...</span>
@@ -580,6 +587,57 @@
             This is an unofficial fan-made application. Not affiliated with or endorsed by COVER Corp. or Hololive Production. All intellectual property belongs to their respective owners.
         </p>
     </div>
+</div>
+
+<div id="visual-deck-overlay" class="about-overlay" onclick="closeVisualDeck()"></div>
+<div id="visual-deck-modal" class="about-modal" style="width: 95%; max-width: 1400px; height: 90vh; display: flex; flex-direction: column;">
+    <div class="about-header">
+        <h3 id="visual-deck-title">Deck Visualizer</h3>
+        <button class="btn-close-modal" onclick="closeVisualDeck()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="about-content" style="flex: 1; overflow-y: auto; padding: 20px; background: var(--navy);">
+        <div class="card-grid" id="visual-deck-grid" style="padding: 0;"></div>
+    </div>
+</div>
+
+<div id="sheet-overlay" class="sheet-overlay" onclick="closeBottomSheet()"></div>
+<div id="mobile-bottom-sheet" class="bottom-sheet">
+    <div class="sheet-drag-area" id="sheet-drag-area">
+        <div class="sheet-handle"></div>
+    </div>
+    <div class="sheet-content" id="sheet-content">
+    </div>
+</div>
+        
+        <hr style="border-color: var(--border-dim); margin: 20px 0;">
+        <p style="font-size: 12px; color: var(--text-dim); margin: 0; line-height: 1.4;">
+            This is an unofficial fan-made application. Not affiliated with or endorsed by COVER Corp. or Hololive Production. All intellectual property belongs to their respective owners.
+        </p>
+    </div>
+</div>
+
+<!-- VISUAL DECK MODAL -->
+<div id="visual-deck-overlay" class="about-overlay" onclick="closeVisualDeck()"></div>
+<div id="visual-deck-modal" class="about-modal" style="width: 95%; max-width: 1400px; height: 90vh; display: flex; flex-direction: column;">
+    <div class="about-header">
+        <h3 id="visual-deck-title">Deck Visualizer</h3>
+        <button class="btn-close-modal" onclick="closeVisualDeck()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="about-content" style="flex: 1; overflow-y: auto; padding: 20px; background: var(--navy);">
+        <div class="card-grid" id="visual-deck-grid" style="padding: 0;"></div>
+    </div>
+</div>
+
+<!-- NATIVE APP BOTTOM SHEET -->
+<div id="sheet-overlay" class="sheet-overlay" onclick="closeBottomSheet()"></div>
+<div id="mobile-bottom-sheet" class="bottom-sheet">
+    <div class="sheet-drag-area" id="sheet-drag-area">
+        <div class="sheet-handle"></div>
+    </div>
+    <div class="sheet-content" id="sheet-content">
+    </div>
+  </div>
+  </div>
 </div>
 
 <div id="sheet-overlay" class="sheet-overlay" onclick="closeBottomSheet()"></div>
@@ -758,7 +816,6 @@
       masterCardPool = combinedDatabase;
       sortPool();
       document.getElementById("search-db-input").value = "";
-      document.getElementById("search-db-input2").value = "";
       renderCardPool("");
   }
 
@@ -784,9 +841,7 @@
       if(btn) btn.classList.add('active');
       
       const searchInput = document.getElementById("search-db-input");
-      const searchInput2 = document.getElementById("search-db-input2");
       if(searchInput) searchInput.value = tag;
-      if(searchInput2) searchInput2.value = tag;
       
       renderCardPool(tag);
   };
@@ -855,12 +910,6 @@
               btn.onclick = (e) => { e.stopPropagation(); window.handleAddClick(cardId); };
           }
       });
-  }
-
-  function removeCardFromDeckByCardId(cardId) {
-      let deck = getDeck();
-      const index = deck.findIndex(c => c.card_id === cardId);
-      if(index > -1) { deck.splice(index, 1); saveDeck(deck); }
   }
 
   function formatSkillText(card) {
@@ -1001,12 +1050,14 @@
           const isAltArt = card.card_id.match(/_(OUR|SEC|UR|HR|SR)$/i);
           const premiumClass = isAltArt ? 'premium-alt-art' : '';
 
-          let btnHtml = `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>`;
+          let btnHtml = isSaved 
+              ? `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>` 
+              : `<button class="bookmark-btn unsaved" data-card-id="${card.card_id}" onclick='event.stopPropagation(); window.handleAddClick("${card.card_id}")'><i class="ti ti-star"></i></button>`;
 
           let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : '';
 
           htmlBuilder += `
-              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)">
+              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="addCardToDeck('${card.card_id}')">
                   
                   <div class="card-face ${typeClass} grid-element">
                       <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
@@ -1233,7 +1284,9 @@
           const isAltArt = card.card_id.match(/_(OUR|SEC|UR|HR|SR)$/i);
           const premiumClass = isAltArt ? 'premium-alt-art' : '';
 
-          let btnHtml = `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>`;
+          let btnHtml = isSaved 
+              ? `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>` 
+              : `<button class="bookmark-btn unsaved" data-card-id="${card.card_id}" onclick='event.stopPropagation(); window.handleAddClick("${card.card_id}")'><i class="ti ti-star"></i></button>`;
 
           let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : '';
 
@@ -1336,21 +1389,11 @@
           renderCardPool(e.target.value); 
       }, 150);
   });
-  document.getElementById("search-db-input2").addEventListener("input", (e) => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => { 
-          document.querySelectorAll('.filter-chips .chip').forEach(c => c.classList.remove('active'));
-          renderCardPool(e.target.value); 
-      }, 150);
-  });
   
   window.handleAddClick = function(cardId) { 
       const cardToCopy = masterCardPool.find(c => c.card_id === cardId);
       if(cardToCopy) addCardToDeck(cardToCopy); 
   };
-
-  initializeDatabase();
-  renderDeck();
 
   /* ── VISITOR COUNTER ── */
   async function updateVisitorCounter() {
@@ -1382,6 +1425,265 @@
   }
 
   updateVisitorCounter();
+  // ── DECK BUILDER STATE ──
+  let currentDeck = {
+      oshi: null,       // Stores a single card object
+      main: {},         // Stores { card_id: quantity }
+      cheer: {}         // Stores { card_id: quantity }
+  };
+
+  function addCardToDeck(cardId) {
+      const card = masterCardPool.find(c => c.card_id === cardId);
+      if (!card) return;
+
+      const type = card.card_type; // e.g., "Oshi", "Cheer", "Holomem", "Support"
+      
+      // 1. Handle Oshi Zone
+      if (type === "Oshi") {
+          currentDeck.oshi = card;
+          renderDecklist();
+          return;
+      }
+
+      // 2. Handle Cheer Deck (Max 20 total)
+      if (type === "Cheer") {
+          let currentCheerCount = Object.values(currentDeck.cheer).reduce((a, b) => a + b, 0);
+          if (currentCheerCount >= 20) return alert("Cheer deck is full (20/20)!");
+          
+          currentDeck.cheer[cardId] = (currentDeck.cheer[cardId] || 0) + 1;
+          renderDecklist();
+          return;
+      }
+
+      // 3. Handle Main Deck (Max 50 total, Max 4 per card)
+      let currentMainCount = Object.values(currentDeck.main).reduce((a, b) => a + b, 0);
+      if (currentMainCount >= 50) return alert("Main deck is full (50/50)!");
+      
+      let cardCopies = currentDeck.main[cardId] || 0;
+      if (cardCopies >= 4) return alert("You can only have 4 copies of a specific card!");
+
+      currentDeck.main[cardId] = cardCopies + 1;
+      renderDecklist();
+  }
+
+  function removeCardFromDeck(cardId, zone) {
+      if (zone === 'oshi') {
+          currentDeck.oshi = null;
+      } else {
+          if (currentDeck[zone][cardId] > 1) {
+              currentDeck[zone][cardId]--;
+          } else {
+              delete currentDeck[zone][cardId];
+          }
+      }
+      renderDecklist();
+  }
+  function renderDecklist() {
+      // 1. Oshi Zone
+      const oshiContainer = document.getElementById("deck-zone-oshi");
+      oshiContainer.innerHTML = "";
+      if (currentDeck.oshi) {
+          oshiContainer.innerHTML = createDeckRowHtml(currentDeck.oshi, 1, 'oshi');
+      } else {
+          oshiContainer.innerHTML = `<div style="color: var(--text-dim); font-size: 13px; font-style: italic; padding: 4px 0;">No Oshi selected.</div>`;
+      }
+
+      // 2. Main Deck Zone
+      const mainContainer = document.getElementById("deck-zone-main");
+      mainContainer.innerHTML = "";
+      let mainCount = 0; let mainHtml = "";
+      for (let cardId in currentDeck.main) {
+          let qty = currentDeck.main[cardId];
+          mainCount += qty;
+          let card = masterCardPool.find(c => c.card_id === cardId);
+          if (card) mainHtml += createDeckRowHtml(card, qty, 'main');
+      }
+      mainContainer.innerHTML = mainHtml || `<div style="color: var(--text-dim); font-size: 13px; font-style: italic; padding: 4px 0;">Main deck is empty.</div>`;
+      document.getElementById("count-main").innerText = mainCount;
+
+      // 3. Cheer Deck Zone
+      const cheerContainer = document.getElementById("deck-zone-cheer");
+      cheerContainer.innerHTML = "";
+      let cheerCount = 0; let cheerHtml = "";
+      for (let cardId in currentDeck.cheer) {
+          let qty = currentDeck.cheer[cardId];
+          cheerCount += qty;
+          let card = masterCardPool.find(c => c.card_id === cardId);
+          if (card) cheerHtml += createDeckRowHtml(card, qty, 'cheer');
+      }
+      cheerContainer.innerHTML = cheerHtml || `<div style="color: var(--text-dim); font-size: 13px; font-style: italic; padding: 4px 0;">Cheer deck is empty.</div>`;
+      document.getElementById("count-cheer").innerText = cheerCount;
+  }
+
+  function createDeckRowHtml(card, qty, zone) {
+      const setPrefix = card.card_id.split('-')[0];
+      const imagePath = card.thumbnail ? card.thumbnail : `images/${setPrefix}/${card.card_id}.webp`;
+      const isOshi = zone === 'oshi';
+      
+
+      const level = card.bloom_level ? `<span style="color: var(--brand-main);">[${card.bloom_level}]</span> ` : "";
+      const typeColor = zone === 'cheer' ? 'var(--holo-rose)' : (zone === 'oshi' ? 'var(--holo-gold)' : 'var(--text-mid)');
+      
+      // The +/- buttons are disabled for the Oshi since you can only have 1
+      const controls = isOshi 
+          ? `<button onclick="removeCardFromDeck('${card.card_id}', '${zone}')" style="background: transparent; border: none; color: var(--danger); cursor: pointer; padding: 2px 6px; font-weight: 800;"><i class="ti ti-trash"></i></button>`
+          : `<button onclick="removeCardFromDeck('${card.card_id}', '${zone}')" style="background: transparent; border: none; color: var(--text-bright); cursor: pointer; padding: 2px 8px; font-weight: 800; font-size: 16px;">-</button>
+             <span style="font-size: 13px; font-weight: 800; color: var(--brand-main); min-width: 14px; text-align: center;">${qty}</span>
+             <button onclick="addCardToDeck('${card.card_id}')" style="background: transparent; border: none; color: var(--text-bright); cursor: pointer; padding: 2px 8px; font-weight: 800; font-size: 14px;">+</button>`;
+
+      return `
+      <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); border: 1px solid var(--border-dim); border-radius: 6px; padding: 4px 8px; gap: 10px;">
+          
+          <!-- 👉 UPGRADED: Taller thumbnail to look more like a card -->
+          <div style="width: 32px; height: 44px; flex-shrink: 0; border-radius: 4px; overflow: hidden; border: 1px solid var(--border-dim);">
+              <img src="${imagePath}" style="width: 100%; height: 100%; object-fit: cover; object-position: top;" onerror="this.onerror=null; this.src='${fallbackImage}'"/>
+          </div>
+          
+
+          <div style="flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; gap: 2px;">
+              <div style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 13px; font-weight: 800; color: var(--text-bright);">
+                  ${level}${card.card_name}
+              </div>
+              <div style="font-size: 10px; color: var(--text-dim); font-weight: 700; letter-spacing: 0.05em; display: flex; align-items: center; gap: 4px;">
+                  <span style="color: var(--text-mid);">${card.card_id}</span>
+                  <span style="font-size: 8px;">•</span>
+                  <span style="color: ${typeColor};">${card.card_type.toUpperCase()}</span>
+              </div>
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 4px; background: var(--navy-4); border-radius: 4px; padding: 2px;">
+              ${controls}
+          </div>
+      </div>
+      `;
+  }
+  initializeDatabase();
+  renderDecklist();
+  // ── DECK BUILDER EXPORT & SAVE LOGIC ──
+  window.saveCustomDeck = function() {
+      const deckName = document.getElementById("deck-name").value || "Untitled Deck";
+      const deckData = {
+          name: deckName,
+          deck: currentDeck
+      };
+      localStorage.setItem('hocg_deckbuilder_save', JSON.stringify(deckData));
+      alert("Deck saved successfully!");
+  };
+
+  window.exportCustomDeck = function() {
+      const deckName = document.getElementById("deck-name").value || "Untitled Deck";
+      let exportStr = `Deck: ${deckName}\n\n`;
+
+      if (currentDeck.oshi) {
+          exportStr += `[OSHI]\n1x ${currentDeck.oshi.card_id} - ${currentDeck.oshi.card_name}\n\n`;
+      }
+
+      exportStr += `[MAIN DECK]\n`;
+      for (let cardId in currentDeck.main) {
+          let card = masterCardPool.find(c => c.card_id === cardId);
+          if (card) {
+              exportStr += `${currentDeck.main[cardId]}x ${card.card_id} - ${card.card_name}\n`;
+          }
+      }
+
+      exportStr += `\n[CHEER DECK]\n`;
+      for (let cardId in currentDeck.cheer) {
+          let card = masterCardPool.find(c => c.card_id === cardId);
+          if (card) {
+              exportStr += `${currentDeck.cheer[cardId]}x ${card.card_id} - ${card.card_name}\n`;
+          }
+      }
+
+      if (Object.keys(currentDeck.main).length === 0 && Object.keys(currentDeck.cheer).length === 0 && !currentDeck.oshi) {
+          return alert("Your deck is empty! Add some cards before exporting.");
+      }
+
+      navigator.clipboard.writeText(exportStr.trim()).then(() => alert("Decklist copied to clipboard!"));
+  };
+
+  // ── FULL SCREEN VISUAL DECK LOGIC ──
+  window.openVisualDeck = function() {
+      const grid = document.getElementById("visual-deck-grid");
+      if (!grid) return alert("Visual deck modal HTML is missing!");
+
+      const deckTitle = document.getElementById("deck-name").value || "Untitled Deck";
+      document.getElementById("visual-deck-title").innerText = deckTitle + " (Visual View)";
+      
+      grid.innerHTML = "";
+      let htmlBuilder = "";
+
+      const addCardToHtml = (card, qty, zoneLabel) => {
+          const typeClass = getTypeClass(card.card_type);
+          const iconClass = getIconClass(card.card_type);
+          const setPrefix = card.card_id.split('-')[0];
+          const imagePath = card.thumbnail ? card.thumbnail : `images/${setPrefix}/${card.card_id}.webp`;
+          const { formattedTagsHtml, formattedSkillHtml, formattedArtsHtml } = formatSkillText(card);
+          
+          const isAltArt = card.card_id.match(/_(OUR|SEC|UR|HR|SR)$/i);
+          const premiumClass = isAltArt ? 'premium-alt-art' : '';
+          const level = card.bloom_level ? `[${card.bloom_level}] ` : "";
+          let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : '';
+          
+          const qtyBadge = `<div style="position: absolute; top: 8px; right: 8px; background: var(--brand-main); color: var(--navy); font-weight: 900; font-size: 16px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">x${qty}</div>`;
+
+          // 👉 FADE-IN IS NOW PERMANENTLY LOCKED IN HERE
+          htmlBuilder += `
+            <div class="card-item fade-in ${premiumClass}">
+                ${qtyBadge}
+                <div class="card-face ${typeClass} grid-element">
+                    <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
+                    <i class="ti ${iconClass}"></i>
+                    <span class="face-label">${card.card_type.toUpperCase()}</span>
+                </div>
+                <div class="card-meta grid-element">
+                    <span class="card-name-jp">${level}${card.card_name}</span>
+                    <span class="card-id">${card.card_id}</span>
+                    <div class="card-badges">
+                        <span class="badge ${typeClass}">${zoneLabel}</span>
+                    </div>
+                </div>
+                <div class="translation-overlay grid-element">
+                    <div class="tl-header">
+                        <span class="tl-type badge ${typeClass}">${card.card_type.toUpperCase()}</span>
+                    </div>
+                    <div class="tl-title">${level}${card.card_name}</div>
+                    <div class="tl-scroll-area">
+                        ${formattedTagsHtml}
+                        ${formattedSkillHtml}
+                        ${formattedArtsHtml}
+                    </div>
+                    ${hpHtml}
+                </div>
+            </div>
+          `;
+      };
+
+      if (currentDeck.oshi) addCardToHtml(currentDeck.oshi, 1, "OSHI");
+      
+      for (let cardId in currentDeck.main) {
+          let card = masterCardPool.find(c => c.card_id === cardId);
+          if (card) addCardToHtml(card, currentDeck.main[cardId], "MAIN");
+      }
+
+      for (let cardId in currentDeck.cheer) {
+          let card = masterCardPool.find(c => c.card_id === cardId);
+          if (card) addCardToHtml(card, currentDeck.cheer[cardId], "CHEER");
+      }
+
+      if (htmlBuilder === "") {
+          htmlBuilder = `<div class="empty-state">Your deck is currently empty! Add some cards to view them here.</div>`;
+      }
+
+      grid.innerHTML = htmlBuilder;
+      
+      document.getElementById("visual-deck-modal").classList.add("open");
+      document.getElementById("visual-deck-overlay").classList.add("open");
+  };
+
+  window.closeVisualDeck = function() {
+      document.getElementById("visual-deck-modal").classList.remove("open");
+      document.getElementById("visual-deck-overlay").classList.remove("open");
+  };
 </script>
 <script data-goatcounter="https://swifterstar02.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>

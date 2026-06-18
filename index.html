@@ -1001,7 +1001,9 @@
           const isAltArt = card.card_id.match(/_(OUR|SEC|UR|HR|SR)$/i);
           const premiumClass = isAltArt ? 'premium-alt-art' : '';
 
-          let btnHtml = `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>`;
+          let btnHtml = isSaved 
+          ? `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.toggleBookmarkFromSheet('${card.card_id}')"><i class="ti ti-star-filled"></i></button>` 
+          : `<button class="bookmark-btn unsaved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.toggleBookmarkFromSheet('${card.card_id}')"><i class="ti ti-star"></i></button>`;
 
           let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : '';
 
@@ -1149,7 +1151,9 @@
       const type = card.card_type || "Type";
       const level = card.bloom_level ? `[${card.bloom_level}] ` : "";
       
-      let btnHtml = `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>`;
+      let btnHtml = isSaved 
+          ? `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.toggleBookmarkFromSheet('${card.card_id}')"><i class="ti ti-star-filled"></i></button>` 
+          : `<button class="bookmark-btn unsaved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.toggleBookmarkFromSheet('${card.card_id}')"><i class="ti ti-star"></i></button>`;
 
       let hpHtml = card.hp ? `<div class="tl-hp" style="font-size: 22px; color: #FFD700; font-weight: 800; text-align: center; padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--border-dim);">HP: ${card.hp}</div>` : '';
       
@@ -1234,6 +1238,7 @@
           const premiumClass = isAltArt ? 'premium-alt-art' : '';
 
           let btnHtml = `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>`;
+
 
           let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : '';
 

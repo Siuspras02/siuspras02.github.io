@@ -1092,16 +1092,16 @@
           max-width: 100%;
         }
         /* ── ALT ART TOGGLE LIST VIEW FIX ── */
-      .card-grid.list-view .btn-alt-toggle {
-        top: 5px !important;
-        bottom: auto !important;
-        right: -10px !important; /* Pushes it safely to the left of the Star and Plus icons */
-        transform: translateY(-50%);
-      }
+        .card-grid.list-view .btn-alt-toggle {
+          top: 5px !important;
+          bottom: auto !important;
+          right: -10px !important; /* Pushes it safely to the left of the Star and Plus icons */
+          transform: translateY(-50%);
+        }
 
-      .card-grid.list-view .btn-alt-toggle:hover {
-        transform: translateY(-50%) scale(1.1) rotate(45deg);
-      }
+        .card-grid.list-view .btn-alt-toggle:hover {
+          transform: translateY(-50%) scale(1.1) rotate(45deg);
+        }
       }
       /* ── PREMIUM ALT ART SNAKE BORDER ANIMATION ── */
       @property --angle {
@@ -1369,7 +1369,7 @@
 
             <div class="header-actions">
               <select
-                id="sort-select"
+                id="set-select"
                 style="
                   background: var(--navy-3);
                   color: var(--text-bright);
@@ -1383,10 +1383,16 @@
                   cursor: pointer;
                 "
               >
-                <option value="id-asc">Sort: Set Code (A-Z)</option>
-                <option value="id-desc">Sort: Set Code (Z-A)</option>
-                <option value="name-asc">Sort: Name (A-Z)</option>
-                <option value="name-desc">Sort: Name (Z-A)</option>
+                <option value="all">All Sets</option>
+                <option value="hBP01">hBP01</option>
+                <option value="hBP02">hBP02</option>
+                <option value="hBP03">hBP03</option>
+                <option value="hBP04">hBP04</option>
+                <option value="hBP05">hBP05</option>
+                <option value="hBP06">hBP06</option>
+                <option value="hBP07">hBP07</option>
+                <option value="hBP08">hBP08</option>
+                <option value="hSD">hSD (Starter Decks)</option>
               </select>
 
               <div
@@ -1433,7 +1439,6 @@
             </div>
           </div>
 
-          <!-- FILTER CHIPS CONTAINERS -->
           <div
             style="
               display: flex;
@@ -1442,7 +1447,6 @@
               margin-bottom: 12px;
             "
           >
-            <!-- Container 1: Standard Filters -->
             <div
               class="filter-chips"
               style="margin-bottom: 0; padding-bottom: 4px"
@@ -1476,7 +1480,6 @@
               </button>
             </div>
 
-            <!-- Container 2: High Rarity Filters -->
             <div
               class="filter-chips"
               style="margin-bottom: 0; padding-bottom: 4px"
@@ -1525,7 +1528,6 @@
       </main>
     </div>
 
-    <!-- ABOUT CREDITS MODAL -->
     <div
       id="about-overlay"
       class="about-overlay"
@@ -1539,7 +1541,6 @@
         </button>
       </div>
       <div class="about-content">
-        <!-- Developer & Version Info -->
         <div
           style="
             display: flex;
@@ -1564,7 +1565,6 @@
           >
         </div>
 
-        <!-- Contact Info -->
         <p style="margin-bottom: 16px; line-height: 1.8">
           <strong>Contact & Feedback:</strong><br />
           <i
@@ -1593,7 +1593,6 @@
           >
         </p>
 
-        <!-- Credits -->
         <p>
           <strong>Translations provided by:</strong> ogbajoj<br />
           <a
@@ -1613,7 +1612,6 @@
 
         <hr style="border-color: var(--border-dim); margin: 20px 0" />
 
-        <!-- VISITOR COUNTER -->
         <div
           style="
             display: flex;
@@ -1695,7 +1693,7 @@
       let renderedCount = 0;
       const CHUNK_SIZE = 40;
 
-      let currentSort = "id-asc";
+      let currentSetFilter = "all";
 
       const synergyDictionary = {
         holox: ["la+", "lui", "koyori", "chloe", "iroha", "holox"],
@@ -2028,30 +2026,18 @@
           if (!window.cardVariants[baseId]) window.cardVariants[baseId] = [];
           window.cardVariants[baseId].push(c.card_id);
         });
-        sortPool();
+        // Permanently sort database by Card ID order
+        masterCardPool.sort((a, b) => a.card_id.localeCompare(b.card_id));
         document.getElementById("search-db-input").value = "";
         document.getElementById("search-db-input2").value = "";
         renderCardPool("");
       }
 
-      function sortPool() {
-        masterCardPool.sort((a, b) => {
-          if (currentSort === "name-asc")
-            return a.card_name.localeCompare(b.card_name);
-          if (currentSort === "name-desc")
-            return b.card_name.localeCompare(a.card_name);
-          if (currentSort === "id-asc")
-            return a.card_id.localeCompare(b.card_id);
-          if (currentSort === "id-desc")
-            return b.card_id.localeCompare(a.card_id);
-          return 0;
-        });
-      }
-
-      document.getElementById("sort-select").addEventListener("change", (e) => {
-        currentSort = e.target.value;
-        sortPool();
-        renderCardPool(document.getElementById("search-db-input").value);
+      // 👉 NEW: Replace the old sort listener with the set-select listener!
+      document.getElementById("set-select").addEventListener("change", (e) => {
+        currentSetFilter = e.target.value;
+        const activeSearch = document.getElementById("search-db-input").value || document.getElementById("search-db-input2").value || "";
+        renderCardPool(activeSearch);
       });
 
       /* ── FILTER CHIP SYSTEM ── */
@@ -2324,10 +2310,22 @@
         const countDisplay = document.getElementById("cardCount");
         if (masterCardPool.length === 0) return;
 
-        const searchTerms =
-          searchQuery.trim() !== "" ? getSynergyTerms(searchQuery) : [];
+        // Split the search query into individual words and convert standalone rarities
+        const queryWords = searchQuery
+          .toLowerCase()
+          .trim()
+          .split(/\s+/)
+          .map((word) => {
+            if (["sr", "hr", "ur", "our", "sec"].includes(word))
+              return "_" + word;
+            return word;
+          });
 
-        currentFilteredPool = masterCardPool.filter((card) => {
+        currentFilteredPool = masterCardPool.filter(card => {
+          // 👉 FIX 1: The Set check logic is intact.
+          if (currentSetFilter !== "all" && !card.card_id.startsWith(currentSetFilter)) return false;
+          
+          // 👉 FIX 2: We removed the duplicate nameSafe and idSafe lines!
           const nameSafe = card.card_name ? card.card_name.toLowerCase() : "";
           const idSafe = card.card_id ? card.card_id.toLowerCase() : "";
           const typeSafe = card.raw_type
@@ -2342,166 +2340,174 @@
             ? card.bloom_level.toLowerCase()
             : "";
 
-          // 👉 NEW: Hide alt-arts unless explicitly searching for them via premium chips
           const isAltArt = card.card_id.includes("_");
+          const searchWordsUpper = searchQuery
+            .toUpperCase()
+            .trim()
+            .split(/\s+/);
           const isSearchingPremium =
             searchQuery.includes("_") ||
             ["SR", "HR", "UR", "OUR", "SEC"].some((r) =>
-              searchQuery.toUpperCase().includes(r),
+              searchWordsUpper.includes(r),
             );
+
           if (isAltArt && !isSearchingPremium) return false;
 
-          if (searchTerms.length === 0) return true;
+          if (queryWords.length === 0 || queryWords[0] === "") return true;
 
-          return searchTerms.some((term) => {
-            const strictTypes = [
-              "oshi",
-              "holomem",
-              "support",
-              "cheer",
-              "tool",
-              "event",
-              "mascot",
-              "fan",
-              "staff",
-              "item",
-              "limited",
-              "debut",
-              "1st",
-              "2nd",
-              "spot",
-            ];
-            if (strictTypes.includes(term))
-              return typeSafe.includes(term) || bloomSafe.includes(term);
-            if (term.startsWith("#"))
-              return (
-                skillSafe.includes(term) ||
-                nameSafe.includes(term) ||
-                bloomSafe.includes(term.substring(1))
-              );
+          // The card must match EVERY word you typed
+          return queryWords.every((word) => {
+            const synergyTerms = getSynergyTerms(word); // Checks for synergy/nicknames
 
-            // ── STRICT CHARACTER ISOLATION (WITH SUPPORT EXCLUSIONS) ──
-            const strictHolomemNames = [
-              "sora",
-              "roboco",
-              "robocosan",
-              "miko",
-              "suisei",
-              "azki",
-              "aki",
-              "haato",
-              "haachama",
-              "fubuki",
-              "matsuri",
-              "mel",
-              "aqua",
-              "shion",
-              "ayame",
-              "choco",
-              "subaru",
-              "mio",
-              "okayu",
-              "korone",
-              "pekora",
-              "flare",
-              "noel",
-              "marine",
-              "kanata",
-              "watame",
-              "towa",
-              "luna",
-              "lamy",
-              "nene",
-              "botan",
-              "polka",
-              "la+",
-              "lui",
-              "koyori",
-              "chloe",
-              "iroha",
-              "risu",
-              "moona",
-              "iofi",
-              "ollie",
-              "anya",
-              "reine",
-              "zeta",
-              "kaela",
-              "kobo",
-              "calliope",
-              "kiara",
-              "ina'nis",
-              "gura",
-              "amelia",
-              "irys",
-              "fauna",
-              "kronii",
-              "mumei",
-              "baelz",
-              "shiori",
-              "bijou",
-              "nerissa",
-              "fuwawa",
-              "mococo",
-              "fuwamoco",
-              "elizabeth",
-              "gigi",
-              "cecilia",
-              "raora",
-              "riona",
-              "niko",
-              "su",
-              "chihaya",
-              "vivi",
-              "ao",
-              "kanade",
-              "ririka",
-              "raden",
-              "hajime",
-            ];
-
-            if (strictHolomemNames.includes(term)) {
-              // 1. Matches their actual Holomem/Oshi cards
-              const isDirectMatch =
-                nameSafe.includes(term) || skillSafe.includes(`#${term}`);
-
-              // 2. Matches Support/Cheer cards that explicitly mention them (e.g., Koyolabo)
-              const isSupportMatch =
-                (card.card_type === "Support" || card.card_type === "Cheer") &&
-                (nameSafe.includes(term) || skillSafe.includes(term));
-
-              // 3. Reverse-Lookup: Matches Support cards for their specific group (e.g., Holomyth)
-              let relatedGroups = [];
-              for (const group in synergyDictionary) {
-                if (synergyDictionary[group].includes(term)) {
-                  relatedGroups.push(group);
-                }
-              }
-              const isGroupSupport =
-                (card.card_type === "Support" || card.card_type === "Cheer") &&
-                relatedGroups.some(
-                  (g) =>
-                    nameSafe.includes(g) ||
-                    skillSafe.includes(g) ||
-                    skillSafe.includes(`#${g.replace(/\s+/g, "")}`),
+            // 👉 NEW: The card must match AT LEAST ONE of the synergy rules for this specific word
+            return synergyTerms.some((term) => {
+              const strictTypes = [
+                "oshi",
+                "holomem",
+                "support",
+                "cheer",
+                "tool",
+                "event",
+                "mascot",
+                "fan",
+                "staff",
+                "item",
+                "limited",
+                "debut",
+                "1st",
+                "2nd",
+                "spot",
+              ];
+              if (strictTypes.includes(term))
+                return typeSafe.includes(term) || bloomSafe.includes(term);
+              if (term.startsWith("#"))
+                return (
+                  skillSafe.includes(term) ||
+                  nameSafe.includes(term) ||
+                  bloomSafe.includes(term.substring(1))
                 );
 
-              return isDirectMatch || isSupportMatch || isGroupSupport;
-            }
+              // ── STRICT CHARACTER ISOLATION ──
+              const strictHolomemNames = [
+                "sora",
+                "roboco",
+                "robocosan",
+                "miko",
+                "suisei",
+                "azki",
+                "aki",
+                "haato",
+                "haachama",
+                "fubuki",
+                "matsuri",
+                "mel",
+                "aqua",
+                "shion",
+                "ayame",
+                "choco",
+                "subaru",
+                "mio",
+                "okayu",
+                "korone",
+                "pekora",
+                "flare",
+                "noel",
+                "marine",
+                "kanata",
+                "watame",
+                "towa",
+                "luna",
+                "lamy",
+                "nene",
+                "botan",
+                "polka",
+                "la+",
+                "lui",
+                "koyori",
+                "chloe",
+                "iroha",
+                "risu",
+                "moona",
+                "iofi",
+                "ollie",
+                "anya",
+                "reine",
+                "zeta",
+                "kaela",
+                "kobo",
+                "calliope",
+                "kiara",
+                "ina'nis",
+                "gura",
+                "amelia",
+                "irys",
+                "fauna",
+                "kronii",
+                "mumei",
+                "baelz",
+                "shiori",
+                "bijou",
+                "nerissa",
+                "fuwawa",
+                "mococo",
+                "fuwamoco",
+                "elizabeth",
+                "gigi",
+                "cecilia",
+                "raora",
+                "riona",
+                "niko",
+                "su",
+                "chihaya",
+                "vivi",
+                "ao",
+                "kanade",
+                "ririka",
+                "raden",
+                "hajime",
+              ];
 
-            return (
-              nameSafe.includes(term) ||
-              idSafe.includes(term) ||
-              typeSafe.includes(term) ||
-              skillSafe.includes(term) ||
-              bloomSafe.includes(term)
-            );
+              if (strictHolomemNames.includes(term)) {
+                const isDirectMatch =
+                  nameSafe.includes(term) || skillSafe.includes(`#${term}`);
+                const isSupportMatch =
+                  (card.card_type === "Support" ||
+                    card.card_type === "Cheer") &&
+                  (nameSafe.includes(term) || skillSafe.includes(term));
+
+                let relatedGroups = [];
+                for (const group in synergyDictionary) {
+                  if (synergyDictionary[group].includes(term)) {
+                    relatedGroups.push(group);
+                  }
+                }
+                const isGroupSupport =
+                  (card.card_type === "Support" ||
+                    card.card_type === "Cheer") &&
+                  relatedGroups.some(
+                    (g) =>
+                      nameSafe.includes(g) ||
+                      skillSafe.includes(g) ||
+                      skillSafe.includes(`#${g.replace(/\s+/g, "")}`),
+                  );
+
+                return isDirectMatch || isSupportMatch || isGroupSupport;
+              }
+
+              return (
+                nameSafe.includes(term) ||
+                idSafe.includes(term) ||
+                typeSafe.includes(term) ||
+                skillSafe.includes(term) ||
+                bloomSafe.includes(term)
+              );
+            });
           });
         });
 
         poolContainer.innerHTML = "";
         renderedCount = 0;
-        countDisplay.textContent = currentFilteredPool.length;
+        if (countDisplay) countDisplay.textContent = currentFilteredPool.length;
 
         if (currentFilteredPool.length === 0) {
           poolContainer.innerHTML = `<div class="empty-state">No cards found matching "${searchQuery}".</div>`;

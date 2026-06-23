@@ -779,13 +779,13 @@ hBP02-005_OUR,"紫咲シオン
 
 SP Oshi Skill holo Power -2: Shion's Amazing Magic
 [1/Game]Usable when your purple center holomem used Arts:Deal 50 special damage to your opponent's center holomem for each of your opponent's center holomem's cheers.",,OUR
-hBP02-006,"クレイジー・オリー
+hBP02-006_OUR,"クレイジー・オリー
 (Kureiji Ollie)",,Oshi holomem,OSR,Purple,5,,"Oshi Skill holo Power -2: Zombie Tactics
 [1/Turn]Bloom 1 of your holomem with #ID Gen 2 using a holomem from your archive.
 
 SP Oshi Skill holo Power -2: Ollie Revives
 [1/Game]Draw 4 cards, and archive 2 cards from hand. You may bloom 1 of your holomem using a holomem from your archive.",,OUR
-hBP02-007,"森カリオペ
+hBP02-007_OUR,"森カリオペ
 (Mori Calliope)",,Oshi holomem,OSR,Purple,5,,"Oshi Skill holo Power -2: Sampling
 [1/Turn]By archiving 2 cards from your hand, return 2 holomem with #EN from archive to hand.
 

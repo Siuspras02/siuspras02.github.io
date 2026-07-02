@@ -52,12 +52,12 @@
 
         /* ── QUIZ STYLES ── */
         .panel { 
-            background-color: var(--navy-3); border: 1px solid var(--border-dim); 
+            background-color: color-mix(in srgb, var(--navy-3) 70%, transparent); border: 1px solid var(--border-dim); 
             border-radius: 12px; padding: 2rem; box-shadow: 0 8px 16px rgba(0,0,0,0.2); 
-            margin-top: 2rem;
+            margin-top: 2rem; position: relative;z-index: 10;
         }
         .btn-export { 
-            background: var(--navy-4); color: var(--text-bright); border: 1px solid var(--border-dim); 
+            background: var(--navy-3); color: var(--text-bright); border: 1px solid var(--border-dim); 
             border-radius: 8px; font-weight: 800; padding: 0.8rem 1.5rem; cursor: pointer; 
             transition: all 0.2s ease; font-family: inherit; font-size: 1rem; text-transform: uppercase; 
         }
@@ -269,21 +269,32 @@
     </div>
 
     <div class="panel" id="quiz-panel" style="max-width: 700px; margin: 2rem auto; text-align: center;">
+        
+        <!-- Player Name Input -->
+        <div style="margin-bottom: 1.5rem;">
+            <input type="text" id="session-player-name" placeholder="Enter your name to play..." maxlength="15" style="padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border-dim); background: whitesmoke; color:var(--navy); width: 100%; max-width: 300px; text-align: center; outline: none; font-family: inherit; font-size: 1rem;"/>
+        </div>
+
+        <!-- Quiz Mode Buttons -->
         <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 1.5rem;">
             <button class="btn-export" onclick="startQuiz('visual')">Guess the Art</button>
             <button class="btn-export" onclick="startQuiz('text')">Whose Skill?</button>
         </div>
         
+        <!-- Score Display -->
         <div style="margin-bottom: 1rem; color: var(--text-mid); font-weight: 800;">
             Streak: <span id="quiz-score" style="color: var(--brand-main); font-size: 1.2rem;">0</span>
         </div>
 
+        <!-- Main Display Area -->
         <div id="quiz-display" style="position: relative; min-height: 300px; display: flex; align-items: center; justify-content: center; background: var(--navy-2); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-dim); margin-bottom: 1rem;">
             <h3 style="color: var(--text-dim);" id="loading-msg">Loading database... Please wait.</h3>
         </div>
 
+        <!-- Multiple Choice Buttons Area -->
         <div id="quiz-choices" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            </div>
+        </div>
+        
     </div>
     <div style="display: flex; justify-content: center; margin-top: 10px;">
         <button id="btn-toggle-leaderboard" class="btn-about-header" onclick="toggleLeaderboard()" style="padding: 10px 16px; border-radius: 8px;">
@@ -397,12 +408,26 @@
         return shuffled.slice(0, count);
     }
 
-    // We don't need getRandomCards anymore, we do it all inside startQuiz now!
-
+    let sessionPlayerName = "";
     function startQuiz(mode) {
         if (masterCardPool.length === 0) {
             alert("Database is still loading. Please wait a moment!");
             return;
+        }
+
+        // 👉 NEW: Lock in the player's name
+        if (!sessionPlayerName) {
+            const nameInput = document.getElementById("session-player-name").value.trim();
+            if (!nameInput) {
+                alert("Please enter your name first!");
+                return;
+            }
+            sessionPlayerName = nameInput;
+            
+            // Disable the input so they can't change it mid-session
+            const nameField = document.getElementById("session-player-name");
+            nameField.disabled = true;
+            nameField.style.opacity = "0.5";
         }
 
         currentQuizMode = mode;
@@ -538,11 +563,8 @@
             <div style="grid-column: span 2; background: rgba(255, 82, 82, 0.1); border: 1px solid var(--danger); padding: 20px; border-radius: 12px; margin-top: 15px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
                 <h2 style="color: var(--danger); margin: 0; font-weight: 900;">Incorrect! Final Streak: ${finalScore}</h2>
                 
-                <div id="inline-highscore-form" style="display: flex; gap: 8px; margin: 10px 0;">
-                    <input type="text" id="player-name-input" placeholder="Enter name..." maxlength="15" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-dim); background: var(--navy-3); color: var(--text-bright); outline: none; font-family: 'nunito', sans-serif;" />
-                    <button class="btn-export" onclick="submitScoreToFirebase(${finalScore})" style="background: var(--brand-main); color: var(--navy); width: auto;">Submit Score</button>
-                </div>
-                <div id="submit-status" style="font-size: 13px; color: var(--text-dim);"></div>
+                <button class="btn-export" onclick="submitScoreToFirebase(${finalScore}, this)" style="background: var(--brand-main); color: var(--navy); width: auto; margin-top: 10px;">Submit Score</button>
+                <div id="submit-status" style="font-size: 13px; color: var(--text-dim); margin-top: 5px;"></div>
 
                 <button class="btn-export" onclick="startQuiz('${currentQuizMode}')" style="width: auto; margin-top: 10px;">Try Again</button>
             </div>
@@ -640,61 +662,6 @@
   }
 };
     // 👉 NEW: The function now accepts the finalScore as a parameter
-    window.submitScoreToFirebase = async function(finalScore) {
-      const nameInput = document.getElementById("player-name-input").value.trim();
-      const statusText = document.getElementById("submit-status");
-      
-      const finalName = nameInput === "" ? "Anonymous" : nameInput;
-
-      statusText.style.color = "var(--holo-teal)"; 
-      statusText.innerText = "Score saved!";
-
-      try {
-        // 1. Create a reference pointing to the player's specific name as the ID
-        const playerDocRef = window.doc(window.db, "highscores", finalName);
-        
-        // 2. Check if this name is already on the leaderboard
-        const docSnap = await window.getDoc(playerDocRef);
-
-        if (docSnap.exists()) {
-            // Name exists! Check if the new score is better than their old score
-            const oldScore = docSnap.data().score;
-            if (finalScore > oldScore) {
-                await window.setDoc(playerDocRef, {
-                    name: finalName,
-                    score: finalScore,
-                    timestamp: new Date()
-                });
-                statusText.innerText = "New personal best saved!";
-            } else {
-                statusText.innerText = "Score submitted (but your previous high score was better!).";
-            }
-        } else {
-            // Name is new! Save it to the database normally
-            await window.setDoc(playerDocRef, {
-                name: finalName,
-                score: finalScore,
-                timestamp: new Date()
-            });
-            statusText.innerText = "Score saved!";
-        }
-
-        statusText.style.color = "var(--holo-teal)"; 
-        
-        // Hide the input form so they can't spam submit
-        document.getElementById("inline-highscore-form").style.display = "none";
-        
-        const btnSpan = document.querySelector("#btn-toggle-leaderboard span");
-        if (btnSpan) btnSpan.innerText = "Hide Leaderboard";
-
-        loadLeaderboard();
-
-      } catch (error) {
-        console.error("Firebase Error: ", error);
-        statusText.style.color = "var(--danger)";
-        statusText.innerText = "Error saving score. Please try again.";
-      }
-    };
     window.toggleLeaderboard = function() {
       const container = document.getElementById("leaderboard-container");
       const btnSpan = document.querySelector("#btn-toggle-leaderboard span");
@@ -718,10 +685,9 @@
   // Import the core Firebase App
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
-  import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
   
-  // 👉 NEW: Import Firestore Database functions
-  import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+  // Single, clean import for all Firestore tools
+  import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCAIHsG9fB7dRih74FgPv805Lud2q0BfGE",
@@ -737,7 +703,7 @@
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
 
-  // 👉 NEW: Initialize Firestore and attach it to the window so your quiz logic can use it
+  // Initialize Firestore and attach it to the window
   const db = getFirestore(app);
   window.db = db;
   window.collection = collection;
@@ -746,6 +712,9 @@
   window.orderBy = orderBy;
   window.limit = limit;
   window.getDocs = getDocs;
+  window.setDoc = setDoc;
+  window.doc = doc;
+  window.getDoc = getDoc;
 </script>
 </body>
 </html>

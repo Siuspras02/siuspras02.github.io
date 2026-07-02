@@ -66,7 +66,7 @@
         .quiz-image { max-width: 200px; border-radius: 8px; transition: filter 0.5s ease; box-shadow: 0 8px 16px rgba(0,0,0,0.4); }
         /* We use a heavy blur and boost the colors slightly to make it a fun color-palette guessing game */
         .silhouette-mode { 
-            filter: blur(15px) saturate(1) brightness(0.5); 
+            filter: blur(14.5px) saturate(1) brightness(0.5); 
             transform: scale(1.02); /* hides the fuzzy blurred edges */
         }
         .revealed-mode { filter: brightness(1); }
@@ -235,7 +235,7 @@
         <!-- Developer & Version Info -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <p style="margin: 0;"><strong>Developed by:</strong> Siuspras</p>
-            <span style="background: var(--navy-4); color: var(--brand-main); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 800; border: 1px solid var(--border-mid); letter-spacing: 0.05em;">v1.3.2</span>
+            <span style="background: var(--navy-4); color: var(--brand-main); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 800; border: 1px solid var(--border-mid); letter-spacing: 0.05em;">v1.3.3</span>
         </div>
         
         <!-- Contact Info -->
@@ -285,6 +285,19 @@
         <div id="quiz-choices" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             </div>
     </div>
+    <!-- High Score Submission Form -->
+<div id="highscore-form-container" style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 20px;">
+
+</div>
+
+
+<!-- Leaderboard Display Container (Hidden by default) -->
+<div id="leaderboard-container" style="display: none; margin: 30px auto 0 auto; width: 100%; max-width: 400px; background: var(--navy-3); border-radius: 12px; border: 1px solid var(--border-dim); padding: 16px; position: relative; z-index: 10;">
+  <h3 style="color: var(--brand-main); text-align: center; margin-bottom: 16px;">Top 10 Scores</h3>
+  <div id="leaderboard-list" style="display: flex; flex-direction: column; gap: 8px;">
+    <!-- Scores will be injected here by Javascript -->
+  </div>
+</div>
 
 <script>
     // 1. DATABASE LOADER (Copied from your library)
@@ -496,8 +509,11 @@
             setTimeout(() => startQuiz(currentQuizMode), 1500);
 
         } else {
+            // 👉 NEW: Save the final score BEFORE resetting it!
+            const finalScore = currentStreak; 
+            
             clickedButton.classList.add("wrong");
-            currentStreak = 0;
+            currentStreak = 0; // Now it's safe to reset
             document.getElementById("quiz-score").innerText = currentStreak;
 
             allButtons.forEach(btn => {
@@ -512,11 +528,18 @@
                 art.classList.add("revealed-mode");
             }
 
-            // 👉 THE LAYOUT FIX: Appends below the buttons instead of over the image!
+            // 👉 NEW: Inject the Submit Form directly into the Game Over screen!
             document.getElementById("quiz-choices").innerHTML += `
                 <div style="grid-column: span 2; background: rgba(255, 82, 82, 0.1); border: 1px solid var(--danger); padding: 20px; border-radius: 12px; margin-top: 15px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                    <h2 style="color: var(--danger); margin: 0; font-weight: 900;">Incorrect!</h2>
-                    <button class="btn-export" onclick="startQuiz('${currentQuizMode}')" style="width: auto;">Next Question</button>
+                    <h2 style="color: var(--danger); margin: 0; font-weight: 900;">Incorrect! Final Streak: ${finalScore}</h2>
+                    
+                    <div id="inline-highscore-form" style="display: flex; gap: 8px; margin: 10px 0;">
+                        <input type="text" id="player-name-input" placeholder="Enter name..." maxlength="15" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-dim); background: var(--navy-3); color: var(--text-bright); outline: none; font-family: 'nunito', sans-serif;" />
+                        <button class="btn-export" onclick="submitScoreToFirebase(${finalScore})" style="background: var(--brand-main); color: var(--navy); width: auto;">Submit Score</button>
+                    </div>
+                    <div id="submit-status" style="font-size: 13px; color: var(--text-dim);"></div>
+
+                    <button class="btn-export" onclick="startQuiz('${currentQuizMode}')" style="width: auto; margin-top: 10px;">Try Again</button>
                 </div>
             `;
         }
@@ -529,7 +552,6 @@
     window.closeAboutModal = function() {
       document.getElementById("about-modal").classList.remove("open");
       document.getElementById("about-overlay").classList.remove("open");
-    
     };
     /* ── VISITOR COUNTER ── */
     async function updateVisitorCounter() {
@@ -562,9 +584,122 @@
 
     updateVisitorCounter();
     initializeDatabase();
+
+    window.loadLeaderboard = async function() {
+  const leaderboardContainer = document.getElementById("leaderboard-container");
+  const leaderboardList = document.getElementById("leaderboard-list");
+  
+  // Show the container and set a loading message
+  leaderboardContainer.style.display = "block";
+  leaderboardList.innerHTML = `<div style="text-align: center; color: var(--text-dim);">Loading scores...</div>`;
+
+  try {
+    // 1. Query Firebase: Get "highscores" ordered by score (descending), limited to top 10
+    const scoresRef = window.collection(window.db, "highscores");
+    const q = window.query(scoresRef, window.orderBy("score", "desc"), window.limit(10));
+    
+    const querySnapshot = await window.getDocs(q);
+    
+    // 2. Build the HTML for the list
+    let listHtml = "";
+    let rank = 1;
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      
+      // Add a gold color for 1st place!
+      const rankColor = rank === 1 ? "var(--holo-gold)" : "var(--text-dim)";
+      
+      listHtml += `
+        <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-dim);">
+          <div style="display: flex; gap: 12px;">
+            <span style="color: ${rankColor}; font-weight: 800;">#${rank}</span>
+            <span style="color: var(--text-bright); font-weight: 700;">${data.name}</span>
+          </div>
+          <span style="color: var(--brand-main); font-weight: 800;">${data.score}</span>
+        </div>
+      `;
+      rank++;
+    });
+
+    // 3. Inject the HTML
+    if (listHtml === "") {
+        leaderboardList.innerHTML = `<div style="text-align: center; color: var(--text-dim);">No scores yet!</div>`;
+    } else {
+        leaderboardList.innerHTML = listHtml;
+    }
+
+  } catch (error) {
+    console.error("Error fetching leaderboard: ", error);
+    leaderboardList.innerHTML = `<div style="text-align: center; color: var(--danger);">Failed to load leaderboard.</div>`;
+  }
+};
+    // 👉 NEW: The function now accepts the finalScore as a parameter
+    window.submitScoreToFirebase = async function(finalScore) {
+      const nameInput = document.getElementById("player-name-input").value.trim();
+      const statusText = document.getElementById("submit-status");
+      
+      const finalName = nameInput === "" ? "Anonymous" : nameInput;
+
+      statusText.style.color = "var(--text-mid)";
+      statusText.innerText = "Submitting...";
+
+      try {
+        await window.addDoc(window.collection(window.db, "highscores"), {
+          name: finalName,
+          score: finalScore,
+          timestamp: new Date()
+        });
+
+        statusText.style.color = "var(--holo-teal)"; 
+        statusText.innerText = "Score saved!";
+        
+        // Hide the input form so they can't spam submit
+        document.getElementById("inline-highscore-form").style.display = "none";
+        
+        loadLeaderboard();
+
+      } catch (error) {
+        console.error("Firebase Error: ", error);
+        statusText.style.color = "var(--danger)";
+        statusText.innerText = "Error saving score. Please try again.";
+      }
+    };
     </script>
     <script data-goatcounter="https://swifterstar02.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
+</script>
+<script type="module">
+  // Import the core Firebase App
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+  
+  // 👉 NEW: Import Firestore Database functions
+  import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCAIHsG9fB7dRih74FgPv805Lud2q0BfGE",
+    authDomain: "holoocg-ef4bf.firebaseapp.com",
+    projectId: "holoocg-ef4bf",
+    storageBucket: "holoocg-ef4bf.firebasestorage.app",
+    messagingSenderId: "942377973020",
+    appId: "1:942377973020:web:51f7dfa9c8251a29a9b6d9",
+    measurementId: "G-K26ZT2BFEP"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+
+  // 👉 NEW: Initialize Firestore and attach it to the window so your quiz logic can use it
+  const db = getFirestore(app);
+  window.db = db;
+  window.collection = collection;
+  window.addDoc = addDoc;
+  window.query = query;
+  window.orderBy = orderBy;
+  window.limit = limit;
+  window.getDocs = getDocs;
 </script>
 </body>
 </html>

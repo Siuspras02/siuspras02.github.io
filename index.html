@@ -1249,6 +1249,19 @@
           transform: translate(-8vw, -8vh);
         }
       }
+      /* ── FULL SCREEN LAYOUT TOGGLES ── */
+      .main-panel.layout-left-full { grid-template-columns: 1fr !important; }
+      .main-panel.layout-left-full .panel-col:nth-child(2) { display: none !important; }
+      .main-panel.layout-left-full .btn-max-left { display: none !important; }
+      .main-panel.layout-left-full .btn-def-left { display: flex !important; }
+
+      .main-panel.layout-right-full { grid-template-columns: 1fr !important; }
+      .main-panel.layout-right-full .panel-col:nth-child(1) { display: none !important; }
+      .main-panel.layout-right-full .btn-max-right { display: none !important; }
+      .main-panel.layout-right-full .btn-def-right { display: flex !important; }
+
+      /* Hide the 'Default' buttons by default */
+      .btn-def-left, .btn-def-right { display: none !important; }
     </style>
   </head>
   <body>
@@ -1314,12 +1327,18 @@
               <button class="btn-action" onclick="window.exportDecklist()">
                 <i class="ti ti-clipboard-text"></i> Copy
               </button>
-              <button
-                class="btn-action danger"
-                onclick="window.clearAllBookmarks()"
-              >
+              <button class="btn-action danger" onclick="window.clearAllBookmarks()">
                 <i class="ti ti-trash"></i> Clear
               </button>
+
+              <!-- 👉 NEW: Bookmark Fullscreen Toggles -->
+              <button class="btn-action btn-max-left" onclick="toggleLayout('left')" title="Maximize Bookmarks">
+                <i class="ti ti-arrows-maximize"></i>
+              </button>
+              <button class="btn-action btn-def-left" onclick="toggleLayout('default')" title="Default View" style="background: var(--brand-main); color: var(--navy);">
+                <i class="ti ti-layout-columns"></i>
+              </button>
+
             </div>
             <div class="search-bar hide-on-desktop">
               <i class="ti ti-search"></i>
@@ -1405,6 +1424,12 @@
                   border: 1px solid var(--border-dim);
                 "
               >
+              <button class="btn-action btn-max-right" onclick="toggleLayout('right')" title="Maximize Database">
+                <i class="ti ti-arrows-maximize"></i>
+              </button>
+              <button class="btn-action btn-def-right" onclick="toggleLayout('default')" title="Default View" style="background: var(--brand-main); color: var(--navy);">
+                <i class="ti ti-layout-columns"></i>
+              </button>
                 <button
                   id="btn-grid-view"
                   onclick="setView('grid')"
@@ -1561,7 +1586,7 @@
               border: 1px solid var(--border-mid);
               letter-spacing: 0.05em;
             "
-            >v1.3.1</span
+            >v1.3.2</span
           >
         </div>
 
@@ -2983,6 +3008,33 @@
       }
 
       updateVisitorCounter();
+    </script>
+    <script>
+      // ── LAYOUT TOGGLE LOGIC ──
+      window.toggleLayout = function(mode) {
+        const mainPanel = document.querySelector('.main-panel');
+        const bookmarkGrid = document.getElementById('current-deck'); // The bookmarks container
+        
+        // 1. Remove both layout classes to reset to the default split view
+        mainPanel.classList.remove('layout-left-full', 'layout-right-full');
+        
+        // 2. Always safely reset the Bookmarks back to List View by default
+        if (bookmarkGrid) {
+            bookmarkGrid.classList.add('list-view');
+        }
+        
+        // 3. Apply the requested full-screen class
+        if (mode === 'left') {
+            mainPanel.classList.add('layout-left-full');
+            
+            // 👉 NEW: Remove the list-view class so the Bookmarks become a Grid!
+            if (bookmarkGrid) {
+                bookmarkGrid.classList.remove('list-view');
+            }
+        } else if (mode === 'right') {
+            mainPanel.classList.add('layout-right-full');
+        }
+      };
     </script>
     <script
       data-goatcounter="https://swifterstar02.goatcounter.com/count"

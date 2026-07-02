@@ -1636,7 +1636,7 @@
               border: 1px solid var(--border-mid);
               letter-spacing: 0.05em;
             "
-            >v1.3.1</span
+            >v1.3.2</span
           >
         </div>
 
@@ -2308,12 +2308,55 @@
         updateBookmarkButtons();
       }
 
-      function addCardToDeck(cardData) {
-        let deck = getDeck();
-        if (!deck.some((card) => card.card_id === cardData.card_id)) {
-          deck.push(cardData);
-          saveDeck(deck);
+      function addCardToDeck(cardId) {
+        // Failsafe: Handle both objects and strings seamlessly
+        const targetId = typeof cardId === 'object' ? cardId.card_id : cardId;
+        const card = masterCardPool.find((c) => c.card_id === targetId);
+        if (!card) return;
+
+        const type = card.card_type; // e.g., "Oshi", "Cheer", "Holomem", "Support"
+
+        // 1. Handle Oshi Zone
+        if (type === "Oshi") {
+          currentDeck.oshi = card;
+          renderDecklist();
+          return;
         }
+
+        // 2. Handle Cheer Deck (Max 20 total)
+        if (type === "Cheer") {
+          let currentCheerCount = Object.values(currentDeck.cheer).reduce(
+            (a, b) => a + b,
+            0,
+          );
+          if (currentCheerCount >= 20)
+            return alert("Cheer deck is full (20/20)!");
+
+          currentDeck.cheer[targetId] = (currentDeck.cheer[targetId] || 0) + 1;
+          renderDecklist();
+          return;
+        }
+
+        // 3. Handle Main Deck (Max 50 total, Max 4 per card)
+        let currentMainCount = Object.values(currentDeck.main).reduce(
+          (a, b) => a + b,
+          0,
+        );
+        if (currentMainCount >= 50) return alert("Main deck is full (50/50)!");
+
+        let cardCopies = currentDeck.main[targetId] || 0;
+        
+        // 👉 THE FIX: Safely check for the "Extra" or "any number" rule
+        const skillSafe = card.skills_text ? card.skills_text: "";
+        const isUnlimited = skillSafe.includes("Extra:") || skillSafe.includes("any number");
+
+        // Apply the 4-copy limit, but bypass it if the card is unlimited!
+        if (cardCopies >= 4 && !isUnlimited) {
+          return alert("You can only have 4 copies of a specific card!");
+        }
+
+        currentDeck.main[targetId] = cardCopies + 1;
+        renderDecklist();
       }
 
       function updateBookmarkButtons() {
@@ -3138,8 +3181,11 @@
         cheer: {}, // Stores { card_id: quantity }
       };
 
-      function addCardToDeck(cardId) {
-        const card = masterCardPool.find((c) => c.card_id === cardId);
+      function addCardToDeck(cardInput) {
+        // Failsafe: Support both ID strings and full card objects
+        const targetId = typeof cardInput === 'object' ? cardInput.card_id : cardInput;
+        const card = masterCardPool.find((c) => c.card_id === targetId);
+        
         if (!card) return;
 
         const type = card.card_type; // e.g., "Oshi", "Cheer", "Holomem", "Support"
@@ -3160,7 +3206,7 @@
           if (currentCheerCount >= 20)
             return alert("Cheer deck is full (20/20)!");
 
-          currentDeck.cheer[cardId] = (currentDeck.cheer[cardId] || 0) + 1;
+          currentDeck.cheer[targetId] = (currentDeck.cheer[targetId] || 0) + 1;
           renderDecklist();
           return;
         }
@@ -3172,11 +3218,19 @@
         );
         if (currentMainCount >= 50) return alert("Main deck is full (50/50)!");
 
-        let cardCopies = currentDeck.main[cardId] || 0;
-        if (cardCopies >= 4)
-          return alert("You can only have 4 copies of a specific card!");
+        let cardCopies = currentDeck.main[targetId] || 0;
+        
+        const safeSkill = card.skills_text ? card.skills_text.toLowerCase() : "";
+        
+        // 👉 THE TRUE FIX: Only isolate the phrase "any number" to target unlimited cards
+        const isUnlimited = safeSkill.includes("any number");
 
-        currentDeck.main[cardId] = cardCopies + 1;
+        // Apply the standard 4-copy limit, but BYPASS it if it is unlimited
+        if (cardCopies >= 4 && !isUnlimited) {
+          return alert("You can only have 4 copies of a specific card!");
+        }
+
+        currentDeck.main[targetId] = cardCopies + 1;
         renderDecklist();
       }
 

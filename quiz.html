@@ -285,6 +285,11 @@
         <div id="quiz-choices" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             </div>
     </div>
+    <div style="display: flex; justify-content: center; margin-top: 10px;">
+        <button id="btn-toggle-leaderboard" class="btn-about-header" onclick="toggleLeaderboard()" style="padding: 10px 16px; border-radius: 8px;">
+            <i class="ti ti-trophy"></i> <span>View Leaderboard</span>
+        </button>
+    </div>
     <!-- High Score Submission Form -->
 <div id="highscore-form-container" style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 20px;">
 
@@ -493,57 +498,57 @@
     }
 
     function checkAnswer(clickedButton, guessedCardId) {
-        const allButtons = document.querySelectorAll(".btn-choice");
-        allButtons.forEach(btn => btn.style.pointerEvents = "none");
+    const allButtons = document.querySelectorAll(".btn-choice");
+    allButtons.forEach(btn => btn.style.pointerEvents = "none");
 
-        if (guessedCardId === correctCard.card_id) {
-            clickedButton.classList.add("correct");
-            currentStreak++;
-            document.getElementById("quiz-score").innerText = currentStreak;
-            
-            const art = document.getElementById("quiz-art");
-            if (art) {
-                art.classList.remove("silhouette-mode");
-                art.classList.add("revealed-mode");
-            }
-            setTimeout(() => startQuiz(currentQuizMode), 1500);
-
-        } else {
-            // 👉 NEW: Save the final score BEFORE resetting it!
-            const finalScore = currentStreak; 
-            
-            clickedButton.classList.add("wrong");
-            currentStreak = 0; // Now it's safe to reset
-            document.getElementById("quiz-score").innerText = currentStreak;
-
-            allButtons.forEach(btn => {
-                if (btn.innerText.includes(correctCard.card_name)) {
-                    btn.classList.add("correct");
-                }
-            });
-
-            const art = document.getElementById("quiz-art");
-            if (art) {
-                art.classList.remove("silhouette-mode");
-                art.classList.add("revealed-mode");
-            }
-
-            // 👉 NEW: Inject the Submit Form directly into the Game Over screen!
-            document.getElementById("quiz-choices").innerHTML += `
-                <div style="grid-column: span 2; background: rgba(255, 82, 82, 0.1); border: 1px solid var(--danger); padding: 20px; border-radius: 12px; margin-top: 15px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                    <h2 style="color: var(--danger); margin: 0; font-weight: 900;">Incorrect! Final Streak: ${finalScore}</h2>
-                    
-                    <div id="inline-highscore-form" style="display: flex; gap: 8px; margin: 10px 0;">
-                        <input type="text" id="player-name-input" placeholder="Enter name..." maxlength="15" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-dim); background: var(--navy-3); color: var(--text-bright); outline: none; font-family: 'nunito', sans-serif;" />
-                        <button class="btn-export" onclick="submitScoreToFirebase(${finalScore})" style="background: var(--brand-main); color: var(--navy); width: auto;">Submit Score</button>
-                    </div>
-                    <div id="submit-status" style="font-size: 13px; color: var(--text-dim);"></div>
-
-                    <button class="btn-export" onclick="startQuiz('${currentQuizMode}')" style="width: auto; margin-top: 10px;">Try Again</button>
-                </div>
-            `;
+    if (guessedCardId === correctCard.card_id) {
+        clickedButton.classList.add("correct");
+        currentStreak++;
+        document.getElementById("quiz-score").innerText = currentStreak;
+        
+        const art = document.getElementById("quiz-art");
+        if (art) {
+            art.classList.remove("silhouette-mode");
+            art.classList.add("revealed-mode");
         }
+        setTimeout(() => startQuiz(currentQuizMode), 1500);
+
+    } else {
+        // 👉 NEW: Save the final score BEFORE resetting it!
+        const finalScore = currentStreak; 
+        
+        clickedButton.classList.add("wrong");
+        currentStreak = 0; // Now it's safe to reset
+        document.getElementById("quiz-score").innerText = currentStreak;
+
+        allButtons.forEach(btn => {
+            if (btn.innerText.includes(correctCard.card_name)) {
+                btn.classList.add("correct");
+            }
+        });
+
+        const art = document.getElementById("quiz-art");
+        if (art) {
+            art.classList.remove("silhouette-mode");
+            art.classList.add("revealed-mode");
+        }
+
+        // 👉 NEW: Inject the Submit Form directly into the Game Over screen!
+        document.getElementById("quiz-choices").innerHTML += `
+            <div style="grid-column: span 2; background: rgba(255, 82, 82, 0.1); border: 1px solid var(--danger); padding: 20px; border-radius: 12px; margin-top: 15px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                <h2 style="color: var(--danger); margin: 0; font-weight: 900;">Incorrect! Final Streak: ${finalScore}</h2>
+                
+                <div id="inline-highscore-form" style="display: flex; gap: 8px; margin: 10px 0;">
+                    <input type="text" id="player-name-input" placeholder="Enter name..." maxlength="15" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-dim); background: var(--navy-3); color: var(--text-bright); outline: none; font-family: 'nunito', sans-serif;" />
+                    <button class="btn-export" onclick="submitScoreToFirebase(${finalScore})" style="background: var(--brand-main); color: var(--navy); width: auto;">Submit Score</button>
+                </div>
+                <div id="submit-status" style="font-size: 13px; color: var(--text-dim);"></div>
+
+                <button class="btn-export" onclick="startQuiz('${currentQuizMode}')" style="width: auto; margin-top: 10px;">Try Again</button>
+            </div>
+        `;
     }
+}
       /* ── ABOUT MODAL LOGIC ── */
     window.openAboutModal = function() {
       document.getElementById("about-modal").classList.add("open");
@@ -641,8 +646,8 @@
       
       const finalName = nameInput === "" ? "Anonymous" : nameInput;
 
-      statusText.style.color = "var(--text-mid)";
-      statusText.innerText = "Submitting...";
+      statusText.style.color = "var(--holo-teal)"; 
+      statusText.innerText = "Score saved!";
 
       try {
         await window.addDoc(window.collection(window.db, "highscores"), {
@@ -656,6 +661,8 @@
         
         // Hide the input form so they can't spam submit
         document.getElementById("inline-highscore-form").style.display = "none";
+        const btnSpan = document.querySelector("#btn-toggle-leaderboard span");
+        if (btnSpan) btnSpan.innerText = "Hide Leaderboard";
         
         loadLeaderboard();
 
@@ -663,6 +670,21 @@
         console.error("Firebase Error: ", error);
         statusText.style.color = "var(--danger)";
         statusText.innerText = "Error saving score. Please try again.";
+      }
+    };
+    window.toggleLeaderboard = function() {
+      const container = document.getElementById("leaderboard-container");
+      const btnSpan = document.querySelector("#btn-toggle-leaderboard span");
+      
+      if (container.style.display === "none" || container.style.display === "") {
+        // Show it and fetch data
+        container.style.display = "block";
+        btnSpan.innerText = "Hide Leaderboard";
+        loadLeaderboard(); 
+      } else {
+        // Hide it
+        container.style.display = "none";
+        btnSpan.innerText = "View Leaderboard";
       }
     };
     </script>

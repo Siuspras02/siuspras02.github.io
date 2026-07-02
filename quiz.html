@@ -650,20 +650,43 @@
       statusText.innerText = "Score saved!";
 
       try {
-        await window.addDoc(window.collection(window.db, "highscores"), {
-          name: finalName,
-          score: finalScore,
-          timestamp: new Date()
-        });
+        // 1. Create a reference pointing to the player's specific name as the ID
+        const playerDocRef = window.doc(window.db, "highscores", finalName);
+        
+        // 2. Check if this name is already on the leaderboard
+        const docSnap = await window.getDoc(playerDocRef);
+
+        if (docSnap.exists()) {
+            // Name exists! Check if the new score is better than their old score
+            const oldScore = docSnap.data().score;
+            if (finalScore > oldScore) {
+                await window.setDoc(playerDocRef, {
+                    name: finalName,
+                    score: finalScore,
+                    timestamp: new Date()
+                });
+                statusText.innerText = "New personal best saved!";
+            } else {
+                statusText.innerText = "Score submitted (but your previous high score was better!).";
+            }
+        } else {
+            // Name is new! Save it to the database normally
+            await window.setDoc(playerDocRef, {
+                name: finalName,
+                score: finalScore,
+                timestamp: new Date()
+            });
+            statusText.innerText = "Score saved!";
+        }
 
         statusText.style.color = "var(--holo-teal)"; 
-        statusText.innerText = "Score saved!";
         
         // Hide the input form so they can't spam submit
         document.getElementById("inline-highscore-form").style.display = "none";
+        
         const btnSpan = document.querySelector("#btn-toggle-leaderboard span");
         if (btnSpan) btnSpan.innerText = "Hide Leaderboard";
-        
+
         loadLeaderboard();
 
       } catch (error) {
@@ -695,6 +718,7 @@
   // Import the core Firebase App
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+  import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
   
   // 👉 NEW: Import Firestore Database functions
   import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";

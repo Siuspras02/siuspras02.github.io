@@ -412,6 +412,15 @@
     let dailySeed = 0;
     let timerInterval;
 
+    
+    function getLocalTodayString() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     // Generates a unique number for today (e.g., 20260703)
     function getTodaySeed() {
         const today = new Date();
@@ -420,8 +429,9 @@
 
     // A predictable random number generator based on the seed
     function seededRandom() {
-        let x = Math.sin(dailySeed++) * 10000;
-        return x - Math.floor(x);
+        // Industry-standard Linear Congruential Generator (LCG)
+        dailySeed = (dailySeed * 9301 + 49297) % 233280;
+        return dailySeed / 233280;
     }
 
     function startGauntlet(mode) {
@@ -430,7 +440,7 @@
             return;
         }
 
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getLocalTodayString();
         if (localStorage.getItem('gauntletAttempted_' + todayStr)) {
             alert("You have already attempted the Gauntlet today! Come back tomorrow.");
             return;
@@ -503,8 +513,6 @@
         let seenNames = new Set();
         seenNames.add(correctCard.card_name.toLowerCase());
 
-        let shuffledPool = validPool.sort(() => 0.5 - seededRandom());
-
         function isNameUnique(newName) {
             let lowerNew = newName.toLowerCase();
             for (let seen of seenNames) {
@@ -513,16 +521,23 @@
             return true;
         }
 
-        // Fetch 3 wrong choices
-        for (let card of shuffledPool) {
-            if (isNameUnique(card.card_name)) {
-                wrongChoices.push(card);
-                seenNames.add(card.card_name.toLowerCase());
+        // 👉 FIX 1: Pick 3 wrong choices deterministically (No sorting!)
+        let attempts = 0;
+        while (wrongChoices.length < 3 && attempts < 1000) {
+            let candidate = validPool[Math.floor(seededRandom() * validPool.length)];
+            if (isNameUnique(candidate.card_name)) {
+                wrongChoices.push(candidate);
+                seenNames.add(candidate.card_name.toLowerCase());
             }
-            if (wrongChoices.length === 3) break;
+            attempts++;
         }
 
-        const finalChoices = [correctCard, ...wrongChoices].sort(() => 0.5 - seededRandom());
+        // 👉 FIX 2: Fisher-Yates Shuffle for the 4 final buttons
+        const finalChoices = [correctCard, ...wrongChoices];
+        for (let i = finalChoices.length - 1; i > 0; i--) {
+            const j = Math.floor(seededRandom() * (i + 1));
+            [finalChoices[i], finalChoices[j]] = [finalChoices[j], finalChoices[i]];
+        }
         const displayArea = document.getElementById("quiz-display");
 
         if (currentQuizMode === 'visual') {
@@ -763,59 +778,88 @@
         const leaderboardList = document.getElementById("leaderboard-list");
         
         leaderboardContainer.style.display = "block";
-        leaderboardList.innerHTML = `<div style="text-align: center; color: var(--text-dim);">Loading today's scores...</div>`;
+        leaderboardList.innerHTML = `<div style="text-align: center; color: var(--text-dim);">Loading leaderboards...</div>`;
 
         try {
-            const todayStr = new Date().toISOString().split('T')[0];
+            // 1. Calculate dates for Today, Yesterday, and 2 Days Ago (Using Local Time)
+            const datesToFetch = [];
+            for (let i = 0; i < 3; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                datesToFetch.push(`${year}-${month}-${day}`);
+            }
+
             const scoresRef = window.collection(window.db, "daily_gauntlet");
             
-            // 1. Fetch only scores submitted TODAY
-            const q = window.query(scoresRef, window.where("date", "==", todayStr));
+            // 2. Fetch scores where the date matches ANY of those 3 days
+            const q = window.query(scoresRef, window.where("date", "in", datesToFetch));
             const querySnapshot = await window.getDocs(q);
             
-            let dailyScores = [];
+            // 3. Group the scores by their date
+            let groupedScores = {};
+            datesToFetch.forEach(date => groupedScores[date] = []); // Setup empty arrays for each day
+
             querySnapshot.forEach((doc) => {
-                dailyScores.push(doc.data());
-            });
-
-            // 2. Sort by Highest Score first, then Lowest Time
-            dailyScores.sort((a, b) => {
-                if (b.score !== a.score) {
-                    return b.score - a.score; 
+                const data = doc.data();
+                if (groupedScores[data.date]) {
+                    groupedScores[data.date].push(data);
                 }
-                return a.time - b.time; 
             });
-
-            // 3. Keep only the top 10
-            dailyScores = dailyScores.slice(0, 10);
 
             let listHtml = "";
-            let rank = 1;
-            
-            dailyScores.forEach((data) => {
-                // Let's add a gold color for 1st place!
-                const rankColor = rank === 1 ? "#FFD700" : "var(--text-dim)";
+
+            // 4. Sort and build the HTML for each day independently
+            datesToFetch.forEach((dateStr, index) => {
+                let dailyScores = groupedScores[dateStr];
                 
-                listHtml += `
-                    <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-dim);">
-                        <div style="display: flex; gap: 12px; align-items: center;">
-                            <span style="color: ${rankColor}; font-weight: 800; width: 20px;">#${rank}</span>
-                            <span style="color: var(--text-bright); font-weight: 700;">${data.name}</span>
-                        </div>
-                        <div style="display: flex; gap: 15px; align-items: center;">
-                            <span style="color: var(--holo-teal); font-weight: 800;">${data.score}/10</span>
-                            <span style="color: var(--holo-orange); font-weight: 800; width: 50px; text-align: right;">${data.time}s</span>
-                        </div>
-                    </div>
-                `;
-                rank++;
+                // Sort by Highest Score first, then Lowest Time
+                dailyScores.sort((a, b) => {
+                    if (b.score !== a.score) {
+                        return b.score - a.score; 
+                    }
+                    return a.time - b.time; 
+                });
+
+                // Keep only top 10 per day
+                dailyScores = dailyScores.slice(0, 10);
+
+                // Create friendly section headers
+                let dayLabel = index === 0 ? "Today" : index === 1 ? "Yesterday" : dateStr;
+                listHtml += `<div style="margin-top: 16px; margin-bottom: 8px; font-weight: 800; color: var(--brand-main); border-bottom: 1px solid var(--border-dim); padding-bottom: 4px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">${dayLabel}</div>`;
+
+                if (dailyScores.length === 0) {
+                    listHtml += `<div style="text-align: center; color: var(--text-dim); font-size: 13px; margin-bottom: 12px;">No scores for this day.</div>`;
+                } else {
+                    let rank = 1;
+                    dailyScores.forEach((data) => {
+                        // Bronze, Silver, and Gold colors for the top 3!
+                        const rankColor = rank === 1 ? "#FFD700" : rank === 2 ? "#C0C0C0" : rank === 3 ? "#CD7F32" : "var(--text-dim)";
+                        
+                        listHtml += `
+                            <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-dim); margin-bottom: 6px;">
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <span style="color: ${rankColor}; font-weight: 800; width: 20px;">#${rank}</span>
+                                    <span style="color: var(--text-bright); font-weight: 700;">${data.name}</span>
+                                </div>
+                                <div style="display: flex; gap: 15px; align-items: center;">
+                                    <span style="color: var(--holo-teal); font-weight: 800;">${data.score}/10</span>
+                                    <span style="color: var(--holo-orange); font-weight: 800; width: 50px; text-align: right;">${data.time}s</span>
+                                </div>
+                            </div>
+                        `;
+                        rank++;
+                    });
+                }
             });
 
-            if (listHtml === "") {
-                leaderboardList.innerHTML = `<div style="text-align: center; color: var(--text-dim);">No scores yet today! Be the first!</div>`;
-            } else {
-                leaderboardList.innerHTML = listHtml;
-            }
+            // Update the title at the top of the container
+            const titleElement = leaderboardContainer.querySelector("h3");
+            if (titleElement) titleElement.innerText = "Gauntlet Leaderboards";
+            
+            leaderboardList.innerHTML = listHtml;
 
         } catch (error) {
             console.error("Error fetching leaderboard: ", error);
@@ -830,7 +874,7 @@ window.submitGauntletScore = async function(score, timeNum, btnElement) {
 
         try {
             // Get today's date as a string (e.g., "2026-07-03")
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = getLocalTodayString();
             
             // Create a unique ID for this player for TODAY only
             const docId = `${todayStr}_${sessionPlayerName}`;
@@ -884,7 +928,7 @@ window.submitGauntletScore = async function(score, timeNum, btnElement) {
     };
     
     window.addEventListener('DOMContentLoaded', (event) => {
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getLocalTodayString();
         if (localStorage.getItem('gauntletAttempted_' + todayStr)) {
             // Replace the start buttons with a friendly message
             const btnContainer = document.getElementById("start-buttons-container");

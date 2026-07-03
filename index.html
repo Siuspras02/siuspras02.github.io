@@ -606,7 +606,30 @@
         line-height: 1.2;
         margin-bottom: 4px;
       }
-
+      /* ── HIDE OVERLAY BUTTON ── */
+      .card-item.hide-translation .translation-overlay {
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+      
+      .btn-hide-overlay {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-dim);
+        border-radius: 6px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: 0.2s;
+        padding: 6px 8px;
+        color: var(--text-mid);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .btn-hide-overlay:hover {
+        background: rgba(255, 82, 82, 0.15);
+        color: var(--danger);
+        border-color: var(--danger);
+      }
       .bookmark-btn {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--border-dim);
@@ -1287,6 +1310,9 @@
           <a href="quiz.html" class="tab">
             <span class="tab-title">Minigames</span>
           </a>
+          <a href="daily.html" class="tab active">
+          <span class="tab-title">Daily Gauntlet</span>
+        </a>
         </nav>
       </div>
       <div class="topbar-center">
@@ -1586,7 +1612,7 @@
               border: 1px solid var(--border-mid);
               letter-spacing: 0.05em;
             "
-            >v1.3.3</span
+            >v1.4.0</span
           >
         </div>
 
@@ -1697,6 +1723,13 @@
     </div>
 
     <script>
+      // 👉 NEW: Hides the translation overlay until the user un-hovers
+      window.hideOverlay = function(btn) {
+        const cardItem = btn.closest('.card-item');
+        if (cardItem) {
+          cardItem.classList.add('hide-translation');
+        }
+      };
       // SVG Fallback for Missing Low-Res Images
       const fallbackImage =
         "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 336'%3E%3Crect width='240' height='336' fill='%2315202B' rx='12'/%3E%3Crect x='10' y='10' width='220' height='316' fill='none' stroke='%2341C3E3' stroke-width='2' stroke-dasharray='6 6' rx='8'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='28' font-weight='bold' fill='%2341C3E3' opacity='0.3'%3EhOCG%3C/text%3E%3C/svg%3E";
@@ -2347,10 +2380,7 @@
           });
 
         currentFilteredPool = masterCardPool.filter(card => {
-          // 👉 FIX 1: The Set check logic is intact.
           if (currentSetFilter !== "all" && !card.card_id.startsWith(currentSetFilter)) return false;
-          
-          // 👉 FIX 2: We removed the duplicate nameSafe and idSafe lines!
           const nameSafe = card.card_name ? card.card_name.toLowerCase() : "";
           const idSafe = card.card_id ? card.card_id.toLowerCase() : "";
           const typeSafe = card.raw_type
@@ -2586,7 +2616,7 @@
           let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : "";
 
           htmlBuilder += `
-              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)">
+              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)" onmouseleave="this.classList.remove('hide-translation')">
                   ${altToggleHtml}
                   <div class="card-face ${typeClass} grid-element">
                       <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
@@ -2603,7 +2633,12 @@
                   <div class="translation-overlay grid-element">
                       <div class="tl-header">
                           <span class="tl-type badge ${typeClass}">${type.toUpperCase()}</span>
-                          ${btnHtml}
+                          <div style="display: flex; gap: 6px;">
+                              <button class="btn-hide-overlay" onclick="event.stopPropagation(); window.hideOverlay(this)" title="Hide Text">
+                                  <i class="ti ti-eye-off"></i>
+                              </button>
+                              ${btnHtml}
+                          </div>
                       </div>
                       <div class="tl-title">${level}${card.card_name}</div>
                       <div class="tl-scroll-area">
@@ -2844,24 +2879,23 @@
           let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : "";
 
           htmlBuilder += `
-              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)">
+              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)" onmouseleave="this.classList.remove('hide-translation')">
                   
                   <div class="card-face ${typeClass} grid-element">
-                      <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
-                      <i class="ti ${iconClass}"></i>
-                      <span class="face-label">${type.toUpperCase()}</span>
+                      <!-- ... -->
                   </div>
                   <div class="card-meta grid-element">
-                      <span class="card-name-jp">${level}${card.card_name}</span>
-                      <span class="card-id">${card.card_id}</span>
-                      <div class="card-badges">
-                          <span class="badge ${typeClass}">${type.toUpperCase()}</span>
-                      </div>
+                      <!-- ... -->
                   </div>
                   <div class="translation-overlay grid-element">
                       <div class="tl-header">
                           <span class="tl-type badge ${typeClass}">${type.toUpperCase()}</span>
-                          ${btnHtml}
+                          <div style="display: flex; gap: 6px;">
+                              <button class="btn-hide-overlay" onclick="event.stopPropagation(); window.hideOverlay(this)" title="Hide Text">
+                                  <i class="ti ti-eye-off"></i>
+                              </button>
+                              ${btnHtml}
+                          </div>
                       </div>
                       <div class="tl-title">${level}${card.card_name}</div>
                       <div class="tl-scroll-area">

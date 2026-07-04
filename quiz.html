@@ -121,14 +121,101 @@
             color: var(--brand-main); text-decoration: none; font-weight: 700; display: inline-block; margin-top: 4px; border-bottom: 1px dashed var(--border-dim); transition: 0.2s;
         }
         .about-content a:hover { color: var(--brand-hover); border-color: var(--brand-hover); }
+        .burger-btn { display: none; }
+        /* ── DROPDOWN MENU ── */
+      .dropdown {
+        position: relative;
+        cursor: pointer;
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--navy-3);
+        border: 1px solid var(--border-dim);
+        border-radius: 8px;
+        padding: 4px 0;
+        min-width: 180px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        z-index: 200;
+      }
+      /* Opens on hover (Desktop) or click (Mobile) */
+      .dropdown.open .dropdown-content {
+        display: flex;
+        flex-direction: column;
+      }
+      .dropdown-item {
+        padding: 10px 16px;
+        color: var(--text-mid);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        transition: 0.2s;
+        text-align: center;
+      }
+      .dropdown-item:hover {
+        background: rgba(65, 195, 227, 0.1);
+        color: var(--brand-main);
+      }
+        
 
         @media (max-width: 768px) {
+            /* ── MOBILE DROPDOWN FIX ── */
+        .dropdown {
+          flex-direction: column;
+        }
+        .dropdown-content {
+          position: static; /* Forces it to push other items down instead of floating */
+          transform: none;
+          width: 100%;
+          box-shadow: none;
+          border: 1px solid var(--border-dim);
+          background: rgba(0, 0, 0, 0.2);
+        }
             .topbar { padding: 10px 16px; gap: 8px; display: grid; justify-content: stretch; height: auto;}
             .topbar-left { flex: 100%; flex-direction: column; align-items: center; gap: 10px; }
             .topbar-center { flex: 100%; order: 3; }
             .topbar-right { display: none; }
-            .tabs { display: flex; width: 100%; justify-content: center; gap: 4px; }
-            .tab { padding: 8px 12px; flex-direction: row; }
+            /* Shows and styles the burger button on mobile */
+        .burger-btn { 
+            display: flex; 
+            align-items: center; 
+            background: transparent; 
+            color: var(--brand-main); 
+            border: 1px solid var(--border-dim); 
+            padding: 4px 8px; 
+            border-radius: 6px; 
+            font-size: 24px; 
+            cursor: pointer;
+        }
+
+        .topbar-left {
+          flex: 100%;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+        }
+
+        /* ── THE VERTICAL MENU STACK ── */
+        .tabs {
+          display: none; /* Hidden by default */
+          flex-direction: column; /* Stacks top-to-bottom */
+          width: 100%;
+          gap: 8px;
+        }
+        
+        .tabs.open {
+          display: flex; /* Shown when burger button is clicked */
+        }
+        
+        .tab {
+          padding: 12px;
+          flex-direction: row;
+          width: 100%;
+          justify-content: center;
+        }
             .tab-desc { display: none; }
             .tab-title { font-size: 14px; }
         }
@@ -199,34 +286,45 @@
       <div class="holo-bg-glow glow-pink"></div>
   </div>
 <header class="topbar">
-    <div class="topbar-left">
-      <div class="logo">Hololive OCG <span>DB</span></div>
-        <nav class="tabs">
-        <a href="index.html" class="tab">
-          <span class="tab-title">Modern Library</span>
-        </a>
-        <a href="deckbuilder.html" class="tab">
-          <span class="tab-title">Deck Builder</span>
-        </a>
-        <a href="card-library.html" class="tab">
-          <span class="tab-title">Simple Library</span>
-        </a>
-        <a href="quiz.html" class="tab active">
-          <span class="tab-title">Minigames</span>
-        </a>
-        <a href="daily.html" class="tab">
-          <span class="tab-title">Daily Gauntlet</span>
-        </a>
-      </nav>
-    </div>
-    
+      <div class="topbar-left">
+        
+        <!-- 👉 NEW: Wrapper to keep the logo and burger button on the same line on mobile -->
+        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+            <div class="logo">Hololive OCG <span>DB</span></div>
+            
+            <button class="burger-btn" onclick="document.getElementById('mobile-tabs').classList.toggle('open')">
+                <i class="ti ti-menu-2"></i>
+            </button>
+        </div>
 
-    <div class="topbar-right">
-      <button class="btn-about-header" onclick="openAboutModal()">
+        <!-- 👉 NEW: Added id="mobile-tabs" -->
+        <nav class="tabs" id="mobile-tabs">
+          <a href="index.html" class="tab">
+            <span class="tab-title">Modern Library</span>
+          </a>
+          <a href="deckbuilder.html" class="tab">
+            <span class="tab-title">Deck Builder</span>
+          </a>
+          <a href="card-library.html" class="tab">
+            <span class="tab-title">Simple Library</span>
+          </a>
+          <div class="tab dropdown active" onclick="this.classList.toggle('open')">
+            <span class="tab-title" style="display: flex; align-items: center; gap: 4px;">
+              Games <i class="ti ti-chevron-down" style="font-size: 14px;"></i>
+            </span>
+            <div class="dropdown-content">
+              <a href="quiz.html" class="dropdown-item">Endless Minigames</a>
+              <a href="daily.html" class="dropdown-item">Daily Gauntlet</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-about-header" onclick="openAboutModal()">
           <i class="ti ti-info-circle"></i> About
-      </button>
-    </div>
-  </header>
+        </button>
+      </div>
+    </header>
   <!-- ABOUT CREDITS MODAL -->
 <div id="about-overlay" class="about-overlay" onclick="closeAboutModal()"></div>
 <div id="about-modal" class="about-modal">
@@ -238,7 +336,7 @@
         <!-- Developer & Version Info -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <p style="margin: 0;"><strong>Developed by:</strong> Siuspras</p>
-            <span style="background: var(--navy-4); color: var(--brand-main); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 800; border: 1px solid var(--border-mid); letter-spacing: 0.05em;">v1.4.0</span>
+            <span class="app-version" style="background: var(--navy-4); color: var(--brand-main); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 800; border: 1px solid var(--border-mid); letter-spacing: 0.05em;"></span>
         </div>
         
         <!-- Contact Info -->
@@ -680,6 +778,22 @@
         btnSpan.innerText = "View Leaderboard";
       }
     };
+    // Closes the Games dropdown if the user clicks anywhere else on the screen
+      window.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown')) {
+          document.querySelectorAll('.dropdown.open').forEach(dropdown => {
+            dropdown.classList.remove('open');
+          });
+        }
+      });
+      // Closes the Games dropdown if the user clicks anywhere else on the screen
+      window.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown')) {
+          document.querySelectorAll('.dropdown.open').forEach(dropdown => {
+            dropdown.classList.remove('open');
+          });
+        }
+      });
     </script>
     <script data-goatcounter="https://swifterstar02.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
@@ -719,5 +833,6 @@
   window.doc = doc;
   window.getDoc = getDoc;
 </script>
+<script src="version.js"></script>
 </body>
 </html>

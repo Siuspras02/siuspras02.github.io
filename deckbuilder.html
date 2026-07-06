@@ -1424,6 +1424,13 @@
               </button>
               <button
                 class="btn-action"
+                style="flex: 1; min-width: 80px; justify-content: center; background: var(--holo-teal); color: white; border-color: var(--holo-teal);"
+                onclick="openTestHand()"
+              >
+                <i class="ti ti-cards"></i> Test Hand
+              </button>
+              <button
+                class="btn-action"
                 style="
                   flex: 1;
                   min-width: 80px;
@@ -1698,344 +1705,70 @@
       </main>
     </div>
 
-    <!-- VISITOR COUNTER -->
-    <div
-      id="about-overlay"
-      class="about-overlay"
-      onclick="closeAboutModal()"
-    ></div>
+    <!-- ABOUT CREDITS MODAL -->
+    <div id="about-overlay" class="about-overlay" onclick="closeAboutModal()"></div>
     <div id="about-modal" class="about-modal">
       <div class="about-header">
         <h3>About hOCG DB</h3>
-        <button class="btn-close-modal" onclick="closeAboutModal()">
-          <i class="ti ti-x"></i>
-        </button>
+        <button class="btn-close-modal" onclick="closeAboutModal()"><i class="ti ti-x"></i></button>
       </div>
       <div class="about-content">
-        <div
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-          "
-        >
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <p style="margin: 0"><strong>Developed by:</strong> Siuspras</p>
           <span class="app-version" style="background: var(--navy-4); color: var(--brand-main); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 800; border: 1px solid var(--border-mid); letter-spacing: 0.05em;"></span>
-          >
         </div>
-
         <p style="margin-bottom: 16px; line-height: 1.8">
           <strong>Contact & Feedback:</strong><br />
-          <i
-            class="ti ti-brand-discord"
-            style="color: #5865f2; font-size: 16px"
-          ></i>
-          Discord:
-          <span style="color: var(--text-bright); font-weight: 600"
-            >Siuspras</span
-          ><br />
-          <i
-            class="ti ti-mail"
-            style="color: var(--danger); font-size: 16px"
-          ></i>
-          Email:
-          <a
-            href="mailto:Siusprass@gmail.com"
-            style="
-              display: inline;
-              border: none;
-              margin: 0;
-              font-weight: 600;
-              color: var(--brand-main);
-            "
-            >Siusprass@gmail.com</a
-          >
+          <i class="ti ti-brand-discord" style="color: #5865f2; font-size: 16px"></i> Discord: <span style="color: var(--text-bright); font-weight: 600">Siuspras</span><br />
+          <i class="ti ti-mail" style="color: var(--danger); font-size: 16px"></i> Email: <a href="mailto:Siusprass@gmail.com" style="display: inline; border: none; margin: 0; font-weight: 600; color: var(--brand-main);">Siusprass@gmail.com</a>
         </p>
-
-        <p>
-          <strong>Translations provided by:</strong> ogbajoj<br />
-          <a
-            href="https://docs.google.com/spreadsheets/d/1IdaueY-Jw8JXjYLOhA9hUd2w0VRBao9Z1URJwmCWJ64/edit?pli=1&gid=975361685#gid=975361685"
-            target="_blank"
-            ><i class="ti ti-external-link"></i> View Translation Sheet</a
-          >
-        </p>
-        <p>
-          <strong>Card Images sourced from:</strong>
-          hololive-official-cardgame<br />
-          <a href="https://hololive-official-cardgame.com/" target="_blank"
-            ><i class="ti ti-external-link"></i> Visit holocard
-            hololive-official-cardgame</a
-          >
-        </p>
-
+        <p><strong>Translations provided by:</strong> ogbajoj<br /><a href="https://docs.google.com/spreadsheets/d/1IdaueY-Jw8JXjYLOhA9hUd2w0VRBao9Z1URJwmCWJ64" target="_blank"><i class="ti ti-external-link"></i> View Translation Sheet</a></p>
+        <p><strong>Card Images sourced from:</strong> hololive-official-cardgame<br /><a href="https://hololive-official-cardgame.com/" target="_blank"><i class="ti ti-external-link"></i> Visit holocard</a></p>
         <hr style="border-color: var(--border-dim); margin: 20px 0" />
-
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border-dim);
-          "
-        >
-          <span
-            style="font-weight: 700; color: var(--text-mid); font-size: 14px"
-            >Total Visitors</span
-          >
-          <span
-            id="visitor-count"
-            style="
-              font-weight: 800;
-              color: var(--brand-main);
-              font-size: 16px;
-              background: var(--navy-4);
-              padding: 2px 8px;
-              border-radius: 4px;
-              border: 0.5px solid var(--border-mid);
-            "
-            >...</span
-          >
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; background: rgba(0, 0, 0, 0.2); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-dim);">
+          <span style="font-weight: 700; color: var(--text-mid); font-size: 14px">Total Visitors</span>
+          <span id="visitor-count" style="font-weight: 800; color: var(--brand-main); font-size: 16px; background: var(--navy-4); padding: 2px 8px; border-radius: 4px; border: 0.5px solid var(--border-mid);">...</span>
         </div>
-
         <hr style="border-color: var(--border-dim); margin: 20px 0" />
-        <p
-          style="
-            font-size: 12px;
-            color: var(--text-dim);
-            margin: 0;
-            line-height: 1.4;
-          "
-        >
-          This is an unofficial fan-made application. Not affiliated with or
-          endorsed by COVER Corp. or Hololive Production. All intellectual
-          property belongs to their respective owners.
-        </p>
-      </div>
-    </div>
-
-    <!-- ABOUT CREDITS MODAL -->
-    <div
-      id="about-overlay"
-      class="about-overlay"
-      onclick="closeAboutModal()"
-    ></div>
-    <div id="about-modal" class="about-modal">
-      <div class="about-header">
-        <h3>About hOCG DB</h3>
-        <button class="btn-close-modal" onclick="closeAboutModal()">
-          <i class="ti ti-x"></i>
-        </button>
-      </div>
-      <div class="about-content">
-        <div
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-          "
-        >
-          <p style="margin: 0"><strong>Developed by:</strong> Siuspras</p>
-          <span
-            style="
-              background: var(--navy-4);
-              color: var(--brand-main);
-              padding: 4px 8px;
-              border-radius: 6px;
-              font-size: 12px;
-              font-weight: 800;
-              border: 1px solid var(--border-mid);
-              letter-spacing: 0.05em;
-            "
-            >v1.4.0</span
-          >
-        </div>
-
-        <p style="margin-bottom: 16px; line-height: 1.8">
-          <strong>Contact & Feedback:</strong><br />
-          <i
-            class="ti ti-brand-discord"
-            style="color: #5865f2; font-size: 16px"
-          ></i>
-          Discord:
-          <span style="color: var(--text-bright); font-weight: 600"
-            >Siuspras</span
-          ><br />
-          <i
-            class="ti ti-mail"
-            style="color: var(--danger); font-size: 16px"
-          ></i>
-          Email:
-          <a
-            href="mailto:Siusprass@gmail.com"
-            style="
-              display: inline;
-              border: none;
-              margin: 0;
-              font-weight: 600;
-              color: var(--brand-main);
-            "
-            >Siusprass@gmail.com</a
-          >
-        </p>
-
-        <p>
-          <strong>Translations provided by:</strong> ogbajoj<br />
-          <a
-            href="https://docs.google.com/spreadsheets/d/1IdaueY-Jw8JXjYLOhA9hUd2w0VRBao9Z1URJwmCWJ64/edit?pli=1&gid=975361685#gid=975361685"
-            target="_blank"
-            ><i class="ti ti-external-link"></i> View Translation Sheet</a
-          >
-        </p>
-        <p>
-          <strong>Card Images sourced from:</strong>
-          hololive-official-cardgame<br />
-          <a href="https://hololive-official-cardgame.com/" target="_blank"
-            ><i class="ti ti-external-link"></i> Visit holocard
-            hololive-official-cardgame</a
-          >
-        </p>
-
-        <hr style="border-color: var(--border-dim); margin: 20px 0" />
-
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border-dim);
-          "
-        >
-          <span
-            style="font-weight: 700; color: var(--text-mid); font-size: 14px"
-            >Total Visitors</span
-          >
-          <span
-            id="visitor-count"
-            style="
-              font-weight: 800;
-              color: var(--brand-main);
-              font-size: 16px;
-              background: var(--navy-4);
-              padding: 2px 8px;
-              border-radius: 4px;
-              border: 0.5px solid var(--border-mid);
-            "
-            >...</span
-          >
-        </div>
-
-        <hr style="border-color: var(--border-dim); margin: 20px 0" />
-        <p
-          style="
-            font-size: 12px;
-            color: var(--text-dim);
-            margin: 0;
-            line-height: 1.4;
-          "
-        >
-          This is an unofficial fan-made application. Not affiliated with or
-          endorsed by COVER Corp. or Hololive Production. All intellectual
-          property belongs to their respective owners.
-        </p>
+        <p style="font-size: 12px; color: var(--text-dim); margin: 0; line-height: 1.4;">This is an unofficial fan-made application. Not affiliated with or endorsed by COVER Corp. or Hololive Production. All intellectual property belongs to their respective owners.</p>
       </div>
     </div>
 
     <!-- VISUAL DECK MODAL -->
-    <div
-      id="visual-deck-overlay"
-      class="about-overlay"
-      onclick="closeVisualDeck()"
-    ></div>
-    <div
-      id="visual-deck-modal"
-      class="about-modal"
-      style="
-        width: 95%;
-        max-width: 1400px;
-        height: 90vh;
-        display: flex;
-        flex-direction: column;
-      "
-    >
-      <div
-        class="about-header"
-        style="
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 16px 20px;
-        "
-      >
+    <div id="visual-deck-overlay" class="about-overlay" onclick="closeVisualDeck()"></div>
+    <div id="visual-deck-modal" class="about-modal" style="width: 95%; max-width: 1400px; height: 90vh; display: flex; flex-direction: column;">
+      <div class="about-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;">
         <h3 id="visual-deck-title" style="margin: 0">Deck Visualizer</h3>
-
-        <!-- Deck Code Container in the top right -->
         <div style="display: flex; align-items: center; gap: 10px">
-          <input
-            type="text"
-            id="visual-deck-code"
-            readonly
-            style="
-              width: 200px;
-              background: var(--navy);
-              border: 1px solid var(--border-dim);
-              color: var(--brand-main);
-              font-family: monospace;
-              font-size: 12px;
-              padding: 6px;
-              border-radius: 4px;
-              text-align: center;
-            "
-          />
-          <button
-            class="btn-action"
-            style="padding: 4px 10px; font-size: 12px; margin: 0"
-            onclick="window.copyVisualDeckCode()"
-          >
-            <i class="ti ti-copy"></i> Copy
-          </button>
-          <button
-            class="btn-close-modal"
-            onclick="closeVisualDeck()"
-            style="margin-left: 10px"
-          >
-            <i class="ti ti-x"></i>
-          </button>
+          <input type="text" id="visual-deck-code" readonly style="width: 200px; background: var(--navy); border: 1px solid var(--border-dim); color: var(--brand-main); font-family: monospace; font-size: 12px; padding: 6px; border-radius: 4px; text-align: center;" />
+          <button class="btn-action" style="padding: 4px 10px; font-size: 12px; margin: 0" onclick="window.copyVisualDeckCode()"><i class="ti ti-copy"></i> Copy</button>
+          <button class="btn-close-modal" onclick="closeVisualDeck()" style="margin-left: 10px;"><i class="ti ti-x"></i></button>
         </div>
       </div>
-      <div
-        class="about-content"
-        style="
-          flex: 1;
-          overflow-y: auto;
-          padding: 20px;
-          background: var(--navy);
-        "
-      >
+      <div class="about-content" style="flex: 1; overflow-y: auto; padding: 20px; background: var(--navy);">
         <div class="card-grid" id="visual-deck-grid" style="padding: 0"></div>
       </div>
     </div>
 
-    <!-- NATIVE APP BOTTOM SHEET -->
-    <div
-      id="sheet-overlay"
-      class="sheet-overlay"
-      onclick="closeBottomSheet()"
-    ></div>
-    <div id="mobile-bottom-sheet" class="bottom-sheet">
-      <div class="sheet-drag-area" id="sheet-drag-area">
-        <div class="sheet-handle"></div>
+    <!-- STARTING HAND SIMULATOR MODAL -->
+    <div id="test-hand-overlay" class="about-overlay" onclick="closeTestHand()"></div>
+    <div id="test-hand-modal" class="about-modal" style="width: 95%; max-width: 1400px; height: 90vh; display: flex; flex-direction: column;">
+      <div class="about-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;">
+        <h3 style="margin: 0;"><i class="ti ti-cards"></i> Starting Hand Simulator</h3>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <button class="btn-action" style="background: var(--brand-main); color: var(--navy);" onclick="drawTestHand()"><i class="ti ti-refresh"></i> Mulligan (Draw 7)</button>
+          <button class="btn-close-modal" onclick="closeTestHand()" style="margin-left: 10px;"><i class="ti ti-x"></i></button>
+        </div>
       </div>
+      <div class="about-content" style="flex: 1; overflow-y: auto; padding: 20px; background: var(--navy);">
+        <div class="card-grid" id="test-hand-grid" style="padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;"></div>
+      </div>
+    </div>
+
+    <!-- NATIVE APP BOTTOM SHEET -->
+    <div id="sheet-overlay" class="sheet-overlay" onclick="closeBottomSheet()"></div>
+    <div id="mobile-bottom-sheet" class="bottom-sheet">
+      <div class="sheet-drag-area" id="sheet-drag-area"><div class="sheet-handle"></div></div>
       <div class="sheet-content" id="sheet-content"></div>
     </div>
 
@@ -3660,6 +3393,80 @@
           });
         }
       });
+      // ── STARTING HAND SIMULATOR LOGIC ── //
+
+      window.openTestHand = function() {
+          // Count how many cards are in the main deck
+          let mainCount = Object.values(currentDeck.main).reduce((a, b) => a + b, 0);
+          
+          if (mainCount < 7) {
+              return alert("You need at least 7 cards in your Main Deck to test a starting hand!");
+          }
+          
+          document.getElementById("test-hand-modal").classList.add("open");
+          document.getElementById("test-hand-overlay").classList.add("open");
+          
+          // Automatically draw the first hand when opened
+          drawTestHand();
+      };
+
+      window.closeTestHand = function() {
+          document.getElementById("test-hand-modal").classList.remove("open");
+          document.getElementById("test-hand-overlay").classList.remove("open");
+      };
+
+      window.drawTestHand = function() {
+          const grid = document.getElementById("test-hand-grid");
+          grid.innerHTML = `<h3 style="color: var(--text-dim); margin: auto;">Shuffling deck...</h3>`;
+          
+          let deckArray = [];
+          for (let cardId in currentDeck.main) {
+              for (let i = 0; i < currentDeck.main[cardId]; i++) {
+                  deckArray.push(cardId);
+              }
+          }
+
+          for (let i = deckArray.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [deckArray[i], deckArray[j]] = [deckArray[j], deckArray[i]];
+          }
+
+          const startingHand = deckArray.slice(0, 7);
+
+          let htmlBuilder = "";
+          startingHand.forEach((cardId, index) => {
+              let card = masterCardPool.find(c => c.card_id === cardId);
+              if (card) {
+                  const typeClass = getTypeClass(card.card_type);
+                  const iconClass = getIconClass(card.card_type);
+                  const setPrefix = card.card_id.split("-")[0];
+                  const imagePath = card.thumbnail ? card.thumbnail : `images/${setPrefix}/${card.card_id}.webp`;
+                  const isAltArt = card.card_id.match(/_(OUR|SEC|UR|HR|SR)$/i);
+                  const premiumClass = isAltArt ? "premium-alt-art" : "";
+                  
+                  // Notice we DO NOT include the 'fade-in' class here anymore! 
+                  htmlBuilder += `
+                  <div class="card-item ${premiumClass}" style="width: 200px; min-height: 280px;">
+                      <div class="card-face ${typeClass} grid-element">
+                          <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.style.display='none'" />
+                          <i class="ti ${iconClass}"></i>
+                          <span class="face-label">${card.card_type.toUpperCase()}</span>
+                      </div>
+                  </div>
+                  `;
+              }
+          });
+
+          setTimeout(() => {
+              grid.innerHTML = htmlBuilder;
+              
+              // This loop safely triggers the opacity animation sequentially
+              const dealtCards = grid.querySelectorAll(".card-item");
+              dealtCards.forEach((card, index) => {
+                  setTimeout(() => card.classList.add("fade-in"), index * 100);
+              });
+          }, 150);
+      };
     </script>
     <script
       data-goatcounter="https://swifterstar02.goatcounter.com/count"

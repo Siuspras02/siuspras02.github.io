@@ -1,5 +1,5 @@
 // Change this single text string whenever you update your app!
-const CURRENT_VERSION = "v1.4.2";
+const CURRENT_VERSION = "v1.5.1";
 
 // Wait for the page to load, then inject the version into any badge it finds
 document.addEventListener("DOMContentLoaded", () => {

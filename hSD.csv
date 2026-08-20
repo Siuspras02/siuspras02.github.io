@@ -2243,3 +2243,69 @@ Cost: 1 red
 Power: 30
 
 Extra: You may include any number of this holomem in the deck",,,,,,,,,
+hSD05-007_02,"轟はじめ
+(Todoroki Hajime)",,,1st holomem,U,White,120,#DEV_IS #ReGLOSS #Baby,"Bloom Effect: Jane-of-all-Trades Aiming for Universe's #1 Badass
+Draw 1 card.
+
+Arts: Guts, Charm, and Being the Best
+Cost: 1 any color
+Power: 20",,,,,,,,,
+hSD06-005_02,"風真いろは
+(Kazama Iroha)",,,1st holomem,C,Green,120,#JP #holoX,"Bloom Effect: Going out with Kazama
+Send the top card of your cheer deck to your holomem with #holoX.
+
+Arts: Together with Kazama!
+Cost: 1 green
+Power: 30",,,,,,,,,
+hSD02-006_02,"百鬼あやめ
+(Nakiri Ayame)",,,1st holomem,C,Red,140,#JP #Gen 2 #Shooter,"Bloom Effect: Birthday Party
+You may archive 1 card from your hand: Deal 20 special damage to your opponent's center holomem or collab holomem.
+
+Arts: Let's Celebrate Together
+Cost: 1 red
+Power: 30",,,,,,,,,
+hSD02-007_02,"百鬼あやめ
+(Nakiri Ayame)",,,1st holomem,U,Red,120,#JP #Gen 2 #Shooter,"Bloom Effect: Which One♪
+If bloomed from Debut, look at the top 2 cards of your deck. Reveal 1 card from among them, and add it to hand. Then, archive the remaining cards.
+
+Arts: Don't Look Away when I Shine~~!!
+Cost: 1 any color
+Power: 30",,,,,,,,,
+hSD09-002_02,"宝鐘マリン
+(Houshou Marine)",,,Debut holomem,U,Red,100,#JP #Gen 3 #Painting #Sea #Summer,"Collab Effect: holoSummer
+Look at the top 5 cards of your deck. Reveal 1 Debut holomem with #Summer from among them, and add it to your hand. Return the remaining cards to the bottom of your deck in any order.
+
+Arts: Shall Your Captain Main the Helm?
+Cost: 1 any color
+Power: 20",,,,,,,,,
+hSD03-007_02,"猫又おかゆ
+(Nekomata Okayu)",,,1st holomem,U,Blue,110,#JP #GAMERS #Kemomimi,"Bloom Effect: Let's Laugh Together Again!
+You may send 1 cheer from your archive to your holomem with #GAMERS.
+
+Arts: Singing with My Whole Heart
+Cost: 1 any color
+Power: 20",,,,,,,,,
+hSD04-007_02,"癒月ちょこ
+(Yuzuki Choco)",,,1st holomem,U,Purple,110,#JP #Gen 2 #Cooking,"Bloom Effect: Choc-on!
+You may return 1 event other than LIMITED from your archive to your hand.
+
+Arts: I Love You! Mwah♡
+Cost: 2 any color
+Power: 30
+Restore 20 HP to 1 of your back holomem.",,,,,,,,,
+hSD08-007_02,"角巻わため
+(Tsunomaki Watame)",,,Debut holomem,C,Yellow,100,#JP #Gen 4 #Kemomimi #Singing #Summer,"Collab Effect: Summer Festival with Everyone
+You may send 1 cheer from your archive to your 2nd holomem with #Gen 4.
+
+Arts: Cotton Candy's Delicious
+Cost: 1 any color
+Power: 10",,,,,,,,,
+hSD01-018_02,"サブパソコン
+(Sub PC)",,,Support (Item),C,,,,"Look at the top 5 cards of your deck. Reveal 1 Limited support card from among them, and add it to hand. Then, return the rest to the bottom of the deck in any order.",,,,,,,,,
+hSD06-011_02,"ﾁｬｷ丸
+(Chakimaru)",,,Support (Tool),C,,,,"The holomem this tool is attached to gets Arts+10.
+
+◆Additional ability if attached to a 1st or greater <Kazama Iroha>
+[1/Turn] During your opponent's turn, when the holomem this tool is attached to takes damage, deal 20 special damage to your opponent's center holomem. However, your opponent's life does not reduce even if downed.
+
+Only 1 tool can be attached to each of your holomem.",,,,,,,,,

@@ -2962,10 +2962,16 @@
               <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)" onmouseleave="this.classList.remove('hide-translation')">
                   
                   <div class="card-face ${typeClass} grid-element">
-                      <!-- ... -->
+                      <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
+                      <i class="ti ${iconClass}"></i>
+                      <span class="face-label">${type.toUpperCase()}</span>
                   </div>
                   <div class="card-meta grid-element">
-                      <!-- ... -->
+                      <span class="card-name-jp">${level}${card.card_name}</span>
+                      <span class="card-id">${card.card_id}</span>
+                      <div class="card-badges">
+                          <span class="badge ${typeClass}">${type.toUpperCase()}</span>
+                      </div>
                   </div>
                   <div class="translation-overlay grid-element">
                       <div class="tl-header">

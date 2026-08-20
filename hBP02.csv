@@ -1186,3 +1186,87 @@ hBP02-084_SR,"みっころね24
 (Mikkorone 24)",,Support (Event),U,,,,"LIMITED: Only one can be used per turn.
 
 Draw 2 cards, and roll a die once:If it is 3, 5 or 6, reveal 1 Debut holomem from your deck, and add it to hand. Then, shuffle the deck. If it is 2 or 4, draw 1 card.",,SEC
+hBP02-011_02,"白上フブキ
+(Shirakami Fubuki)",,1st holomem,U,White,120,#JP #Gen 1 #GAMERS #Kemomimi #Painting,"Bloom Effect: You Can't Look Away from Shirakami
+Reveal 1 card with #Shirakami's Character from your deck, and add it to your hand. Shuffle the deck.
+
+Arts: Nope, No Can Do!
+Cost: 1 any color
+Power: 40",,
+hBP02-016_02,"白銀ノエル
+(Shirogane Noel)",,1st holomem,U,White,130,#JP #Gen 3 #Alcohol,"Bloom Effect: Noe-chan's Heroic Figure......
+If bloomed from Debut, reveal 1 [Debut holomem, 1st holomem or Spot holomem] with #Gen 3 from your deck, and add it to your hand. Shuffle your deck.
+
+Arts: Burn this Sight into Your Eyes♡
+Cost: 2 any color
+Power: 30",,
+hBP02-017_02,"白銀ノエル
+(Shirogane Noel)",,1st Buzz holomem,RR,White,260,#JP #Gen 3 #Alcohol,"Arts: Soft & Fluffy Musclehead Lady Knight
+Cost: 2 any color
+Power: 50
+
+Arts: Gen 3 Power
+Cost: 1 white, 2 any color
+Power: 60+
+[Collab Position Only] This Arts gets +20 for each other holomem with #Gen 3 on your stage (maximum 4 holomem).
+
+Extra: If this holomem is downed, you get life-2",,UR
+hBP02-026_02,"大神ミオ
+(Ookami Mio)",,1st holomem,U,Green,100,#JP #GAMERS #Kemomimi #Cooking,"Bloom Effect: Grown as an Idol
+Search 1 cheer from your cheer deck with the same color as 1 holomem with #GAMERS on your stage, and send it to your holomem. Shuffle your cheer deck.
+
+Arts: Please Watch Over Me This Year too!
+Cost: 1 any color
+Power: 20",,
+hBP02-027_02,"大神ミオ
+(Ookami Mio)",,1st Buzz holomem,RR,Green,240,#JP #GAMERS #Kemomimi #Cooking,"Arts: Tarot's Guidance
+Cost: 1 green, 1 any color
+Power: 60+
+You may archive the top card of your deck: If the archived card is a holomem, this Arts gets +20. If it is a support card, this Arts gets +50.
+
+Extra: If this holomem is downed, you get life-2",,
+hBP02-022_02,"パヴォリア・レイネ
+(Pavolia Reine)",,1st holomem,R,Green,130,#ID #ID Gen 2 #Bird #Painting,"Bloom Effect: What Are You Waiting For?
+Reveal 1 <Tatang> from your deck, and add it to your hand. Shuffle your deck.
+
+Arts: Spicy Night
+Cost: 1 green, 1 any color
+Power: 40+
+If there are 2 or more colors among cheers on your stage, this Arts gets +20.",,
+hBP02-023_02,"パヴォリア・レイネ
+(Pavolia Reine)",,2nd holomem,RR,Green,190,#ID #ID Gen 2 #Bird #Painting,"Bloom Effect: Kanjeng
+Search 1 cheer from your cheer deck, and send it to your holomem. Shuffle your cheer deck.
+
+Arts: Peafowl Dance
+Cost: 1 green, 3 any color
+Power: 100+, +50 vs white
+This Arts gets +20 for each different color among cheers on your stage.",,UR
+hBP02-028_02,"宝鐘マリン
+(Houshou Marine)",,Debut holomem,C,Red,100,#JP #Gen 3 #Painting #Sea,"Arts: I'm Houshou Marine, Captain of the Houshou Pirates!
+Cost: 1 any color
+Power: 30
+
+Extra: You may include any number of this holomem in the deck",,HR
+hBP02-033_02,"宝鐘マリン
+(Houshou Marine)",,2nd holomem,RR,Red,200,#JP #Gen 3 #Painting #Sea,"Bloom Effect: Gothic Queen
+You may return 1 holomem from your archive to hand. If 3 or more holomem are stacked to this holomem, deal 50 special damage to your opponent's center holomem or collab holomem.
+
+Arts: You Guys~? Isn't Your Captain Cute?
+Cost: 1 red, 2 any color
+Power: 80+, +50 vs purple
+This Arts gets +20 for each holomem stacked to this holomem.",,UR
+hBP02-059_02,"森カリオペ
+(Mori Calliope)",,2nd holomem,RR,Purple,200,#EN #Myth #Singing,"Bloom Effect: Soul Voice
+Reveal 1 card from your deck, and archive it. Then, shuffle the deck.
+
+Arts: Featuring Myth
+Cost: 2 purple, 1 any color
+Power: 80+, +50 vs blue
+If you have 4 or more holomem with #Myth in your archive, this Arts gets +40. Then, if you have 8 or more, this Arts gets +40.",,UR
+hBP02-067_02,"ネリッサ・レイヴンクロフト
+(Nerissa Ravencroft)",,1st holomem,U,Purple,120,#EN #Advent #Singing #Bird,"Bloom Effect: Tea Time with Nerissa
+Look at the top 3 cards of your deck. Reveal 1 holomem with #Singing from among them, and add it to your hand. Return the remaining cards to the bottom of your deck in any order.
+
+Arts: Tea Over Coffee
+Cost: 1 any color
+Power: 20",,

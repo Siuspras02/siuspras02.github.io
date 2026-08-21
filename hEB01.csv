@@ -701,15 +701,238 @@ hBP04-105,"こよりの助手くん
 (Koyori's Assistants)",,Support (Fan),U,,,#KOYO LABO,,"When this fan is attached to a holomem from your hand or archive, you may reattach 1 cheer from your stage to the holomem this fan is attached to.
 
 You may only attach this fan to your <Hakui Koyori>, and you may attach any number of this fan per holomem.",,
-hY01-001,"白エール
-(White Cheer)",,Cheer,S,White,,,,[the base version cheer is only available as S rarity],,SY
-hY02-001,"緑エール
-(Green Cheer)",,Cheer,S,Green,,,,[the base version cheer is only available as S rarity],,SY
-hY03-001,"赤エール
-(Red Cheer)",,Cheer,S,Red,,,,[the base version cheer is only available as S rarity],,SY
-hY04-001,"青エール
-(Blue Cheer)",,Cheer,S,Blue,,,,[the base version cheer is only available as S rarity],,SY
-hY05-001,"紫エール
-(Purple Cheer)",,Cheer,S,Purple,,,,[the base version cheer is only available as S rarity],,SY
-hY06-001,"黄エール
-(Yellow Cheer)",,Cheer,S,Yellow,,,,[the base version cheer is only available as S rarity],,SY
+hY06-011,"黄エール
+(Yellow Cheer)",,Cheer,SY,Yellow,,,,[the base version cheer is only available as S rarity],,
+hY05-011,"紫エール
+(Purple Cheer)",,Cheer,SY,Purple,,,,[the base version cheer is only available as S rarity],,
+hY04-013,"青エール
+(Blue Cheer)",,Cheer,SY,Blue,,,,[the base version cheer is only available as S rarity],,
+hY03-016,"赤エール
+(Red Cheer)",,Cheer,SY,Red,,,,[the base version cheer is only available as S rarity],,
+hY02-012,"緑エール
+(Green Cheer)",,Cheer,SY,Green,,,,[the base version cheer is only available as S rarity],,
+hY01-014,"白エール
+(White Cheer)",,Cheer,SY,White,,,,[the base version cheer is only available as S rarity],,
+hEB01-004_SR,"ときのそら
+(Tokino Sora)",,Debut holomem,SR,Red,130,#JP #Gen 0 #Singing #Summer,1,"Arts: A Comfortable Sense of Distance
+Cost: 1 red
+Power: 20
+Draw 1 card.",,
+hEB01-005_SR,"ときのそら
+(Tokino Sora)",,Debut holomem,SR,Red,120,#JP #Gen 0 #Singing #Summer,1,"Collab Effect: Ah, So You Want to Go to the Beach?
+If you went second and it is your first turn, search 1~3 Debut holomem <Tokino Sora> with Extra from your deck, and place them on your stage. Shuffle your deck. If 3 Debut holomem were placed this way, return 1 card from your hand to the bottom of your deck.
+
+Arts: Sure! I'm So Glad You Invited Me!
+Cost: 1 any color
+Power: 30",,
+hEB01-006_SR,"ときのそら
+(Tokino Sora)",,1st holomem,SR,Red,150,#JP #Gen 0 #Singing #Summer,1,"Gift: Me in a Yukata...... What Do You Think?
+During your opponent's turn, if this holomem is downed, you may return 1 support card attached to this holomem to your hand.
+
+Arts: Make Sure We Don't Get Separated, Okay?
+Cost: 1 red, 1 any color
+Power: 50+
+If the target of this Arts is a 1st or greater holomem, this Arts gets +30.",,
+hEB01-007_SR,"ときのそら
+(Tokino Sora)",,1st holomem,SR,Red,160,#JP #Gen 0 #Singing #Summer,1,"Bloom Effect: A Special Tour Just for the Two of Us!
+Draw 1 card, and return 1 card from your hand to the bottom of your deck.
+
+Arts: Don't Look Away, Okay?
+Cost: 1 any color
+Power: 30",,
+hEB01-008_SR,"ときのそら
+(Tokino Sora)",,1st holomem,SR,Red,150,#JP #Gen 0 #Singing #Summer,1,"Bloom Effect: Want to Try My Masterpiece?
+Reveal 1 <STAR STAR☆T> from your deck, and add it to your hand. Then, shuffle your deck.
+
+Arts: Blame It on the Summer Heat
+Cost: 2 red
+Power: 70",,
+hEB01-009_SR,"ときのそら
+(Tokino Sora)",,2nd holomem,SR,Red,210,#JP #Gen 0 #Singing #Summer,2,"Collab Effect: This Song is Just for You.
+Reveal 1 2nd holomem <Tokino Sora> from your deck, and add it to your hand. Then, shuffle your deck.
+
+Arts: Do You Realize You're More Special Than Anyone Else?
+Cost: 1 red, 1 any color
+Power: 50, +50 vs purple
+Return 1~3 holomem from your archive to your deck and shuffle it. Then, draw 1 card.",,
+hEB01-010_SR,"ときのそら
+(Tokino Sora)",,2nd holomem,SR,Red,210,#JP #Gen 0 #Singing #Summer,2,"Bloom Effect: Even the Usual Path Feels Special Today
+[Center Position Only] You may roll a die once. If it's odd, choose 1 of your opponent's back holomem. Swap your opponent's center holomem and the chosen holomem.
+
+Arts: Looking Back, It Was Always You.
+Cost: 1 red, 2 any color
+Power: 100, +50 vs green
+You may rest 1 of your active back 2nd holomem <Tokino Sora>: After this holomem used Arts, use the same Arts once more.",,UR
+hEB01-011_SR,"宝鐘マリン
+(Houshou Marine)",,Debut holomem,SR,Blue,120,#JP #Gen 3 #Painting #Sea #Summer,1,"Arts: The Summer Festival Is Exciting, Right?
+Cost: 1 blue
+Power: 20
+You may archive 1 cheer from this holomem: Reveal 1 <Houshou Marine> with #Summer from your deck, and add it to your hand. Then, shuffle your deck.",,
+hEB01-012_SR,"宝鐘マリン
+(Houshou Marine)",,Debut holomem,SR,Blue,120,#JP #Gen 3 #Painting #Sea #Summer,1,"Collab Effect: You Want to Set Sail with Senchou?
+If you went second and it is your first turn, reveal 1 <Houshou Marine> with Bloom Effect from your deck, and add it to hand. Then, shuffle the deck.
+
+Arts: Senchou's Showing Off Her Swimsuit♡
+Cost: 1 any color
+Power: 30",,
+hEB01-013_SR,"宝鐘マリン
+(Houshou Marine)",,1st holomem,SR,Blue,160,#JP #Gen 3 #Painting #Sea #Summer,1,"Collab Effect: I'm Leaving Myself Open Here, You Know?
+You may archive 1 holomem that is stacked to this holomem: Send the top card of your cheer deck to your holomem.
+
+Arts: Breaking Away From the Crowd......Will We Be Alone?
+Cost: 2 any color
+Power: 50",,
+hEB01-014_SR,"宝鐘マリン
+(Houshou Marine)",,1st holomem,SR,Blue,170,#JP #Gen 3 #Painting #Sea #Summer,1,"Bloom Effect: Is It the Sun That's Dazzling? Or Is It......Marine?
+Deal 10 special damage to 1 of your opponent's back holomem.
+
+Arts: Don't Be Shy, Why Not Leave It All to Marine?
+Cost: 1 blue
+Power: 30",,
+hEB01-015_SR,"宝鐘マリン
+(Houshou Marine)",,1st Buzz holomem,SR,Blue,250,#JP #Gen 3 #Painting #Sea #Summer,2,"Arts: This Seat Here Is Empty, I'm Waiting...
+Cost: 1 blue, 1 any color
+Power: 60
+If 2 or more holomem are stacked to this holomem, you may archive 1 cheer on your stage: Send the top card of your cheer deck to your holomem.
+
+Extra: If this holomem is downed, you get life-2",,
+hEB01-016_SR,"宝鐘マリン
+(Houshou Marine)",,2nd holomem,SR,Blue,200,#JP #Gen 3 #Painting #Sea #Summer,2,"Arts: You'll Be Captivated by Marine for Life, Right?
+Cost: 1 any color
+Power: 40+, +50 vs white
+If 3 or more holomem are stacked to this holomem, this Arts gets +50.",,
+hEB01-017_SR,"宝鐘マリン
+(Houshou Marine)",,2nd holomem,SR,Blue,200,#JP #Gen 3 #Painting #Sea #Summer,2,"Bloom Effect: I'll Give You a Bite Too♡
+Send 1 cheer from your archive to this holomem.
+
+Arts: Hey, Can You Wipe This Chocolate Off My Face?
+Cost: 2 blue, 2 any color
+Power: 100+, +50 vs red
+If your Oshi holomem is <Houshou Marine>, you may archive all holomem stacked to this holomem: If you archived 1 or more, this Arts gets +100. If you archived 5 or more, deal 100 special damage to 1 of your opponent's back holomem other than Debut.",,UR
+hEB01-018_SR,"博衣こより
+(Hakui Koyori)",,Debut holomem,SR,Yellow,120,#JP #holoX #Kemomimi #Summer,1,"Gift: Will You Take Koyo to the Summer Festival?
+During your opponent's turn, if this holomem is downed, you may return 1 support card with #KOYO LABO attached to this holomem to hand.
+
+Arts: It's Making My Heart Race♡
+Cost: 1 any color
+Power: 20+
+If a support card with #KOYO LABO is attached to this holomem, this Arts gets +20.",,
+hEB01-019_SR,"博衣こより
+(Hakui Koyori)",,Debut holomem,SR,Yellow,140,#JP #holoX #Kemomimi #Summer,1,"Collab Effect: Oh, You Want to Go to the Beach on Our Next Day Off?
+If you went second and it is your first turn, reveal 1 [Debut holomem and/or support card with #KOYO LABO] each from your deck, and add them to your hand. Then, shuffle your deck.
+
+Arts: Look Forward to Seeing Koyo's Swimsuit♡
+Cost: 1 any color
+Power: 10",,
+hEB01-020_SR,"博衣こより
+(Hakui Koyori)",,1st holomem,SR,Yellow,190,#JP #holoX #Kemomimi #Summer,2,"Arts: I Researched Assistant's Tastes and Chose This Yukata Just for You♡
+Cost: 1 any color
+Power: 30
+
+Arts: Let the Heart-Stopping Experiment Begin!
+Cost: 1 yellow, 1 any color
+Power: 50+
+Reveal a number of cards from the top of your deck equal to the number of cheers on your stage. This Arts gets +10 for each holomem revealed among them. Then, return the revealed cards to deck and shuffle it.",,
+hEB01-021_SR,"博衣こより
+(Hakui Koyori)",,1st holomem,SR,Yellow,170,#JP #holoX #Kemomimi #Summer,1,"Collab Effect: Koyo Gets Assistant's Summer All to Herself♡
+Restore 20 HP to 1 of your holomem for each <Koyori's Assistants> on your stage.
+
+Arts: I Caught It! Wao~n!
+Cost: 1 any color
+Power: 30",,
+hEB01-022_SR,"博衣こより
+(Hakui Koyori)",,1st holomem,SR,Yellow,140,#JP #holoX #Kemomimi #Summer,1,"Bloom Effect: Koyo Came to Help with the Cleaning!
+You may return 1~2 <Koyori's Assistants> from your archive to hand.
+
+Arts: Assistant, What's This?
+Cost: 1 yellow
+Power: 30+
+If there is a 2nd holomem on your stage, this Arts gets +20.",,
+hEB01-023_SR,"博衣こより
+(Hakui Koyori)",,2nd holomem,SR,Yellow,200,#JP #holoX #Kemomimi #Summer,2,"Bloom Effect: Assistant, You've Been Waiting, Here's Koyo in Her Swimsuit!
+You may return 1~4 <Hakui Koyori> from your archive to the bottom of the deck in any order you like. If you returned 4 cards, you may attach 1 support card with #KOYO LABO from your archive to your <Hakui Koyori>.
+
+Arts: I've Made It So You Can See No One But Koyo!♡
+Cost: 2 any color
+Power: 50, +50 vs white
+Draw cards until the number of cards in your hand is the same as the number of <Koyori's Assistants> on your stage.",,
+hEB01-024_SR,"博衣こより
+(Hakui Koyori)",,2nd holomem,SR,Yellow,200,#JP #holoX #Kemomimi #Summer,2,"Gift: Drown in Koyo!
+For each <Koyori's Assistants> attached to this holomem, this holomem gets +10 HP and this holomem's Arts requires -1 colorless.
+
+Arts: A Special Moment, Secret from Everyone Else...♡
+Cost: 1 yellow, 2 any color
+Power: 120+, +50 vs white
+Reveal a number of cards from the top of your deck equal to the number of cheers on your stage. For each holomem revealed among them, this Arts gets +20 and restore 20 HP to 1 of your holomem. Then, return the revealed cards to deck and shuffle it.",,UR
+hEB01-010_UR,"ときのそら
+(Tokino Sora)",,2nd holomem,UR,Red,210,#JP #Gen 0 #Singing #Summer,2,"Bloom Effect: Even the Usual Path Feels Special Today
+[Center Position Only] You may roll a die once. If it's odd, choose 1 of your opponent's back holomem. Swap your opponent's center holomem and the chosen holomem.
+
+Arts: Looking Back, It Was Always You.
+Cost: 1 red, 2 any color
+Power: 100, +50 vs green
+You may rest 1 of your active back 2nd holomem <Tokino Sora>: After this holomem used Arts, use the same Arts once more.",,UR
+hEB01-017_UR,"宝鐘マリン
+(Houshou Marine)",,2nd holomem,UR,Blue,200,#JP #Gen 3 #Painting #Sea #Summer,2,"Bloom Effect: I'll Give You a Bite Too♡
+Send 1 cheer from your archive to this holomem.
+
+Arts: Hey, Can You Wipe This Chocolate Off My Face?
+Cost: 2 blue, 2 any color
+Power: 100+, +50 vs red
+If your Oshi holomem is <Houshou Marine>, you may archive all holomem stacked to this holomem: If you archived 1 or more, this Arts gets +100. If you archived 5 or more, deal 100 special damage to 1 of your opponent's back holomem other than Debut.",,UR
+hEB01-024_UR,"博衣こより
+(Hakui Koyori)",,2nd holomem,UR,Yellow,200,#JP #holoX #Kemomimi #Summer,2,"Gift: Drown in Koyo!
+For each <Koyori's Assistants> attached to this holomem, this holomem gets +10 HP and this holomem's Arts requires -1 colorless.
+
+Arts: A Special Moment, Secret from Everyone Else...♡
+Cost: 1 yellow, 2 any color
+Power: 120+, +50 vs white
+Reveal a number of cards from the top of your deck equal to the number of cheers on your stage. For each holomem revealed among them, this Arts gets +20 and restore 20 HP to 1 of your holomem. Then, return the revealed cards to deck and shuffle it.",,UR
+hEB01-001_OUR,"ときのそら
+(Tokino Sora)",,Oshi holomem,OUR,Red,5,,,"Oshi Stage Skill: Seaside Venus
+At the end of your turn, if your center holomem and collab holomem are <Tokino Sora>, put the top card of your deck as holo Power. Additionally, if you have a 2nd holomem on your stage, draw 1 card.
+
+Oshi Skill holo Power -4: Sudden Romance
+[1/Turn] Choose 1 <Tokino Sora> on your stage. Bloom the chosen holomem using a <Tokino Sora> from your deck. Shuffle your deck. During this turn, the chosen holomem requires -1 colorless for its Arts.
+
+[OUR is expected to be the same as SEC but without the written message]",,SEC
+hEB01-002_OUR,"宝鐘マリン
+(Houshou Marine)",,Oshi holomem,OUR,Blue,5,,,"Oshi Stage Skill: Return of the Seductress
+At the beginning of your performance phase, if you have a collab holomem, you may bloom your center holomem <Houshou Marine> that bloomed this turn once more using a blue holomem from your hand.
+
+Oshi Skill holo Power -2: Uh, Was That a Little Too Spicy for You?
+[1/Turn] Deal 50 special damage to 1 of your opponent's back holomem other than Debut. If 3 or more holomem are stacked to your center holomem, deal 50 special damage to 1 of your opponent's back holomem other than Debut.
+
+[OUR is expected to be the same as SEC but without the written message]",,SEC
+hEB01-003_OUR,"博衣こより
+(Hakui Koyori)",,Oshi holomem,OUR,Yellow,5,,,"Oshi Stage Skill: ""Koyo Color Observation""-- Assistants Only
+Increase the number of cards revealed from the top of your deck by your Oshi Skill and the abilities of your yellow <Hakui Koyori> by +1 for each <Koyori's Assistants> on your stage.
+
+Oshi Skill holo Power -2: Analysis Complete! Private Area for Two
+[1/Turn] Reveal cards from the top of your deck equal to the number of cheers on your stage. If there are 3 or more holomem among the revealed cards, during this turn, all <Hakui Koyori> on your stage get Arts+30. Add all revealed holomem other than Debut to your hand, and archive the remaining cards.
+
+[OUR is expected to be the same as SEC but without the written message]",,SEC
+hEB01-001_SEC,"ときのそら
+(Tokino Sora)",,Oshi holomem,OSR,Red,5,,,"Oshi Stage Skill: Seaside Venus
+At the end of your turn, if your center holomem and collab holomem are <Tokino Sora>, put the top card of your deck as holo Power. Additionally, if you have a 2nd holomem on your stage, draw 1 card.
+
+Oshi Skill holo Power -4: Sudden Romance
+[1/Turn] Choose 1 <Tokino Sora> on your stage. Bloom the chosen holomem using a <Tokino Sora> from your deck. Shuffle your deck. During this turn, the chosen holomem requires -1 colorless for its Arts.
+
+[OUR is expected to be the same as SEC but without the written message]",,SEC
+hEB01-002_SEC,"宝鐘マリン
+(Houshou Marine)",,Oshi holomem,OSR,Blue,5,,,"Oshi Stage Skill: Return of the Seductress
+At the beginning of your performance phase, if you have a collab holomem, you may bloom your center holomem <Houshou Marine> that bloomed this turn once more using a blue holomem from your hand.
+
+Oshi Skill holo Power -2: Uh, Was That a Little Too Spicy for You?
+[1/Turn] Deal 50 special damage to 1 of your opponent's back holomem other than Debut. If 3 or more holomem are stacked to your center holomem, deal 50 special damage to 1 of your opponent's back holomem other than Debut.
+
+[OUR is expected to be the same as SEC but without the written message]",,SEC
+hEB01-003_SEC,"博衣こより
+(Hakui Koyori)",,Oshi holomem,OSR,Yellow,5,,,"Oshi Stage Skill: ""Koyo Color Observation""-- Assistants Only
+Increase the number of cards revealed from the top of your deck by your Oshi Skill and the abilities of your yellow <Hakui Koyori> by +1 for each <Koyori's Assistants> on your stage.
+
+Oshi Skill holo Power -2: Analysis Complete! Private Area for Two
+[1/Turn] Reveal cards from the top of your deck equal to the number of cheers on your stage. If there are 3 or more holomem among the revealed cards, during this turn, all <Hakui Koyori> on your stage get Arts+30. Add all revealed holomem other than Debut to your hand, and archive the remaining cards.
+
+[OUR is expected to be the same as SEC but without the written message]",,SEC

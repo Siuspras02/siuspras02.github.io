@@ -1234,14 +1234,14 @@ Cost: 1 blue, 1 yellow
 Power: 50+, +50 vs white
 This Arts gets +20 for each cheer in your archive. However, only up to 5 cheers are counted.",,UR
 hBP04-043_HR,"雪花ラミィ
-(Yukihana Lamy)",,Debut holomem,C,Blue,90,#JP #Gen 5 #Half-Elf #Alcohol,"Arts: Lamyoohoo
+(Yukihana Lamy)",,Debut holomem,HR,Blue,90,#JP #Gen 5 #Half-Elf #Alcohol,"Arts: Lamyoohoo
 Cost: 1 any color
 Power: 20
 Deal 10 special damage to 1 of your opponent's holomem. However, your opponent's life does not reduce even if downed.
 
 Extra: You may include any number of this holomem in the deck",,
 hBP04-067_HR,"大空スバル
-(Oozora Subaru)",,Debut holomem,C,Yellow,130,#JP #Gen 2 #Bird,"Arts: Ajimaru! Ajimaru!
+(Oozora Subaru)",,Debut holomem,HR,Yellow,130,#JP #Gen 2 #Bird,"Arts: Ajimaru! Ajimaru!
 Cost: 1 yellow
 Power: 20
 
@@ -1250,29 +1250,29 @@ Cost: 1 yellow, 2 any color
 Power: 60
 
 Extra: You may include any number of this holomem in the deck",,
-hBP04-008_02,"博衣こより
-(Hakui Koyori)",,Debut holomem,C,White,100,#JP #holoX #Kemomimi,"Arts: Konkoyo~
+hBP04-008_SR_02,"博衣こより
+(Hakui Koyori)",,Debut holomem,SR,White,100,#JP #holoX #Kemomimi,"Arts: Konkoyo~
 Cost: 1 any color
 Power: 30
 
 Extra: You may include any number of this holomem in the deck",,HR
-HBP04-012_02,"博衣こより
-(Hakui Koyori)",,1st holomem,R,White,140,#JP #holoX #Kemomimi,"Bloom Effect: Yes! Yes! Yes! Yes!
+hBP04-012_SR_02,"博衣こより
+(Hakui Koyori)",,1st holomem,SR,White,140,#JP #holoX #Kemomimi,"Bloom Effect: Yes! Yes! Yes! Yes!
 Reveal 1 support card with #KOYO LABO from your deck, and add it to hand. Then, shuffle the deck.
 
 Arts: Koyo and Her Assistants Will Always Be Together!
 Cost: 1 white
 Power: 30
 If <Koyori's Assistants> is attached to this holomem, draw 1 card.",,
-hBP04-047_02,"雪花ラミィ
-(Yukihana Lamy)",,1st holomem,R,Blue,120,#JP #Gen 5 #Half-Elf #Alcohol,"Collab Effect: fleur
+hBP04-047_SR_02,"雪花ラミィ
+(Yukihana Lamy)",,1st holomem,SR,Blue,120,#JP #Gen 5 #Half-Elf #Alcohol,"Collab Effect: fleur
 If you have a <Yukihana Lamy> with <Yukimin> attached, deal 20 special damage to 1 of your opponent's holomem. However, your opponent's life does not reduce even if downed.
 
 Arts: Bouquet of Shimmering Snow
 Cost: 1 blue, 1 any color
 Power: 50",,
-hBP04-071_02,"大空スバル
-(Oozora Subaru)",,1st holomem,R,Yellow,160,#JP #Gen 2 #Bird,"Arts: Shuba!
+hBP04-071_SR_02,"大空スバル
+(Oozora Subaru)",,1st holomem,SR,Yellow,160,#JP #Gen 2 #Bird,"Arts: Shuba!
 Cost: 1 yellow
 Power: 20
 Send the top card of your cheer deck to this holomem.
@@ -1280,11 +1280,64 @@ Send the top card of your cheer deck to this holomem.
 Arts: Our Strongest, Happiest Days
 Cost: 1 yellow, 2 any color
 Power: 90",,
-hBP04-072_02,"大空スバル
-(Oozora Subaru)",,2nd holomem,RR,Yellow,190,#JP #Gen 2 #Singing #Bird,"Bloom Effect: Sunlight Stage
+hBP04-072_SR_02,"大空スバル
+(Oozora Subaru)",,2nd holomem,SR,Yellow,190,#JP #Gen 2 #Singing #Bird,"Bloom Effect: Sunlight Stage
 You may send 1 yellow cheer from your archive to your holomem.
 
 Arts: Sunshine Girl
 Cost: 2 yellow, 1 any color
 Power: 100+, +50 vs White
 This Arts gets +10 for each cheer on both players' stage. However, only up to 8 cheers are counted.",,UR
+hBP04-008_HR,"博衣こより
+(Hakui Koyori)",,Debut holomem,HR,White,100,#JP #holoX #Kemomimi,"Arts: Konkoyo~
+Cost: 1 any color
+Power: 30
+
+Extra: You may include any number of this holomem in the deck",,
+hBP04-012_SR_02,"博衣こより
+(Hakui Koyori)",,1st holomem,SR,White,140,#JP #holoX #Kemomimi,"Bloom Effect: Yes! Yes! Yes! Yes!
+Reveal 1 support card with #KOYO LABO from your deck, and add it to hand. Then, shuffle the deck.
+
+Arts: Koyo and Her Assistants Will Always Be Together!
+Cost: 1 white
+Power: 30
+If <Koyori's Assistants> is attached to this holomem, draw 1 card.",,
+hBP04-047_SR_02,"雪花ラミィ
+(Yukihana Lamy)",,1st holomem,SR,Blue,120,#JP #Gen 5 #Half-Elf #Alcohol,"Collab Effect: fleur
+If you have a <Yukihana Lamy> with <Yukimin> attached, deal 20 special damage to 1 of your opponent's holomem. However, your opponent's life does not reduce even if downed.
+
+Arts: Bouquet of Shimmering Snow
+Cost: 1 blue, 1 any color
+Power: 50",,
+hBP04-072_SR_02,"大空スバル
+(Oozora Subaru)",,2nd holomem,SR,Yellow,190,#JP #Gen 2 #Singing #Bird,"Bloom Effect: Sunlight Stage
+You may send 1 yellow cheer from your archive to your holomem.
+
+Arts: Sunshine Girl
+Cost: 2 yellow, 1 any color
+Power: 100+, +50 vs White
+This Arts gets +10 for each cheer on both players' stage. However, only up to 8 cheers are counted.",,UR
+hBP04-085_SR_02,"桃鈴ねね
+(Momosuzu Nene)",,1st holomem,SR,Yellow,130,#JP #Gen 5 #Singing #Painting,"Bloom Effect: The Best Feeling Ever!!!!!!!!!!!!!!
+Reveal 1 cheer from your cheer deck with the same color as 1 holomem on your stage with #Gen 5, and send it to your holomem with #Gen 5. Then, shuffle the cheer deck.
+
+Arts: I’m Gonna Do My Best!!!!!
+Cost: 1 any color
+Power: 20",,
+hBP04-071_SR_02,"大空スバル
+(Oozora Subaru)",,1st holomem,SR,Yellow,160,#JP #Gen 2 #Bird,"Arts: Shuba!
+Cost: 1 yellow
+Power: 20
+Send the top card of your cheer deck to this holomem.
+
+Arts: Our Strongest, Happiest Days
+Cost: 1 yellow, 2 any color
+Power: 90",,
+hBP04-012_SR_02,"博衣こより
+(Hakui Koyori)",,1st holomem,SR,White,140,#JP #holoX #Kemomimi,"Bloom Effect: Yes! Yes! Yes! Yes!
+Reveal 1 support card with #KOYO LABO from your deck, and add it to hand. Then, shuffle the deck.
+
+Arts: Koyo and Her Assistants Will Always Be Together!
+Cost: 1 white
+Power: 30
+If <Koyori's Assistants> is attached to this holomem, draw 1 card.",,

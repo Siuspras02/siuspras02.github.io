@@ -886,3 +886,77 @@ hY05-012,"紫エール
 (Purple Cheer)",,Cheer,SY,Purple,,,,[the base version cheer is not available in BP09 packs],,,,
 hY06-012,"黄エール
 (Yellow Cheer)",,Cheer,SY,Yellow,,,,[the base version cheer is not available in BP09 packs],,,,
+hBP09-001_OUR,"大空スバル
+(Oozora Subaru)",,Oshi holomem,OSR,White,5,,,"Oshi Stage Skill: Police Chief Protecting the Order
+All of your <Oozora Subaru> require -1 white for their Arts.
+
+Oshi Skill holo Power -2: Oozora Police Dispatched!
+[1/Turn] Choose 1 holomem on your opponent's stage. Reveal 1 holomem <Oozora Subaru> from your deck with the same bloom level as the chosen holomem, and place it on stage. Then, shuffle the deck. ",,OUR,,
+hBP09-002_OUR,"轟はじめ
+(Todoroki Hajime)",,Oshi holomem,OSR,White,5,,,"Oshi Stage Skill: Aiming to Be the #1 Badass in the Universe
+[1/Turn] When your <Todoroki Hajime> uses baton pass, put the top card of your deck to holo Power.
+
+Oshi Skill holo Power -X: It's Great If It Goes Well, But Also Fine If It's a Dud
+[1/Turn] Choose your center <Todoroki Hajime>. During this turn, the chosen holomem gets Arts+10 for each holo Power archived for this ability. Additionally, if you archived 7 or more, during this turn, all <Todoroki Hajime> on your stage get Arts+100.",,SEC,,
+hBP09-003_OUR,"白銀ノエル
+(Shirogane Noel)",,Oshi holomem,OSR,Green,5,,,"Oshi Stage Skill: Demon of the Iron Stomach
+[1/Turn] When you use <Beef Bowl>, send the top card of your cheer deck to your <Shirogane Noel>. Additionally, if a 2nd holomem is on your stage, draw 1 card.
+
+Oshi Skill holo Power -2: Overflowing Love for Beef Bowl
+[1/Turn] Send 1 cheer from your archive to your <Shirogane Noel>. If you have 3 or more <Beef Bowl> in your archive, send 1~2 cheers from your archive divided as you choose to your <Shirogane Noel> instead.",,OUR,,SEC
+hBP09-004_OUR,"カエラ・コヴァルスキア
+(Kaela Kovalskia)",,Oshi holomem,OSR,Red,5,,,"Oshi Stage Skill: TO THE FORGE NOW
+[1/Turn] When you attach a tool with #Kaela's Arms to <Kaela Kovalskia>, draw 2 cards.
+
+Oshi Skill holo Power -2: Rare Item Discovered!
+[1/Turn] Archive 2 tools with #Kaela's Arms on your stage. If you archived 2 cards this way, deal 100 special damage to your opponent's [center holomem or collab holomem] other than Debut.
+
+[OUR is the same as SEC but without the signature]",,SEC,,
+hBP09-005_OUR,"常闇トワ
+(Tokoyami Towa)",,Oshi holomem,OSR,Blue,5,,,"Oshi Stage Skill: Magic Bullet Shooter
+[1/Turn] After your center <Tokoyami Towa> uses Arts, you may use another differently-named Arts from that holomem.
+
+Oshi Skill holo Power -2: Extreme Overshot
+[1/Turn] Usable at the end of your performance phase: Draw 1 card for each time your holomem with #Singing used Arts this turn.",,OUR,,
+hBP09-006_OUR,"綺々羅々ヴィヴィ
+(Kikirara Vivi)",,Oshi holomem,OSR,Purple,5,,,"Oshi Skill holo Power -2: Legendary Beauty (V)
+[1/Turn] Draw 3 cards, and your opponent draws 2 cards.
+
+SP Oshi Skill holo Power -3: Nice Vivi! Charming Vivi! Cool Vivi!
+[1/Game] If your center holomem is a 2nd holomem <Kikirara Vivi>, return all cards in both players' hands and all holomem and support cards in both players' archives to the decks, and shuffle the decks. Then, both players draw 7 cards.
+
+[OUR is the same as SEC but without the signature]",,SEC,,
+hBP09-007_OUR,"雪花ラミィ
+(Yukihana Lamy)",,Oshi holomem,OSR,Yellow,5,,,"Oshi Stage Skill: A Moment of Bliss
+All <Yukihana Lamy> on your stage get Arts+20. While you have 5 or more support card with #Lamy's Alcohol in your archive, all <Yukihana Lamy> on your stage get Arts+50 instead.
+
+Oshi Skill holo Power -2: Surrounded By Things I Love
+[1/Turn] Reveal 1~2 support cards with #Lamy's Alcohol from your deck, and add them to your hand. Then, shuffle the deck.",,OUR,,
+hBP09-002_SEC,"轟はじめ
+(Todoroki Hajime)",,Oshi holomem,OSR,White,5,,,"Oshi Stage Skill: Aiming to Be the #1 Badass in the Universe
+[1/Turn] When your <Todoroki Hajime> uses baton pass, put the top card of your deck to holo Power.
+
+Oshi Skill holo Power -X: It's Great If It Goes Well, But Also Fine If It's a Dud
+[1/Turn] Choose your center <Todoroki Hajime>. During this turn, the chosen holomem gets Arts+10 for each holo Power archived for this ability. Additionally, if you archived 7 or more, during this turn, all <Todoroki Hajime> on your stage get Arts+100.",,SEC,,
+hBP09-003_SEC,"白銀ノエル
+(Shirogane Noel)",,Oshi holomem,OSR,Green,5,,,"Oshi Stage Skill: Demon of the Iron Stomach
+[1/Turn] When you use <Beef Bowl>, send the top card of your cheer deck to your <Shirogane Noel>. Additionally, if a 2nd holomem is on your stage, draw 1 card.
+
+Oshi Skill holo Power -2: Overflowing Love for Beef Bowl
+[1/Turn] Send 1 cheer from your archive to your <Shirogane Noel>. If you have 3 or more <Beef Bowl> in your archive, send 1~2 cheers from your archive divided as you choose to your <Shirogane Noel> instead.",,OUR,,SEC
+hBP09-004_SEC,"カエラ・コヴァルスキア
+(Kaela Kovalskia)",,Oshi holomem,OSR,Red,5,,,"Oshi Stage Skill: TO THE FORGE NOW
+[1/Turn] When you attach a tool with #Kaela's Arms to <Kaela Kovalskia>, draw 2 cards.
+
+Oshi Skill holo Power -2: Rare Item Discovered!
+[1/Turn] Archive 2 tools with #Kaela's Arms on your stage. If you archived 2 cards this way, deal 100 special damage to your opponent's [center holomem or collab holomem] other than Debut.
+
+[OUR is the same as SEC but without the signature]",,SEC,,
+hBP09-006_SEC,"綺々羅々ヴィヴィ
+(Kikirara Vivi)",,Oshi holomem,OSR,Purple,5,,,"Oshi Skill holo Power -2: Legendary Beauty (V)
+[1/Turn] Draw 3 cards, and your opponent draws 2 cards.
+
+SP Oshi Skill holo Power -3: Nice Vivi! Charming Vivi! Cool Vivi!
+[1/Game] If your center holomem is a 2nd holomem <Kikirara Vivi>, return all cards in both players' hands and all holomem and support cards in both players' archives to the decks, and shuffle the decks. Then, both players draw 7 cards.
+
+[OUR is the same as SEC but without the signature]",,SEC,,

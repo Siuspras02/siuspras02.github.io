@@ -660,6 +660,12 @@ This card can only be used if you have 6 or less cards in hand excluding this ca
 Look at the top 4 cards of your deck. Reveal any number of holomem with #ReGLOSS from among them, and add the revealed holomem to hand. Then, return the remaining cards to the bottom of the deck in any order.",,,,,,,,,
 hY01-001,"白エール
 (White Cheer)",,20,Cheer,C,White,,,,,,,,,,,,
+hSD05-002_HR,"轟はじめ
+(Todoroki Hajime)",,6,Debut holomem,C,White,100,#DEV_IS #ReGLOSS #Baby,"Arts: Vroom, vroom, vroom!
+Cost: 1 any color
+Power: 30
+
+Extra: You may include any number of this holomem in the deck",,,,,,,,,
 ,,,,,,,,,,,,,,,,,,
 ,hSD06 Green: Kazama Iroha,,,,,,,,,,,,,,,,,
 hSD06-001,"風真いろは

@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournaments</title>
+    <style>
+              :root {
+        /* ── CARD EFFECT COLORS (DO NOT CHANGE) ── */
+        --holo-teal: #1d9e75; /* Gift */
+        --holo-rose: #ff2c2c; /* Collab */
+        --holo-romance: #ff2c72; /* Arts */
+        --holo-gold: #ba7517; /* Saved Stars */
+        --holo-blue: #378add; /* Bloom */
+        --brand-orange: #ef9f27; /* Auto / Cheer */
+        --danger: #ff5252;
+
+        /* ── HOLOLIVE BRAND UI THEME ── */
+        --brand-main: #41c3e3; /* Hololive Cyan */
+        --brand-hover: #00a6d6; /* Hololive Deep Blue */
+        --brand-pink: #ff5e99; /* Hololive Pink Accent */
+
+        /* ── DEEP NAVY LAYOUT ── */
+        --navy: #0b111a;
+        --navy-2: #15202b;
+        --navy-3: #1a2636;
+        --navy-4: #243447;
+
+        --border-dim: rgba(65, 195, 227, 0.15);
+        --border-mid: rgba(65, 195, 227, 0.35);
+
+        --text-bright: #f8fafc;
+        --text-mid: #94a3b8;
+        --text-dim: #475569;
+        --tag-r: 4px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+        background: var(--navy);
+        color: var(--text-bright);
+        font-family: "nunito", sans-serif;
+        overflow: hidden;
+      }
+
+      /* ── UNIFIED TOPBAR ── */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(11, 17, 26, 0.95);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-dim);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+      }
+      .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex: 1;
+      }
+      .topbar-center {
+        flex: 2;
+        display: flex;
+        justify-content: center;
+      }
+      .topbar-right {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .logo {
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        color: var(--text-bright);
+        white-space: nowrap;
+      }
+      .logo span {
+        color: var(--brand-main);
+      }
+
+      .tabs {
+        display: flex;
+        gap: 6px;
+      }
+      .tab {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 14px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        color: var(--text-mid);
+        transition: all 0.2s ease;
+      }
+      .tab-title {
+        font-family: "nunito", sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+      }
+
+      .tab:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-bright);
+      }
+      .tab.active {
+        background: rgba(65, 195, 227, 0.15);
+        border-color: rgba(65, 195, 227, 0.3);
+        color: var(--brand-main);
+      }
+
+      .search-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--navy-3);
+        border: 0.5px solid var(--border-dim);
+        border-radius: 6px;
+        padding: 0 16px;
+        height: 42px;
+        width: 100%;
+        max-width: 500px;
+        transition: 0.2s;
+      }
+      .search-bar:focus-within {
+        border-color: var(--brand-main);
+        box-shadow: 0 0 0 2px rgba(65, 195, 227, 0.2);
+      }
+      .search-bar i {
+        font-size: 18px;
+        color: var(--text-dim);
+      }
+      .search-bar input {
+        background: transparent;
+        border: none;
+        outline: none;
+        font-family: "nunito", sans-serif;
+        font-size: 16px;
+        color: var(--text-bright);
+        width: 100%;
+      }
+      .search-bar input::placeholder {
+        color: var(--text-dim);
+      }
+
+      /* ── ABOUT / CREDITS BUTTON ── */
+      .btn-about-header {
+        background: transparent;
+        border: 1px solid var(--border-dim);
+        color: var(--text-mid);
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-family: "nunito", sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-about-header:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-bright);
+        border-color: var(--border-mid);
+      }
+      .btn-about-header i {
+        font-size: 16px;
+        color: var(--brand-main);
+      }
+
+      /* ── BODY LAYOUT ── */
+      .body-wrapper {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        overflow: hidden;
+        height: calc(100vh - 72px);
+        position: relative;
+        z-index: 10;
+      }
+      .main-panel {
+        display: grid;
+        grid-template-columns: 2fr 3fr;
+        gap: 1.5rem;
+        flex: 1;
+        max-width: 1600px;
+        padding: 20px;
+        height: 100%;
+      }
+
+      .panel-col {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      /* Section Headers */
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-bottom: 12px;
+        margin-bottom: 8px;
+      }
+      .section-header h3 {
+        color: var(--brand-main);
+        font-size: 22px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .btn-action {
+        background: var(--navy-3);
+        color: var(--text-bright);
+        border: 1px solid var(--border-dim);
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-family: "nunito", sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-transform: uppercase;
+      }
+      .btn-action:hover {
+        background: var(--navy-4);
+        border-color: var(--border-mid);
+      }
+      .btn-action.danger {
+        color: var(--danger);
+      }
+      .btn-action.danger:hover {
+        background: rgba(255, 82, 82, 0.15);
+        border-color: var(--danger);
+      }
+
+      /* ── FILTER CHIPS ── */
+      .filter-chips {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 12px;
+        margin-bottom: 8px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        flex-wrap: nowrap;
+        align-items: center;
+      }
+      .filter-chips::-webkit-scrollbar {
+        display: none;
+      }
+
+      .chip {
+        background: var(--navy-3);
+        color: var(--text-mid);
+        border: 1px solid var(--border-dim);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-family: "nunito", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .chip:hover {
+        background: rgba(65, 195, 227, 0.1);
+        color: var(--brand-main);
+        border-color: var(--border-mid);
+      }
+      .chip.active {
+        background: var(--brand-main);
+        color: var(--navy);
+        border-color: var(--brand-main);
+      }
+
+      /* ── BRAND LOGO INITIAL LOADER ── */
+      .db-loader-container {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 20px;
+        width: 100%;
+        margin: auto 0;
+      }
+      .holo-logo-loader {
+        width: 110px;
+        height: auto;
+        animation: holoPulse 1.8s infinite ease-in-out;
+        filter: drop-shadow(0 0 8px rgba(65, 195, 227, 0.4));
+      }
+      .loader-text {
+        margin-top: 20px;
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--brand-main);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-shadow: 0 0 10px rgba(65, 195, 227, 0.3);
+      }
+      @keyframes holoPulse {
+        0% {
+          transform: scale(0.94);
+          opacity: 0.6;
+          filter: drop-shadow(0 0 6px rgba(65, 195, 227, 0.3));
+        }
+        50% {
+          transform: scale(1.04);
+          opacity: 1;
+          filter: drop-shadow(0 0 18px rgba(65, 195, 227, 0.7));
+        }
+        100% {
+          transform: scale(0.94);
+          opacity: 0.6;
+          filter: drop-shadow(0 0 6px rgba(65, 195, 227, 0.3));
+        }
+      }
+
+      /* ── CARD GRID ── */
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+        grid-auto-rows: max-content;
+        gap: 16px;
+        padding-bottom: 20px;
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+        align-content: start;
+        padding-right: 8px;
+        padding-top: 8px;
+      }
+
+      .card-grid::-webkit-scrollbar {
+        width: 6px;
+      }
+      .card-grid::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .card-grid::-webkit-scrollbar-thumb {
+        background: var(--border-mid);
+        border-radius: 3px;
+      }
+      .card-grid::-webkit-scrollbar-thumb:hover {
+        background: var(--brand-main);
+      }
+
+      /* ── INTERACTIVE WATERFALL ENTRANCE STATES ── */
+      .card-item {
+        position: relative;
+        border-radius: 8px;
+        border: 0.5px solid var(--border-dim);
+        background: var(--navy-3);
+        cursor: pointer;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 280px;
+
+        opacity: 0;
+        transform: translateY(16px);
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s,
+          opacity 0.35s cubic-bezier(0.25, 0.8, 0.25, 1),
+          transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
+
+      .card-item.fade-in {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .card-item.fade-in:hover,
+      .card-item.fade-in:focus-visible {
+        border-color: var(--brand-main);
+        transform: translateY(-4px);
+        box-shadow:
+          0 8px 24px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(65, 195, 227, 0.2);
+        outline: none;
+      }
+      .card-item:hover .translation-overlay,
+      .card-item:focus-visible .translation-overlay {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .card-face {
+        aspect-ratio: 5/7;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      /* =========================================
+     LIST VIEW OVERRIDES & ACCORDION
+     ========================================= */
+      .list-element {
+        display: none;
+      }
+      .card-grid.list-view {
+        display: grid;
+        grid-template-columns: 1fr !important;
+        grid-auto-rows: max-content;
+        gap: 12px;
+      }
+      .card-grid.list-view .card-item {
+        min-height: auto;
+        border-radius: 8px;
+      }
+      .card-grid.list-view .card-item:hover,
+      .card-grid.list-view .card-item:focus-visible {
+        transform: none;
+        box-shadow: none;
+        border-color: var(--border-mid);
+      }
+
+      .card-grid.list-view .grid-element {
+        display: none;
+      }
+      .card-grid.list-view .list-element {
+        display: block;
+      }
+
+      .card-grid.list-view .list-header {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        gap: 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+        border-radius: 8px;
+        min-height: 80px;
+      }
+      .card-grid.list-view .list-header:hover {
+        background: rgba(65, 195, 227, 0.05);
+      }
+
+      .list-thumb {
+        width: 44px;
+        height: 60px;
+        border-radius: 4px;
+        overflow: hidden;
+        background: var(--navy-4);
+        border: 1px solid var(--border-dim);
+        flex-shrink: 0;
+      }
+      .list-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .list-info {
+        flex: 1;
+        overflow: hidden;
+      }
+      .list-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-bright);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .list-sub {
+        font-size: 14px;
+        color: var(--text-dim);
+        margin-top: 4px;
+        letter-spacing: 0.04em;
+      }
+      .list-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .accordion-icon {
+        font-size: 20px;
+        color: var(--text-dim);
+        transition: transform 0.3s;
+      }
+      .card-item.expanded .accordion-icon {
+        transform: rotate(45deg);
+        color: var(--brand-main);
+      }
+
+      .card-grid.list-view .list-content {
+        display: block;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+        background: rgba(0, 0, 0, 0.3);
+        border-top: 1px solid transparent;
+      }
+      .card-item.expanded .list-content {
+        border-top-color: var(--border-dim);
+      }
+      .list-content-inner {
+        padding: 20px;
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+      }
+
+      .list-full-img {
+        width: 180px;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 1px solid var(--border-dim);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      .list-full-img img {
+        width: 100%;
+        display: block;
+      }
+      .list-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      /* ── DESKTOP TRANSLATION OVERLAY ── */
+      /* ── DESKTOP TRANSLATION OVERLAY ── */
+      .translation-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(
+          11,
+          17,
+          26,
+          0.5
+        ); /* 👉 Changed alpha from 0.95 to 0.5 */
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        pointer-events: none;
+        z-index: 10;
+      }
+      .tl-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+      .tl-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-bright);
+        line-height: 1.2;
+        margin-bottom: 4px;
+      }
+      /* ── HIDE OVERLAY BUTTON ── */
+      .card-item.hide-translation .translation-overlay {
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+      
+      .btn-hide-overlay {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-dim);
+        border-radius: 6px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: 0.2s;
+        padding: 6px 8px;
+        color: var(--text-mid);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .btn-hide-overlay:hover {
+        background: rgba(255, 82, 82, 0.15);
+        color: var(--danger);
+        border-color: var(--danger);
+      }
+      .bookmark-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-dim);
+        border-radius: 6px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: 0.2s;
+        padding: 6px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .bookmark-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.05);
+      }
+      .bookmark-btn.saved {
+        color: var(--holo-gold);
+        border-color: var(--holo-gold);
+        background: rgba(186, 117, 23, 0.15);
+      }
+      .bookmark-btn.unsaved {
+        color: var(--text-bright);
+      }
+
+      .tl-scroll-area {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-right: 4px;
+      }
+      .tl-scroll-area::-webkit-scrollbar {
+        width: 4px;
+      }
+      .tl-scroll-area::-webkit-scrollbar-thumb {
+        background: var(--text-dim);
+        border-radius: 2px;
+      }
+
+      .effect-box {
+        background: rgba(255, 255, 255, 0.03);
+        border: 0.5px solid var(--border-dim);
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 2px;
+      }
+      .effect-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        font-weight: 800;
+        margin-bottom: 6px;
+        display: inline-block;
+        padding: 3px 6px;
+        border-radius: 4px;
+        letter-spacing: 0.05em;
+      }
+      .effect-text {
+        font-size: 13px;
+        color: var(--text-bright);
+        line-height: 1.4;
+        font-weight: 500;
+      }
+      .tl-hp {
+        font-size: 18px;
+        color: #ffd700;
+        font-weight: 800;
+        margin-top: auto;
+        padding-top: 8px;
+        border-top: 0.5px solid var(--border-dim);
+        text-align: center;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-dim);
+        font-size: 16px;
+        grid-column: 1 / -1;
+      }
+
+      .card-face img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 2;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      .card-face.oshi {
+        background: linear-gradient(160deg, #0a1520, #0f2a20);
+      }
+      .card-face.member {
+        background: linear-gradient(160deg, #0a0d20, #1a102a);
+      }
+      .card-face.support {
+        background: linear-gradient(160deg, #150d0a, #2a1808);
+      }
+      .card-face.cheer {
+        background: linear-gradient(160deg, #100a1a, #1a0a14);
+      }
+      .card-face i {
+        font-size: 26px;
+        color: var(--text-dim);
+        z-index: 1;
+      }
+      .face-label {
+        font-size: 10px;
+        color: var(--text-dim);
+        letter-spacing: 0.1em;
+        font-weight: 700;
+        z-index: 1;
+      }
+
+      .card-meta {
+        padding: 8px 10px 10px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      .card-name-jp {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-bright);
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .card-id {
+        font-size: 12px;
+        color: var(--text-mid);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        display: block;
+        margin-top: 2px;
+      }
+      .card-badges {
+        display: flex;
+        gap: 4px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .badge {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+      .badge.oshi {
+        background: rgba(186, 117, 23, 0.2);
+        color: #ef9f27;
+        border: 0.5px solid rgba(186, 117, 23, 0.4);
+      }
+      .badge.member {
+        background: rgba(29, 158, 117, 0.2);
+        color: #5dcaa5;
+        border: 0.5px solid rgba(29, 158, 117, 0.4);
+      }
+      .badge.support {
+        background: rgba(55, 138, 221, 0.2);
+        color: #85b7eb;
+        border: 0.5px solid rgba(55, 138, 221, 0.4);
+      }
+      .badge.cheer {
+        background: rgba(212, 83, 126, 0.2);
+        color: #ed93b1;
+        border: 0.5px solid rgba(212, 83, 126, 0.4);
+      }
+
+      /* ── NATIVE APP BOTTOM SHEET (FOR MOBILE) ── */
+      .sheet-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(3px);
+        z-index: 1999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .sheet-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .bottom-sheet {
+        position: fixed;
+        bottom: -100%;
+        left: 0;
+        right: 0;
+        max-height: 85vh;
+        background: var(--navy-2);
+        border-top-left-radius: 24px;
+        border-top-right-radius: 24px;
+        z-index: 2000;
+        transition:
+          transform 0.3s ease,
+          bottom 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid var(--border-mid);
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+      }
+      .bottom-sheet.open {
+        bottom: 0;
+        transform: translateY(0);
+      }
+      .sheet-drag-area {
+        width: 100%;
+        padding: 12px 0 8px;
+        cursor: grab;
+        display: flex;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .sheet-handle {
+        width: 40px;
+        height: 5px;
+        background: var(--text-dim);
+        border-radius: 3px;
+      }
+      .sheet-content {
+        overflow-y: auto;
+        padding: 0 20px 20px;
+        flex: 1;
+      }
+
+      /* ── ABOUT CREDITS MODAL ── */
+      /* ── ADMIN MODAL ── */
+      .about-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+      }
+      .about-overlay.open {
+        display: flex;
+      }
+      .about-modal {
+        background: var(--navy-2);
+        border: 1px solid var(--border-mid);
+        border-radius: 16px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: popIn 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        pointer-events: auto; /* Ensures the form is always clickable */
+      }
+      @keyframes popIn {
+        0% { opacity: 0; transform: scale(0.95); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+      .about-header {
+        background: var(--navy-3);
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-dim);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .btn-close-modal {
+        background: transparent;
+        border: none;
+        color: var(--text-dim);
+        font-size: 20px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .btn-close-modal:hover { 
+        color: var(--danger); 
+        transform: scale(1.1); 
+      }
+      .about-content {
+        padding: 24px 20px;
+        font-size: 15px;
+        color: var(--text-bright);
+        line-height: 1.6;
+      }
+      .about-content p {
+        margin-bottom: 16px;
+      }
+      .about-content strong {
+        color: var(--text-bright);
+        font-weight: 800;
+      }
+      .about-content a {
+        color: var(--brand-main);
+        text-decoration: none;
+        font-weight: 700;
+        display: inline-block;
+        margin-top: 4px;
+        border-bottom: 1px dashed var(--border-dim);
+        transition: 0.2s;
+      }
+      .about-content a:hover {
+        color: var(--brand-hover);
+        border-color: var(--brand-hover);
+      }
+
+      .hide-on-mobile {
+        display: flex;
+      }
+      .hide-on-desktop {
+        display: none;
+      }
+      /* ── ALT ART TOGGLE BUTTON ── */
+      .btn-alt-toggle {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        z-index: 20;
+        background: rgba(11, 17, 26, 0.85);
+        border: 1px solid var(--brand-main);
+        color: var(--brand-main);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s;
+        backdrop-filter: blur(4px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      }
+      .btn-alt-toggle:hover {
+        background: var(--brand-main);
+        color: var(--navy);
+        transform: scale(1.1) rotate(45deg);
+      }
+      /* ── ALT ART TOGGLE LIST VIEW FIX ── */
+      .card-grid.list-view .btn-alt-toggle {
+        top: 40px !important;
+        bottom: auto !important;
+        right: 110px !important; /* Pushes it safely to the left of the Star and Plus icons */
+        transform: translateY(-50%);
+      }
+
+      .card-grid.list-view .btn-alt-toggle:hover {
+        transform: translateY(-50%) scale(1.1) rotate(45deg);
+      }
+      .burger-btn { display: none; }
+      /* ── DROPDOWN MENU ── */
+      .dropdown {
+        position: relative;
+        cursor: pointer;
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--navy-3);
+        border: 1px solid var(--border-dim);
+        border-radius: 8px;
+        padding: 4px 0;
+        min-width: 180px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        z-index: 200;
+      }
+      /* Opens on hover (Desktop) or click (Mobile) */
+      .dropdown.open .dropdown-content {
+        display: flex;
+        flex-direction: column;
+      }
+      .dropdown-item {
+        padding: 10px 16px;
+        color: var(--text-mid);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        transition: 0.2s;
+        text-align: center;
+      }
+      .dropdown-item:hover {
+        background: rgba(65, 195, 227, 0.1);
+        color: var(--brand-main);
+      }
+
+      /* ── MOBILE RESPONSIVE FIXES ── */
+      @media (max-width: 768px) {
+        /* ── MOBILE DROPDOWN FIX ── */
+        .dropdown {
+          flex-direction: column;
+        }
+        .dropdown-content {
+          position: static; /* Forces it to push other items down instead of floating */
+          transform: none;
+          width: 100%;
+          box-shadow: none;
+          border: 1px solid var(--border-dim);
+          background: rgba(0, 0, 0, 0.2);
+        }
+        .topbar {
+          padding: 10px 16px;
+          gap: 8px;
+          display: grid;
+          justify-content: stretch;
+          height: auto;
+        }
+        .topbar-left {
+          flex: 100%;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        }
+        .topbar-center {
+          flex: 100%;
+          order: 3;
+        }
+        .topbar-right {
+          display: none;
+        }
+
+        /* Shows and styles the burger button on mobile */
+        .burger-btn { 
+            display: flex; 
+            align-items: center; 
+            background: transparent; 
+            color: var(--brand-main); 
+            border: 1px solid var(--border-dim); 
+            padding: 4px 8px; 
+            border-radius: 6px; 
+            font-size: 24px; 
+            cursor: pointer;
+        }
+
+        .topbar-left {
+          flex: 100%;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+        }
+
+        /* ── THE VERTICAL MENU STACK ── */
+        .tabs {
+          display: none; /* Hidden by default */
+          flex-direction: column; /* Stacks top-to-bottom */
+          width: 100%;
+          gap: 8px;
+        }
+        
+        .tabs.open {
+          display: flex; /* Shown when burger button is clicked */
+        }
+        
+        .tab {
+          padding: 12px;
+          flex-direction: row;
+          width: 100%;
+          justify-content: center;
+        }
+        .tab-desc {
+          display: none;
+        }
+        .tab-title {
+          font-size: 14px;
+        }
+
+        .main-panel {
+          display: flex;
+          flex-direction: column;
+          overflow-y: auto;
+          padding: 16px 16px 80px 16px;
+          gap: 24px;
+        }
+        .panel-col {
+          flex: none;
+          overflow: visible;
+          height: auto;
+        }
+
+        .card-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+          gap: 12px;
+          padding: 4px 0;
+          overflow: visible;
+          height: auto;
+          padding-bottom: 60px;
+        }
+        .card-item {
+          min-height: 220px;
+        }
+
+        .list-content-inner {
+          flex-direction: column;
+          align-items: center;
+        }
+        .list-full-img {
+          width: 150px;
+          margin: 0 auto;
+        }
+
+        #current-deck {
+          overflow: auto;
+          max-height: 50vh;
+        }
+        .section-header {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .header-actions {
+          width: 100%;
+          justify-content: space-between;
+        }
+        #sort-select {
+          flex: 1;
+          min-width: 0;
+          margin-right: 8px;
+        }
+
+        .translation-overlay.grid-element {
+          display: none !important;
+        }
+        .hide-on-mobile {
+          display: none;
+        }
+        .hide-on-desktop {
+          display: flex;
+        }
+        .topbar-center {
+          display: none;
+        }
+        .search-bar {
+          max-width: 100%;
+        }
+        /* ── ALT ART TOGGLE LIST VIEW FIX ── */
+        .card-grid.list-view .btn-alt-toggle {
+          top: 5px !important;
+          bottom: auto !important;
+          right: -10px !important; /* Pushes it safely to the left of the Star and Plus icons */
+          transform: translateY(-50%);
+        }
+
+        .card-grid.list-view .btn-alt-toggle:hover {
+          transform: translateY(-50%) scale(1.1) rotate(45deg);
+        }
+      }
+      /* ── PREMIUM ALT ART SNAKE BORDER ANIMATION ── */
+      @property --angle {
+        syntax: "<angle>";
+        inherits: false;
+        initial-value: 0deg;
+      }
+
+      .premium-alt-art {
+        position: relative;
+        border-color: transparent !important; /* 👉 Keeps the physical size, just hides the color! */
+        /* Adds a soft, permanent ambient glow around the premium card */
+        box-shadow:
+          0 0 15px rgba(65, 195, 227, 0.4),
+          inset 0 0 10px rgba(127, 255, 212, 0.2);
+      }
+
+      .premium-alt-art::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 8px; /* Perfectly matches your card corners */
+        padding: 2px; /* This determines how thick the snake is! */
+
+        /* The gradient: Transparent tail -> Cyan body -> White core -> Aquamarine head */
+        background: conic-gradient(
+          from var(--angle),
+          transparent 50%,
+          #41c3e3 75%,
+          #f8fafc 95%,
+          #7fffd4 100%
+        );
+
+        /* The Mask: Cuts out the center of the gradient so it ONLY draws on the 2px padding */
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+
+        animation: spinSnake 3s linear infinite;
+        pointer-events: none;
+        z-index: 15; /* Keeps the snake visible even when hovering */
+      }
+
+      @keyframes spinSnake {
+        0% {
+          --angle: 0deg;
+        }
+        100% {
+          --angle: 360deg;
+        }
+      }
+      /* ── DYNAMIC HOLO-CYBER BACKGROUND ── */
+      .holo-bg-container {
+        position: fixed;
+        inset: 0;
+        z-index: 0; /* Fixed the layer bug! */
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      /* 1. The subtle tech grid - Brightness increased! */
+      .holo-bg-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(65, 195, 227, 0.15) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(65, 195, 227, 0.15) 1px, transparent 1px);
+        background-size: 40px 40px;
+        -webkit-mask-image: radial-gradient(
+          circle at center,
+          black 40%,
+          transparent 100%
+        );
+        mask-image: radial-gradient(
+          circle at center,
+          black 40%,
+          transparent 100%
+        );
+      }
+
+      /* 2. The official Hololive-style diagonal slash */
+      .holo-bg-slash {
+        position: absolute;
+        inset: -50%;
+        background: linear-gradient(
+          135deg,
+          transparent 48%,
+          rgba(255, 255, 255, 0.03) 48%,
+          rgba(255, 255, 255, 0.03) 52%,
+          transparent 52%
+        );
+      }
+
+      /* 3. The floating ambient glow orbs - Brightness increased! */
+      .holo-bg-glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.6;
+      }
+      .glow-cyan {
+        width: 70vw;
+        height: 70vw;
+        max-width: 600px;
+        max-height: 600px;
+        top: -10%;
+        left: -10%;
+        background: radial-gradient(
+          circle,
+          var(--brand-main) 0%,
+          transparent 60%
+        );
+        animation: floatCyan 22s infinite alternate ease-in-out;
+      }
+      .glow-pink {
+        width: 60vw;
+        height: 60vw;
+        max-width: 500px;
+        max-height: 500px;
+        bottom: -10%;
+        right: -10%;
+        background: radial-gradient(
+          circle,
+          var(--brand-pink) 0%,
+          transparent 60%
+        );
+        animation: floatPink 28s infinite alternate ease-in-out;
+      }
+
+      @keyframes floatCyan {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(8vw, 8vh);
+        }
+      }
+      @keyframes floatPink {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(-8vw, -8vh);
+        }
+      }
+      /* ── FULL SCREEN LAYOUT TOGGLES ── */
+      .main-panel.layout-left-full { grid-template-columns: 1fr !important; }
+      .main-panel.layout-left-full .panel-col:nth-child(2) { display: none !important; }
+      .main-panel.layout-left-full .btn-max-left { display: none !important; }
+      .main-panel.layout-left-full .btn-def-left { display: flex !important; }
+
+      .main-panel.layout-right-full { grid-template-columns: 1fr !important; }
+      .main-panel.layout-right-full .panel-col:nth-child(1) { display: none !important; }
+      .main-panel.layout-right-full .btn-max-right { display: none !important; }
+      .main-panel.layout-right-full .btn-def-right { display: flex !important; }
+
+      /* Hide the 'Default' buttons by default */
+      .btn-def-left, .btn-def-right { display: none !important; }
+      .burger-btn { display: none; }
+      /* ── DROPDOWN MENU ── */
+      .dropdown {
+        position: relative;
+        cursor: pointer;
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--navy-3);
+        border: 1px solid var(--border-dim);
+        border-radius: 8px;
+        padding: 4px 0;
+        min-width: 180px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        z-index: 200;
+      }
+      .dropdown.open .dropdown-content {
+        display: flex;
+        flex-direction: column;
+      }
+      .dropdown-item {
+        padding: 10px 16px;
+        color: var(--text-mid);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        transition: 0.2s;
+        text-align: center;
+      }
+      .dropdown-item:hover {
+        background: rgba(65, 195, 227, 0.1);
+        color: var(--brand-main);
+      }
+      :root {
+        --holo-teal: #1d9e75; 
+        --holo-rose: #ff2c2c; 
+        --holo-romance: #ff2c72; 
+        --holo-gold: #ba7517; 
+        --holo-blue: #378add; 
+        --brand-orange: #ef9f27; 
+        --danger: #ff5252;
+        --brand-main: #41c3e3; 
+        --brand-hover: #00a6d6; 
+        --brand-pink: #ff5e99; 
+        --navy: #0b111a;
+        --navy-2: #15202b;
+        --navy-3: #1a2636;
+        --navy-4: #243447;
+        --border-dim: rgba(65, 195, 227, 0.15);
+        --border-mid: rgba(65, 195, 227, 0.35);
+        --text-bright: #f8fafc;
+        --text-mid: #94a3b8;
+        --text-dim: #475569;
+        --tag-r: 4px;
+      }
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html, body {
+        height: 100%;
+        background: var(--navy);
+        color: var(--text-bright);
+        font-family: "nunito", sans-serif;
+        overflow: hidden;
+        z-index: 10;
+        position: relative;
+      }
+      .body-wrapper {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        overflow: hidden;
+        height: calc(100vh - 72px);
+      }
+      .main-panel {
+        display: grid;
+        grid-template-columns: 2fr 3fr;
+        gap: 1.5rem;
+        flex: 1;
+        max-width: 1600px;
+        padding: 20px;
+        height: 100%;
+      }
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        border-bottom: 1px solid var(--border-dim);
+        padding-bottom: 12px;
+        margin-bottom: 8px;
+      }
+      .section-header h3 {
+        color: var(--brand-main);
+        font-size: 22px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+      }
+      .header-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .btn-action {
+        background: var(--navy-3);
+        color: var(--text-bright);
+        border: 1px solid var(--border-dim);
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-family: "nunito", sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-transform: uppercase;
+      }
+      .btn-action:hover {
+        background: var(--navy-4);
+        border-color: var(--border-mid);
+      }
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+        grid-auto-rows: max-content;
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+        align-content: start;
+        padding-top: 20px;
+        padding-bottom: 20px;
+      }
+      .card-grid::-webkit-scrollbar { width: 6px; }
+      .card-grid::-webkit-scrollbar-track { background: transparent; }
+      .card-grid::-webkit-scrollbar-thumb {
+        background: var(--border-mid);
+        border-radius: 3px;
+      }
+      .card-item {
+        position: relative;
+        border-radius: 8px;
+        border: 0.5px solid var(--border-dim);
+        background: var(--navy-3);
+        cursor: pointer;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        margin-top: 5px;
+        opacity: 0;
+        transform: translateY(16px);
+        transition: border-color 0.15s, box-shadow 0.15s, opacity 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
+      .card-item.fade-in {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .card-item.fade-in:hover {
+        border-color: var(--brand-main);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(65, 195, 227, 0.2);
+      }
+      .card-face {
+        aspect-ratio: 5/7;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+        width: 100%;
+      }
+      .card-face img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 2;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      .card-face.oshi { background: linear-gradient(160deg, #0a1520, #0f2a20); }
+      .card-face.member { background: linear-gradient(160deg, #0a0d20, #1a102a); }
+      .card-face.support { background: linear-gradient(160deg, #150d0a, #2a1808); }
+      .card-face.cheer { background: linear-gradient(160deg, #100a1a, #1a0a14); }
+      
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-dim);
+        font-size: 16px;
+        grid-column: 1 / -1;
+      }
+
+      /* ── ABOUT CREDITS MODAL ── */
+      .about-overlay {
+        display: none; /* Hides it completely by default */
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+      }
+      .about-overlay.open {
+        display: flex; /* Instantly shows overlay and modal inside */
+      }
+      .about-modal {
+        background: var(--navy-2);
+        border: 1px solid var(--border-mid);
+        border-radius: 16px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: popIn 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+      }
+      @keyframes popIn {
+        0% { opacity: 0; transform: scale(0.95); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+      .about-header {
+        background: var(--navy-3);
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-dim);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .btn-close-modal {
+        background: transparent;
+        border: none;
+        color: var(--text-dim);
+        font-size: 20px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .btn-close-modal:hover { 
+        color: var(--danger); 
+        transform: scale(1.1); 
+      }
+      .about-content {
+        padding: 24px 20px;
+        font-size: 15px;
+        color: var(--text-bright);
+        line-height: 1.6;
+      }
+      
+      @media (max-width: 768px) {
+        .main-panel {
+          padding: 16px 16px 80px 16px;
+          gap: 24px;
+        }
+        .card-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+          gap: 12px;
+        }
+      }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+      <div class="topbar-left">
+        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+            <div class="logo">Hololive OCG <span>DB</span></div>
+            
+            <button class="burger-btn" onclick="document.getElementById('mobile-tabs').classList.toggle('open')">
+                <i class="ti ti-menu-2"></i>
+            </button>
+        </div>
+
+        <!-- 👉 NEW: Added id="mobile-tabs" -->
+        <nav class="tabs" id="mobile-tabs">
+          <a href="index.html" class="tab">
+            <span class="tab-title">Modern Library</span>
+          </a>
+          <a href="deckbuilder.html" class="tab">
+            <span class="tab-title">Deck Builder</span>
+          </a>
+          <a href="card-library.html" class="tab">
+            <span class="tab-title">Simple Library</span>
+          </a>
+          <div class="tab dropdown" onclick="this.classList.toggle('open')">
+            <span class="tab-title" style="display: flex; align-items: center; gap: 4px;">
+              Games <i class="ti ti-chevron-down" style="font-size: 14px;"></i>
+            </span>
+            <div class="dropdown-content">
+              <a href="quiz.html" class="dropdown-item">Endless Minigames</a>
+              <a href="daily.html" class="dropdown-item">Daily Gauntlet</a>
+            </div>
+          </div>
+            <a href="tournaments.html" class="tab active">
+            <span class="tab-title">Winning Decks</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="topbar-center">
+      </div>
+      <div class="topbar-right">
+        <button class="btn-about-header" onclick="openAboutModal()">
+          <i class="ti ti-info-circle"></i> About
+        </button>
+      </div>
+    </header>
+
+<div class="body-wrapper">
+  <main class="main-panel" style="display: flex; flex-direction: column; max-width: 1100px; margin: 0 auto; width: 100%; height: 100%;">
+    
+    <!-- HEADER: CHAMPION INFO -->
+    <div class="section-header" style="border-bottom: 1px solid var(--border-dim); padding-bottom: 20px; margin-bottom: 20px;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap;">
+          <select id="tournament-selector" onchange="window.changeTournament(this.value)" style="background: var(--navy-3); color: var(--brand-main); border: 1px solid var(--border-mid); padding: 8px 14px; border-radius: 6px; font-family: 'nunito', sans-serif; font-size: 16px; font-weight: 800; outline: none; cursor: pointer;">
+            <!-- Options injected via JS -->
+          </select>
+          <div style="display: flex; align-items: center; gap: 16px; color: var(--text-dim); font-size: 14px; font-weight: 700;">
+            <span id="event-date"><i class="ti ti-calendar"></i> ...</span>
+            <span id="event-location"><i class="ti ti-map-pin"></i> ...</span>
+            <span id="event-players"><i class="ti ti-users"></i> ...</span>
+          </div>
+        </div>
+        <h3 style="color: var(--text-bright); font-size: 28px; margin-bottom: 4px;" id="champ-name">Loading...</h3>
+        <span style="color: var(--brand-main); font-size: 16px; font-weight: 700;" id="champ-deck-name">...</span>
+      </div>
+      
+      <!-- ALL HEADER BUTTONS PRESERVED -->
+      <div class="header-actions">
+         <button class="btn-action" onclick="document.getElementById('admin-modal').classList.add('open')" style="background: var(--navy-3); color: var(--text-mid);">
+           <i class="ti ti-plus"></i> Add Event
+         </button>
+         <button class="btn-action" onclick="window.copyWinningDeck()" style="background: var(--brand-main); color: var(--navy);">
+           <i class="ti ti-copy"></i> Copy Deck Code
+         </button>
+      </div>
+    </div>
+    
+    <!-- THE DECKLIST CONTAINER -->
+    <div id="winning-deck-container" style="overflow-y: auto; flex: 1; padding-right: 10px;">
+        <!-- Javascript will inject the grids here -->
+    </div>
+
+  </main>
+</div>
+
+<!-- ── ADMIN MODAL FOR ADDING TOURNAMENTS ── -->
+<div id="admin-modal" class="about-overlay">
+  <div class="about-modal" style="max-width: 500px;">
+    <div class="about-header">
+      <h3 style="color: var(--brand-main); font-size: 18px; font-weight: 800; margin: 0;"><i class="ti ti-database"></i> Add New Tournament</h3>
+      <button class="btn-close-modal" onclick="document.getElementById('admin-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="about-content" style="display: flex; flex-direction: column; gap: 12px;">
+      
+      <div style="display: flex; gap: 12px;">
+        <input type="text" id="add-event-name" placeholder="Event Name (e.g. Weekly #3 + place)" style="flex: 2; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+        <input type="date" id="add-date" style="flex: 1; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+      </div>
+
+      <!-- NEW ROW: Location and Players -->
+      <div style="display: flex; gap: 12px;">
+        <input type="text" id="add-location" placeholder="Location/Venue (e.g. Local Game Store)" style="flex: 2; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+        <input type="number" id="add-players" placeholder="Players" style="flex: 1; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+      </div>
+
+      <!-- ROW: Winner Name and Deck Name -->
+      <div style="display: flex; gap: 12px;">
+        <input type="text" id="add-winner-name" placeholder="Winner Name" style="flex: 1; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+        <input type="text" id="add-deck-name" placeholder="Deck Name (e.g. Blue/Green Aggro)" style="flex: 1; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+      </div>
+      
+      <textarea id="add-deck-code" placeholder="Paste Base64 Deck Code Here..." rows="3" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: monospace;"></textarea>
+
+      <button class="btn-action" onclick="window.generateTournament()" style="justify-content: center; background: var(--brand-main); color: var(--navy); margin-top: 10px;">
+        Save to Firebase Database
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<script>
+        window.openAboutModal = function () {
+        document.getElementById("about-modal").classList.add("open");
+        document.getElementById("about-overlay").classList.add("open");
+      };
+      window.closeAboutModal = function () {
+        document.getElementById("about-modal").classList.remove("open");
+        document.getElementById("about-overlay").classList.remove("open");
+      };
+</script>
+<script type="module">
+  // 1. Updated to your exact v12.19.0 SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, addDoc, orderBy, query } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  // 2. Your Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCAIHsG9fB7dRih74FgPv805Lud2q0BfGE",
+    authDomain: "holoocg-ef4bf.firebaseapp.com",
+    projectId: "holoocg-ef4bf",
+    storageBucket: "holoocg-ef4bf.firebasestorage.app",
+    messagingSenderId: "942377973020",
+    appId: "1:942377973020:web:3e26c80a1e67ce97a9b6d9",
+    measurementId: "G-ER0KDYMX7M"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const csvFilesToLoad = [
+    "hBP01.csv", "hBP02.csv", "hBP03.csv", "hBP04.csv",
+    "hBP05.csv", "hBP06.csv", "hBP07.csv", "hBP08.csv",
+    "hBP09.csv", "hEB01.csv", "hSD.csv"
+  ];
+  let masterCardPool = [];
+  let tournamentHistory = [];
+  let activeTournament = null;
+
+  function parseCSV(text) {
+    let result = [], row = [], inQuotes = false, val = "";
+    for (let i = 0; i < text.length; i++) {
+      let char = text[i];
+      if (inQuotes) {
+        if (char === '"') {
+          if (i + 1 < text.length && text[i + 1] === '"') { val += '"'; i++; } else { inQuotes = false; }
+        } else { val += char; }
+      } else {
+        if (char === '"') { inQuotes = true; } 
+        else if (char === ",") { row.push(val.trim()); val = ""; } 
+        else if (char === "\n" || char === "\r") {
+          row.push(val.trim()); result.push(row); row = []; val = "";
+          if (char === "\r" && i + 1 < text.length && text[i + 1] === "\n") i++;
+        } else { val += char; }
+      }
+    }
+    if (val !== "" || row.length > 0) { row.push(val.trim()); result.push(row); }
+    return result;
+  }
+
+  async function initializeDatabase() {
+    let combinedDatabase = [];
+    let seenIds = new Set();
+
+    for (const fileName of csvFilesToLoad) {
+      try {
+        const response = await fetch(fileName);
+        if (!response.ok) continue;
+        const text = await response.text();
+        if (text.trim().toLowerCase().startsWith("<!doctype html") || text.trim().toLowerCase().startsWith("<html")) continue;
+
+        const rows = parseCSV(text);
+        if (rows.length < 2) continue;
+
+        const headers = rows[0].map(h => h.replace(/"/g, "").trim().toLowerCase());
+        let typeIdx = 3, hpIdx = 6, tagsIdx = -1, textIdx = 8;
+        for (let i = 0; i < headers.length; i++) {
+          if (headers[i].includes("type")) typeIdx = i;
+          if (headers[i].includes("life") || headers[i].includes("hp")) hpIdx = i;
+          if (headers[i].includes("tag")) tagsIdx = i;
+          if (headers[i].includes("text")) textIdx = i;
+        }
+
+        for (let i = 1; i < rows.length; i++) {
+          const cols = rows[i];
+          if (cols.length < 3) continue;
+
+          const setCode = cols[0];
+          const nameRaw = cols[1];
+          if (!setCode || !nameRaw || setCode.toLowerCase().includes("setcode")) continue;
+
+          const finalCardId = setCode.trim();
+          if (seenIds.has(finalCardId)) continue;
+          seenIds.add(finalCardId);
+
+          let cardName = nameRaw;
+          const match = nameRaw.match(/\((.*?)\)/);
+          if (match) cardName = match[1].trim();
+
+          const typeRaw = cols[typeIdx] || "";
+          let cardType = "Unknown", bloomLevel = null;
+
+          if (typeRaw.toLowerCase().includes("holomem")) {
+            if (typeRaw.includes("Oshi")) cardType = "Oshi";
+            else {
+              cardType = "Holomem";
+              if (typeRaw.includes("Debut")) bloomLevel = "Debut";
+              if (typeRaw.includes("1st")) bloomLevel = "1st";
+              if (typeRaw.includes("2nd")) bloomLevel = "2nd";
+              if (typeRaw.includes("Spot")) bloomLevel = "Spot";
+            }
+          } else if (typeRaw.includes("Support")) cardType = "Support";
+          else if (typeRaw.includes("Cheer")) cardType = "Cheer";
+
+          const hpRaw = cols[hpIdx];
+          let hp = hpRaw ? parseInt(hpRaw.replace(/,/g, "")) : null;
+          let rawSkills = cols[textIdx] || "None";
+          let rawTags = tagsIdx !== -1 ? cols[tagsIdx] || "" : "";
+          let finalSkillsText = rawTags ? `${rawTags} | ${rawSkills}` : rawSkills;
+
+          combinedDatabase.push({
+            card_name: cardName, card_type: cardType, bloom_level: bloomLevel,
+            card_id: finalCardId, hp: isNaN(hp) ? null : hp, skills_text: finalSkillsText,
+            thumbnail: null, raw_type: typeRaw.toLowerCase()
+          });
+        }
+      } catch (error) {}
+    }
+
+    masterCardPool = combinedDatabase;
+    masterCardPool.sort((a, b) => a.card_id.localeCompare(b.card_id));
+    await fetchTournaments();
+  }
+
+  // ENHANCED FETCH FUNCTION
+  async function fetchTournaments() {
+    try {
+      const q = query(collection(db, "tournaments"), orderBy("date", "desc"));
+      const querySnapshot = await getDocs(q);
+      
+      tournamentHistory = [];
+      querySnapshot.forEach((doc) => {
+        tournamentHistory.push({ id: doc.id, ...doc.data() });
+      });
+
+      if (tournamentHistory.length > 0) {
+        activeTournament = tournamentHistory[0];
+        initTournamentSelector();
+        renderTournamentData();
+      } else {
+        // UI for a successful connection to an EMPTY database
+        document.getElementById("champ-name").innerText = "No Tournaments Found";
+        document.getElementById("champ-deck-name").innerText = "Database is empty.";
+        document.getElementById("event-date").innerText = "";
+        document.getElementById("winning-deck-container").innerHTML = `<div class="empty-state">Your Firebase database is connected, but it has no data. Click "+ Add Event" to save your first tournament!</div>`;
+      }
+    } catch (error) {
+      // UI for a failed connection (Permissions or Configuration Error)
+      console.error("Firebase Error: ", error);
+      document.getElementById("champ-name").innerText = "Connection Error";
+      document.getElementById("champ-deck-name").innerText = "Check your Firebase Rules";
+      document.getElementById("event-date").innerText = "";
+      document.getElementById("winning-deck-container").innerHTML = `<div class="empty-state" style="color: var(--danger);">Failed to load data. Please ensure your Firestore Database is created and your Rules are set to <b>allow read, write: if true;</b></div>`;
+    }
+  }
+
+  function initTournamentSelector() {
+    const selector = document.getElementById("tournament-selector");
+    selector.innerHTML = "";
+    tournamentHistory.forEach(event => {
+      const option = document.createElement("option");
+      option.value = event.id;
+      option.textContent = `${event.eventName} (${event.date})`;
+      selector.appendChild(option);
+    });
+  }
+
+  window.changeTournament = function(eventId) {
+    activeTournament = tournamentHistory.find(t => t.id === eventId);
+    if (activeTournament) {
+      renderTournamentData();
+    }
+  };
+
+  function renderTournamentData() {
+    document.getElementById("champ-name").innerText = `🏆 ${activeTournament.winner.name}`;
+    document.getElementById("champ-deck-name").innerText = activeTournament.winner.deckName;
+    
+    // Updates the UI with the extra data (using fallbacks for old events)
+    document.getElementById("event-date").innerHTML = `<i class="ti ti-calendar"></i> ${activeTournament.date}`;
+    document.getElementById("event-location").innerHTML = `<i class="ti ti-map-pin"></i> ${activeTournament.location || "Online/Unknown"}`;
+    document.getElementById("event-players").innerHTML = `<i class="ti ti-users"></i> ${activeTournament.players || 0} Players`;
+    
+    renderWinningDeck(activeTournament.winner.deckCode);
+  }
+  function renderWinningDeck(base64Code) {
+    const container = document.getElementById("winning-deck-container");
+    container.innerHTML = "";
+
+    try {
+      let decoded = atob(base64Code);
+      let parts = decoded.split("|"); 
+      
+      const createCardHtml = (cardId, qty) => {
+        let card = masterCardPool.find(c => c.card_id === cardId);
+        if (!card) return "";
+
+        const setPrefix = card.card_id.split("-")[0];
+        const imagePath = card.thumbnail ? card.thumbnail : `images/${setPrefix}/${card.card_id}.webp`;
+        let typeClass = "support";
+        if (card.card_type === "Oshi") typeClass = "oshi";
+        else if (card.card_type === "Holomem") typeClass = "member";
+        else if (card.card_type === "Cheer") typeClass = "cheer";
+
+        const qtyBadge = qty > 1 ? `<div style="position: absolute; top: 8px; right: 8px; background: var(--brand-main); color: var(--navy); font-weight: 900; font-size: 16px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">x${qty}</div>` : "";
+
+        return `
+          <div class="card-item fade-in" style="min-height: auto; aspect-ratio: 5/7;">
+              ${qtyBadge}
+              <div class="card-face ${typeClass} grid-element">
+                  <img src="${imagePath}" loading="lazy" />
+                  <span class="face-label">${card.card_type.toUpperCase()}</span>
+              </div>
+          </div>
+        `;
+      };
+
+      const buildSection = (title, color, rawString) => {
+        if (!rawString) return "";
+        let cardHtml = "";
+        let totalCount = 0;
+
+        rawString.split(",").forEach(pair => {
+          let [id, qtyStr] = pair.split(":");
+          let qty = qtyStr ? parseInt(qtyStr) : 1;
+          if (id) {
+            cardHtml += createCardHtml(id, qty);
+            totalCount += qty;
+          }
+        });
+
+        return `
+          <div style="margin-bottom: 30px;">
+            <h4 style="color: ${color}; font-size: 18px; margin-bottom: 12px; border-bottom: 1px dashed var(--border-mid); padding-bottom: 6px;">
+              ${title} <span style="color: var(--text-dim); font-size: 14px;">(${totalCount})</span>
+            </h4>
+            <div class="card-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding: 0;">
+              ${cardHtml}
+            </div>
+          </div>
+        `;
+      };
+
+      let finalHtml = "";
+      finalHtml += buildSection("Oshi", "var(--holo-gold)", parts[0]);
+      finalHtml += buildSection("Main Deck", "var(--text-bright)", parts[1]);
+      finalHtml += buildSection("Cheer Deck", "var(--holo-rose)", parts[2]);
+      container.innerHTML = finalHtml;
+
+    } catch (e) {
+      container.innerHTML = `<div class="empty-state">Invalid deck code format or no deck selected.</div>`;
+    }
+  }
+
+  window.generateTournament = async function() {
+    const eventName = document.getElementById("add-event-name").value;
+    const date = document.getElementById("add-date").value;
+    // This line pulls the location from the new input box
+    const location = document.getElementById("add-location").value || "Unknown Location"; 
+    const winnerName = document.getElementById("add-winner-name").value;
+    const players = document.getElementById("add-players").value || 0;
+    const deckName = document.getElementById("add-deck-name").value;
+    const deckCode = document.getElementById("add-deck-code").value.trim();
+
+    if (!eventName || !winnerName || !deckCode) {
+      alert("Please fill in the Event Name, Winner Name, and Deck Code!");
+      return;
+    }
+
+    const newEvent = {
+      eventName: eventName,
+      date: date,
+      location: location, // This saves it to Firebase
+      players: parseInt(players),
+      winner: { name: winnerName, deckName: deckName, deckCode: deckCode }
+    };
+
+    try {
+      await addDoc(collection(db, "tournaments"), newEvent);
+      alert("Tournament saved securely to Firebase!");
+      
+      document.getElementById('admin-modal').classList.remove('open');
+      
+      await fetchTournaments();
+      
+      // Clears all inputs, including the new location field
+      document.getElementById("add-event-name").value = "";
+      document.getElementById("add-date").value = "";
+      document.getElementById("add-location").value = "";
+      document.getElementById("add-winner-name").value = "";
+      document.getElementById("add-players").value = "";
+      document.getElementById("add-deck-name").value = "";
+      document.getElementById("add-deck-code").value = "";
+    } catch (error) {
+      console.error("Error writing document: ", error);
+      alert("Failed to save tournament. Check your Firebase Rules permissions.");
+    }
+  };
+
+  window.copyWinningDeck = function() {
+    if (!activeTournament || !activeTournament.winner) return;
+    navigator.clipboard.writeText(activeTournament.winner.deckCode).then(() => {
+      alert("Winning Deck Code copied to clipboard!");
+    });
+  };
+
+  initializeDatabase();
+</script>
+</body>
+</html>

@@ -1916,15 +1916,26 @@
       renderTournamentData();
     }
   };
+  // Helper function to neutralize malicious HTML tags
+  function escapeHTML(str) {
+    if (!str) return "";
+    return String(str).replace(/[&<>'"]/g, match => {
+      const escapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+      return escapeMap[match];
+    });
+  }
 
   function renderTournamentData() {
+    // innerText is naturally safe from injection
     document.getElementById("champ-name").innerText = `🏆 ${activeTournament.winner.name}`;
     document.getElementById("champ-deck-name").innerText = activeTournament.winner.deckName;
     
-    // Updates the UI with the extra data (using fallbacks for old events)
-    document.getElementById("event-date").innerHTML = `<i class="ti ti-calendar"></i> ${activeTournament.date}`;
-    document.getElementById("event-location").innerHTML = `<i class="ti ti-map-pin"></i> ${activeTournament.location || "Online/Unknown"}`;
-    document.getElementById("event-players").innerHTML = `<i class="ti ti-users"></i> ${activeTournament.players || 0} Players`;
+    // innerHTML is vulnerable, so we must sanitize the data being injected next to the icons
+    document.getElementById("event-date").innerHTML = `<i class="ti ti-calendar"></i> ${escapeHTML(activeTournament.date)}`;
+    document.getElementById("event-location").innerHTML = `<i class="ti ti-map-pin"></i> ${escapeHTML(activeTournament.location || "Online/Unknown")}`;
+    
+    // Forcing this to be a Number() prevents any text/script injection outright
+    document.getElementById("event-players").innerHTML = `<i class="ti ti-users"></i> ${Number(activeTournament.players || 0)} Players`;
     
     renderWinningDeck(activeTournament.winner.deckCode);
   }

@@ -416,7 +416,47 @@
   </div>
 </div>
 
-<script>
+<script type="module">
+    // Submits the final score to the Firebase database
+    window.submitScoreToFirebase = async function(score, btnElement) {
+        if (!sessionPlayerName) {
+            alert("No player name found!");
+            return;
+        }
+        
+        const statusDiv = document.getElementById("submit-status");
+        
+        // Prevent double-clicking
+        btnElement.disabled = true;
+        btnElement.innerText = "Submitting...";
+        if (statusDiv) statusDiv.innerText = "";
+        
+        try {
+            // Uses the exposed window.db and window.addDoc from your module script
+            await window.addDoc(window.collection(window.db, "highscores"), {
+                name: sessionPlayerName,
+                score: score,
+                timestamp: new Date()
+            });
+            
+            // Success UI update
+            btnElement.innerText = "Submitted!";
+            btnElement.style.background = "var(--holo-teal)";
+            btnElement.style.color = "#fff";
+            
+            // Automatically refresh the leaderboard if it's currently open
+            if (document.getElementById("leaderboard-container").style.display === "block") {
+                window.loadLeaderboard();
+            }
+        } catch (error) {
+            console.error("Error submitting score:", error);
+            if (statusDiv) statusDiv.innerText = "Error submitting score. Please try again.";
+            
+            // Re-enable the button if it failed
+            btnElement.innerText = "Submit Score";
+            btnElement.disabled = false;
+        }
+    };
     // 1. DATABASE LOADER (Copied from your library)
     const csvFilesToLoad = [
         'hBP01.csv', 'hBP02.csv', 'hBP03.csv', 'hBP04.csv',
@@ -508,17 +548,20 @@
         let shuffled = pool.sort(() => 0.5 - Math.random());
         return shuffled.slice(0, count);
     }
-
+    
     let sessionPlayerName = "";
-    function startQuiz(mode) {
+    
+    window.startQuiz = function(mode) {
         if (masterCardPool.length === 0) {
             alert("Database is still loading. Please wait a moment!");
             return;
         }
 
-        // 👉 NEW: Lock in the player's name
+        // Lock in the player's name using the correct ID from your HTML
         if (!sessionPlayerName) {
-            const nameInput = document.getElementById("session-player-name").value.trim();
+            const nameField = document.getElementById("session-player-name");
+            const nameInput = nameField.value.trim();
+            
             if (!nameInput) {
                 alert("Please enter your name first!");
                 return;
@@ -526,7 +569,6 @@
             sessionPlayerName = nameInput;
             
             // Disable the input so they can't change it mid-session
-            const nameField = document.getElementById("session-player-name");
             nameField.disabled = true;
             nameField.style.opacity = "0.5";
         }

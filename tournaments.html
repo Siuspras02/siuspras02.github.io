@@ -1800,6 +1800,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, orderBy, query, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
   // 2. Your Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyCAIHsG9fB7dRih74FgPv805Lud2q0BfGE",
@@ -1814,6 +1815,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstati
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const storage = getStorage(app);
+  const auth = getAuth(app);
 
   const csvFilesToLoad = [
     "hBP01.csv", "hBP02.csv", "hBP03.csv", "hBP04.csv",
@@ -2131,10 +2133,27 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstati
       container.innerHTML = `<div class="empty-state">Invalid deck code format or no deck selected.</div>`;
     }
   }
-  window.openUpdateModal = function() {
+  window.openUpdateModal = async function() {
     if (!activeTournament) return alert("No tournament selected!");
     
-    // Pre-fill existing data if it exists
+    // Check if the user is already logged in
+    if (!auth.currentUser) {
+      const email = prompt("Admin Email required to edit:");
+      if (!email) return;
+      
+      const password = prompt("Admin Password:"); 
+      if (!password) return;
+
+      try {
+        // Authenticate with Google's servers
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        console.error("Auth error:", error);
+        return alert("Access Denied: Incorrect email or password.");
+      }
+    }
+    
+    // If we reach here, the user is authenticated securely
     document.getElementById("edit-youtube-link").value = activeTournament.winner.youtubeLink || "";
     document.getElementById("edit-comments").value = activeTournament.winner.comments || "";
     

@@ -1607,8 +1607,15 @@
       
       @media (max-width: 768px) {
         .main-panel {
+          display: flex !important;
+          flex-direction: column !important;
           padding: 16px 16px 80px 16px;
           gap: 24px;
+        }
+        .panel-col {
+          height: auto !important;
+          flex: none !important;
+          overflow: visible !important;
         }
         .card-grid {
           grid-template-columns: repeat(2, 1fr) !important;
@@ -1737,7 +1744,7 @@
         <i class="ti ti-trophy" style="font-size: 160px; color: var(--brand-main);"></i>
       </div>
       
-      <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-start;">
+      <div style="position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: flex-start;">
         <div style="flex: 1;">
           <div id="event-meta" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
             <!-- Javascript will inject modern meta chips here -->

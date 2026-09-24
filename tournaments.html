@@ -1689,6 +1689,9 @@
          </button>
       </div>
     </div>
+    <button class="btn-action" onclick="window.openUpdateModal()" style="background: var(--navy-3); color: var(--text-mid);">
+  <i class="ti ti-edit"></i> Edit Info
+</button>
     
     <!-- THE DECKLIST CONTAINER -->
     <div id="winning-deck-container" style="overflow-y: auto; flex: 1; padding-right: 10px;">
@@ -1758,23 +1761,45 @@
     </div>
   </div>
 </div>
+<!-- UPDATE TOURNAMENT MODAL -->
+<div id="update-modal" class="about-overlay">
+  <div class="about-modal" style="max-width: 500px;">
+    <div class="about-header">
+      <h3 style="color: var(--brand-main); font-size: 18px; font-weight: 800; margin: 0;">
+        <i class="ti ti-edit"></i> Edit Match Details
+      </h3>
+      <button class="btn-close-modal" onclick="document.getElementById('update-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="about-content" style="display: flex; flex-direction: column; gap: 12px;">
+      
+      <input type="url" id="edit-youtube-link" placeholder="YouTube Match Link URL" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+      
+      <textarea id="edit-comments" placeholder="Match history, player notes, or deck performance..." rows="4" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: 'nunito', sans-serif;"></textarea>
 
+      <button id="save-update-btn" class="btn-action" onclick="window.saveTournamentUpdates()" style="justify-content: center; background: var(--brand-main); color: var(--navy); margin-top: 10px;">
+        Save Updates
+      </button>
+
+    </div>
+  </div>
+</div>
 <script>
-        window.openAboutModal = function () {
-        document.getElementById("about-modal").classList.add("open");
-        document.getElementById("about-overlay").classList.add("open");
-      };
-      window.closeAboutModal = function () {
-        document.getElementById("about-modal").classList.remove("open");
-        document.getElementById("about-overlay").classList.remove("open");
-      };
+  window.openAboutModal = function () {
+    document.getElementById("about-modal").classList.add("open");
+    document.getElementById("about-overlay").classList.add("open");
+  };
+  window.closeAboutModal = function () {
+    document.getElementById("about-modal").classList.remove("open");
+    document.getElementById("about-overlay").classList.remove("open");
+  };
 </script>
 <script type="module">
+  
+  
   // 1. Updated to your exact v12.19.0 SDK
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, addDoc, orderBy, query } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
-
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, orderBy, query, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
   // 2. Your Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyCAIHsG9fB7dRih74FgPv805Lud2q0BfGE",
@@ -1943,6 +1968,7 @@
       renderTournamentData();
     }
   };
+  
   // Helper function to neutralize malicious HTML tags
   function escapeHTML(str) {
     if (!str) return "";
@@ -1952,7 +1978,7 @@
     });
   }
 
-  function renderTournamentData() {
+ function renderTournamentData() {
     document.getElementById("champ-name").innerText = `🏆 ${activeTournament.winner.name}`;
     document.getElementById("champ-deck-name").innerText = activeTournament.winner.deckName;
     document.getElementById("event-date").innerHTML = `<i class="ti ti-calendar"></i> ${escapeHTML(activeTournament.date)}`;
@@ -1965,19 +1991,75 @@
       <span style="background: rgba(255, 94, 153, 0.15); border: 1px solid rgba(255, 94, 153, 0.35); padding: 4px 10px; border-radius: 6px; color: var(--brand-pink); font-weight: 800;">
         <i class="ti ti-users"></i> ${Number(activeTournament.players || 0)} Players
       </span>`;
+
+    // 1. Remove the old header details container if it exists from the previous implementation
+    const oldDetails = document.getElementById("tournament-extra-details");
+    if (oldDetails) oldDetails.remove();
     
     const container = document.getElementById("winning-deck-container");
     
-    // Display the image if one exists, otherwise fall back to the old deck code system for older entries
+    // 2. Render the Deck or Image FIRST
     if (activeTournament.winner.imageUrl) {
       container.innerHTML = `
-        <div style="text-align: center; padding: 10px 0 40px 0;">
+        <div style="text-align: center; padding: 10px 0 20px 0;">
           <img src="${activeTournament.winner.imageUrl}" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-mid); box-shadow: 0 10px 30px rgba(0,0,0,0.5);" alt="Winning Deck" />
         </div>`;
     } else if (activeTournament.winner.deckCode) {
-      renderWinningDeck(activeTournament.winner.deckCode);
+      renderWinningDeck(activeTournament.winner.deckCode); // Note: This function clears container.innerHTML
     } else {
       container.innerHTML = `<div class="empty-state">No deck list available.</div>`;
+    }
+
+    // 3. Build the Match Info (Thumbnail & Notes) and append to the BOTTOM
+    if (activeTournament.winner.youtubeLink || activeTournament.winner.comments) {
+      let footerHtml = `<div style="margin-top: 30px; padding-top: 20px; padding-bottom: 60px; border-top: 1px solid var(--border-dim); display: flex; flex-direction: column; gap: 24px;">`;
+
+      // Generate YouTube Thumbnail
+      if (activeTournament.winner.youtubeLink) {
+        const ytUrl = escapeHTML(activeTournament.winner.youtubeLink);
+        const ytRegex = /(?:v=|v\/|vi\/|youtu\.be\/|\/v\/|embed\/)([a-zA-Z0-9_-]{11})/;
+        const match = ytUrl.match(ytRegex);
+        const ytId = match ? match[1] : null;
+
+        if (ytId) {
+          const thumbnailUrl = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+          footerHtml += `
+            <div>
+              <h4 style="color: var(--text-bright); font-size: 16px; margin-bottom: 12px;"><i class="ti ti-brand-youtube" style="color: #ff0000;"></i> Watch Match</h4>
+              <a href="${ytUrl}" target="_blank" style="display: block; width: 100%; max-width: 320px; position: relative; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-dim); box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: 0.2s;">
+                <img src="${thumbnailUrl}" style="width: 100%; display: block;" alt="YouTube Match" />
+                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); transition: background 0.2s;">
+                  <div style="background: #ff0000; padding: 10px 20px; border-radius: 6px; color: white; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                    <i class="ti ti-player-play-filled"></i> PLAY
+                  </div>
+                </div>
+              </a>
+            </div>`;
+        } else {
+          // Fallback if the link is not a standard YouTube video
+          footerHtml += `
+            <div>
+              <h4 style="color: var(--text-bright); font-size: 16px; margin-bottom: 8px;"><i class="ti ti-brand-youtube" style="color: #ff0000;"></i> Watch Match</h4>
+              <a href="${ytUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #ff0000; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 14px;">
+                Open Video Link <i class="ti ti-external-link"></i>
+              </a>
+            </div>`;
+        }
+      }
+      
+      // Generate Notes/Comments
+      if (activeTournament.winner.comments) {
+        footerHtml += `
+          <div>
+            <h4 style="color: var(--text-bright); font-size: 16px; margin-bottom: 8px;"><i class="ti ti-message-2" style="color: var(--brand-main);"></i> Match Notes & Comments</h4>
+            <div style="padding: 16px; background: rgba(255,255,255,0.03); border-left: 3px solid var(--brand-main); border-radius: 0 8px 8px 0; color: var(--text-bright); font-size: 15px; line-height: 1.6; white-space: pre-wrap;">${escapeHTML(activeTournament.winner.comments)}</div>
+          </div>`;
+      }
+
+      footerHtml += `</div>`;
+      
+      // Append the newly generated footer below the deck list/image
+      container.insertAdjacentHTML('beforeend', footerHtml);
     }
   }
 
@@ -2049,6 +2131,49 @@
       container.innerHTML = `<div class="empty-state">Invalid deck code format or no deck selected.</div>`;
     }
   }
+  window.openUpdateModal = function() {
+    if (!activeTournament) return alert("No tournament selected!");
+    
+    // Pre-fill existing data if it exists
+    document.getElementById("edit-youtube-link").value = activeTournament.winner.youtubeLink || "";
+    document.getElementById("edit-comments").value = activeTournament.winner.comments || "";
+    
+    document.getElementById("update-modal").classList.add("open");
+  };
+
+  window.saveTournamentUpdates = async function() {
+    if (!activeTournament) return;
+    
+    const saveBtn = document.getElementById("save-update-btn");
+    saveBtn.innerHTML = "Saving... <i class='ti ti-loader' style='animation: spin 1s linear infinite;'></i>";
+    saveBtn.disabled = true;
+
+    try {
+      const newYoutube = document.getElementById("edit-youtube-link").value.trim();
+      const newComments = document.getElementById("edit-comments").value.trim();
+
+      // Point to the specific document using activeTournament.id
+      const tournamentRef = doc(db, "tournaments", activeTournament.id);
+      
+      // Update only these specific fields inside the 'winner' object
+      await updateDoc(tournamentRef, {
+        "winner.youtubeLink": newYoutube,
+        "winner.comments": newComments
+      });
+
+      alert("Tournament updated successfully!");
+      document.getElementById("update-modal").classList.remove("open");
+      
+      // Refresh the data to show changes
+      await fetchTournaments(); 
+    } catch (error) {
+      console.error("Error updating document:", error);
+      alert("Failed to update: " + error.message);
+    } finally {
+      saveBtn.innerHTML = "Save Updates";
+      saveBtn.disabled = false;
+    }
+  };
 
   window.generateTournament = async function() {
     const eventName = document.getElementById("add-event-name").value;
@@ -2151,6 +2276,7 @@
   };
 
   initializeDatabase();
+  
 </script>
 </body>
 </html>

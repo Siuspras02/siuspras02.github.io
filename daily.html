@@ -273,7 +273,37 @@
       0% { transform: translate(0,0); } 
       100% { transform: translate(-8vw, -8vh); } 
   }
-  
+  .brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-icon {
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  transition: transform 0.2s ease;
+}
+
+.brand-logo:hover .logo-icon {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.brand-text {
+  /* Uses your system's default clean sans-serif font */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.text-white {
+  color: #FFFFFF;
+}
+
+.text-cyan {
+  color: #41C3E3;
+}
     </style>
 </head>
 <body>
@@ -289,7 +319,23 @@
         
         <!-- 👉 NEW: Wrapper to keep the logo and burger button on the same line on mobile -->
         <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-            <div class="logo">Hololive OCG <span>DB</span></div>
+            <a href="index.html" class="brand-logo">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="38" height="38" class="logo-icon">
+    <!-- Card Base Rotated 12 Degrees -->
+    <g transform="rotate(12 32 32)">
+      <!-- Outer Card with Cyan Border -->
+      <rect x="14" y="8" width="36" height="48" rx="4" fill="#FFFFFF" stroke="#41C3E3" stroke-width="3"/>
+      <!-- Cyan Diagonal Split -->
+      <path d="M15.5 9.5 h 33 a 2.5 2.5 0 0 1 2.5 2.5 v 24 L 15.5 16 z" fill="#41C3E3"/>
+      <!-- White Play Button -->
+      <polygon points="26,22 42,32 26,42" fill="#FFFFFF" stroke="#41C3E3" stroke-width="2" stroke-linejoin="round" />
+    </g>
+  </svg>
+  
+  <span class="brand-text">
+    <span class="text-white">Holo</span><span class="text-cyan">Deck</span>
+  </span>
+</a>
             
             <button class="burger-btn" onclick="document.getElementById('mobile-tabs').classList.toggle('open')">
                 <i class="ti ti-menu-2"></i>
@@ -316,6 +362,9 @@
               <a href="daily.html" class="dropdown-item">Daily Gauntlet</a>
             </div>
           </div>
+            <a href="tournaments.html" class="tab">
+            <span class="tab-title">Winning Decks</span>
+          </a>
         </nav>
       </div>
       <div class="topbar-right">
@@ -878,9 +927,43 @@
         leaderboardList.innerHTML = `<div style="text-align: center; color: var(--text-dim);">Loading leaderboards...</div>`;
 
         try {
-            // 1. Calculate dates for Today, Yesterday, and 2 Days Ago (Using Local Time)
+            const scoresRef = window.collection(window.db, "daily_gauntlet");
+            let listHtml = "";
+
+            // --- 1. FETCH ALL-TIME FASTEST (Top 3 Perfect Scores) ---
+            try {
+                // Query: Only get perfect 10s, sort by fastest time, limit to top 3
+                const allTimeQ = window.query(scoresRef, window.where("score", "==", 10), window.orderBy("time", "asc"), window.limit(3));
+                const allTimeSnap = await window.getDocs(allTimeQ);
+                
+                if (!allTimeSnap.empty) {
+                    listHtml += `<div style="margin-top: 8px; margin-bottom: 8px; font-weight: 900; color: var(--holo-orange); border-bottom: 2px solid var(--holo-orange); padding-bottom: 4px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">👑 All-Time Fastest (10/10)</div>`;
+                    
+                    let rank = 1;
+                    allTimeSnap.forEach((doc) => {
+                        const data = doc.data();
+                        listHtml += `
+                            <div style="display: flex; justify-content: space-between; background: rgba(239, 159, 39, 0.15); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--holo-orange); margin-bottom: 6px;">
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <span style="color: #FFD700; font-weight: 800; width: 20px;">#${rank}</span>
+                                    <span style="color: var(--text-bright); font-weight: 800;">${data.name}</span>
+                                </div>
+                                <div style="display: flex; gap: 15px; align-items: center;">
+                                    <span style="color: var(--holo-teal); font-weight: 800;">${data.score}/10</span>
+                                    <span style="color: var(--holo-orange); font-weight: 800; width: 50px; text-align: right;">${data.time}s</span>
+                                </div>
+                            </div>
+                        `;
+                        rank++;
+                    });
+                }
+            } catch (indexError) {
+                console.warn("All-Time query failed (Index likely building): ", indexError);
+            }
+
+            // --- 2. FETCH 7-DAY LEADERBOARDS ---
             const datesToFetch = [];
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 7; i++) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
                 const year = d.getFullYear();
@@ -888,16 +971,12 @@
                 const day = String(d.getDate()).padStart(2, '0');
                 datesToFetch.push(`${year}-${month}-${day}`);
             }
-
-            const scoresRef = window.collection(window.db, "daily_gauntlet");
             
-            // 2. Fetch scores where the date matches ANY of those 3 days
             const q = window.query(scoresRef, window.where("date", "in", datesToFetch));
             const querySnapshot = await window.getDocs(q);
             
-            // 3. Group the scores by their date
             let groupedScores = {};
-            datesToFetch.forEach(date => groupedScores[date] = []); // Setup empty arrays for each day
+            datesToFetch.forEach(date => groupedScores[date] = []); 
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
@@ -906,24 +985,16 @@
                 }
             });
 
-            let listHtml = "";
-
-            // 4. Sort and build the HTML for each day independently
             datesToFetch.forEach((dateStr, index) => {
                 let dailyScores = groupedScores[dateStr];
                 
-                // Sort by Highest Score first, then Lowest Time
                 dailyScores.sort((a, b) => {
-                    if (b.score !== a.score) {
-                        return b.score - a.score; 
-                    }
+                    if (b.score !== a.score) return b.score - a.score; 
                     return a.time - b.time; 
                 });
 
-                // Keep only top 10 per day
                 dailyScores = dailyScores.slice(0, 10);
 
-                // Create friendly section headers
                 let dayLabel = index === 0 ? "Today" : index === 1 ? "Yesterday" : dateStr;
                 listHtml += `<div style="margin-top: 16px; margin-bottom: 8px; font-weight: 800; color: var(--brand-main); border-bottom: 1px solid var(--border-dim); padding-bottom: 4px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">${dayLabel}</div>`;
 
@@ -932,7 +1003,6 @@
                 } else {
                     let rank = 1;
                     dailyScores.forEach((data) => {
-                        // Bronze, Silver, and Gold colors for the top 3!
                         const rankColor = rank === 1 ? "#FFD700" : rank === 2 ? "#C0C0C0" : rank === 3 ? "#CD7F32" : "var(--text-dim)";
                         
                         listHtml += `
@@ -952,7 +1022,6 @@
                 }
             });
 
-            // Update the title at the top of the container
             const titleElement = leaderboardContainer.querySelector("h3");
             if (titleElement) titleElement.innerText = "Gauntlet Leaderboards";
             

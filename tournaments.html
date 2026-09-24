@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tournaments</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
     <style>
               :root {
         /* ── CARD EFFECT COLORS (DO NOT CHANGE) ── */
@@ -864,7 +868,7 @@
         background: rgba(0, 0, 0, 0.7);
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
-        z-index: 9999;
+        z-index: 99999;
         align-items: center;
         justify-content: center;
       }
@@ -1611,13 +1615,60 @@
           gap: 12px;
         }
       }
+      .brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-icon {
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  transition: transform 0.2s ease;
+}
+
+.brand-logo:hover .logo-icon {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.brand-text {
+  /* Uses your system's default clean sans-serif font */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.text-white {
+  color: #FFFFFF;
+}
+
+.text-cyan {
+  color: #41C3E3;
+}
     </style>
 </head>
 <body>
     <header class="topbar">
       <div class="topbar-left">
         <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-            <div class="logo">Hololive OCG <span>DB</span></div>
+            <a href="index.html" class="brand-logo">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="38" height="38" class="logo-icon">
+    <!-- Card Base Rotated 12 Degrees -->
+    <g transform="rotate(12 32 32)">
+      <!-- Outer Card with Cyan Border -->
+      <rect x="14" y="8" width="36" height="48" rx="4" fill="#FFFFFF" stroke="#41C3E3" stroke-width="3"/>
+      <!-- Cyan Diagonal Split -->
+      <path d="M15.5 9.5 h 33 a 2.5 2.5 0 0 1 2.5 2.5 v 24 L 15.5 16 z" fill="#41C3E3"/>
+      <!-- White Play Button -->
+      <polygon points="26,22 42,32 26,42" fill="#FFFFFF" stroke="#41C3E3" stroke-width="2" stroke-linejoin="round" />
+    </g>
+  </svg>
+  
+  <span class="brand-text">
+    <span class="text-white">Holo</span><span class="text-cyan">Deck</span>
+  </span>
+</a>
             
             <button class="burger-btn" onclick="document.getElementById('mobile-tabs').classList.toggle('open')">
                 <i class="ti ti-menu-2"></i>
@@ -1660,58 +1711,105 @@
     </header>
 
 <div class="body-wrapper">
-  <main class="main-panel" style="display: flex; flex-direction: column; max-width: 1100px; margin: 0 auto; width: 100%; height: 100%;">
+  <main class="main-panel">
+  <!-- LEFT SIDEBAR: Search & Scrollable List -->
+  <div class="panel-col" style="background: var(--navy-2); border-radius: 8px; border: 1px solid var(--border-dim); display: flex; flex-direction: column;">
+    <div style="padding: 16px; border-bottom: 1px solid var(--border-dim); display: flex; gap: 8px;">
+      <input type="text" id="tournament-search" onkeyup="window.filterTournaments()" placeholder="Search events, locations, or winners..." style="flex: 1; padding: 8px 12px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 6px; outline: none; font-family: 'nunito', sans-serif;">
+      <!-- Moved Add Event Button Here -->
+      <button class="btn-action" onclick="document.getElementById('admin-modal').classList.add('open')" style="background: var(--brand-main); color: var(--navy); padding: 8px 12px;" title="Add Tournament">
+        Add Event
+      </button>
+    </div>
+    <div id="tournament-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+      <!-- Javascript will inject list items here -->
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: Tournament Details -->
+  <div class="panel-col" style="background: var(--navy-2); border-radius: 8px; border: 1px solid var(--border-dim); display: flex; flex-direction: column; overflow: hidden;">
     
-    <!-- HEADER: CHAMPION INFO -->
-    <div class="section-header" style="border-bottom: 1px solid var(--border-dim); padding-bottom: 20px; margin-bottom: 20px;">
-      <div>
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap;">
-          <select id="tournament-selector" onchange="window.changeTournament(this.value)" style="background: var(--navy-3); color: var(--brand-main); border: 1px solid var(--border-mid); padding: 8px 14px; border-radius: 6px; font-family: 'nunito', sans-serif; font-size: 16px; font-weight: 800; outline: none; cursor: pointer;">
-            <!-- Options injected via JS -->
-          </select>
-          <div style="display: flex; align-items: center; gap: 16px; color: var(--text-dim); font-size: 14px; font-weight: 700;">
-            <span id="event-date"><i class="ti ti-calendar"></i> ...</span>
-            <span id="event-location"><i class="ti ti-map-pin"></i> ...</span>
-            <span id="event-players"><i class="ti ti-users"></i> ...</span>
-          </div>
-        </div>
-        <h3 style="color: var(--text-bright); font-size: 28px; margin-bottom: 4px;" id="champ-name">Loading...</h3>
-        <span style="color: var(--brand-main); font-size: 16px; font-weight: 700;" id="champ-deck-name">...</span>
+    <!-- Modern Esports-Style Hero Banner -->
+    <div id="tournament-hero" style="background: linear-gradient(135deg, var(--navy-3) 0%, var(--navy) 100%); padding: 24px; border-bottom: 1px solid var(--border-mid); position: relative; overflow: hidden;">
+      
+      <!-- Decorative Background Trophy -->
+      <div style="position: absolute; right: -20px; top: -10px; opacity: 0.05; transform: rotate(-15deg); pointer-events: none;">
+        <i class="ti ti-trophy" style="font-size: 160px; color: var(--brand-main);"></i>
       </div>
       
-      <!-- ALL HEADER BUTTONS PRESERVED -->
-      <div class="header-actions">
-         <button class="btn-action" onclick="document.getElementById('admin-modal').classList.add('open')" style="background: var(--navy-3); color: var(--text-mid);">
-           <i class="ti ti-plus"></i> Add Event
-         </button>
-         <button class="btn-action" onclick="window.copyWinningDeck()" style="background: var(--brand-main); color: var(--navy);">
-           <i class="ti ti-copy"></i> Copy Deck Code
-         </button>
+      <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-start;">
+        <div style="flex: 1;">
+          <div id="event-meta" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+            <!-- Javascript will inject modern meta chips here -->
+          </div>
+          
+          <h2 id="champ-name" style="color: var(--text-bright); font-size: 32px; font-weight: 800; margin: 0 0 12px 0; letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px;">
+            Loading...
+          </h2>
+          
+          <div style="display: inline-flex; align-items: center; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-dim); padding: 6px 14px; border-radius: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
+            <span style="color: var(--text-mid); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 8px;">Oshi / Deck</span>
+            <span id="champ-deck-name" style="color: var(--brand-main); font-size: 15px; font-weight: 800;">...</span>
+          </div>
+        </div>
+        
+        <button class="btn-action" onclick="window.openUpdateModal()" style="background: rgba(255,255,255,0.05); color: var(--text-bright); border: 1px solid var(--border-dim); backdrop-filter: blur(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+          <i class="ti ti-edit"></i> Edit Match
+        </button>
       </div>
     </div>
-    <button class="btn-action" onclick="window.openUpdateModal()" style="background: var(--navy-3); color: var(--text-mid);">
-  <i class="ti ti-edit"></i> Edit Info
-</button>
     
-    <!-- THE DECKLIST CONTAINER -->
-    <div id="winning-deck-container" style="overflow-y: auto; flex: 1; padding-right: 10px;">
+    <!-- Scrollable Deck & Details Area -->
+    <div id="winning-deck-container" style="overflow-y: auto; flex: 1; padding: 24px;">
         <!-- Javascript will inject the grids here -->
     </div>
-
-  </main>
-</div><!-- ── ABOUT CREDITS MODAL ── -->
+  </div>
+  </div>
+</main>
+</div>
+<!-- ── ABOUT CREDITS MODAL ── -->
 <div id="about-overlay" class="about-overlay" onclick="if(event.target === this) closeAboutModal()">
   <div id="about-modal" class="about-modal">
     <div class="about-header">
-      <h3 style="color: var(--brand-main); font-size: 18px; font-weight: 800; margin: 0;">
-        <i class="ti ti-info-circle"></i> About
-      </h3>
-      <button class="btn-close-modal" onclick="closeAboutModal()">✕</button>
+      <h3>About hOCG DB</h3>
+      <button class="btn-close-modal" onclick="closeAboutModal()">
+        <i class="ti ti-x"></i>
+      </button>
     </div>
     <div class="about-content">
-      <p><strong>Hololive OCG DB</strong> is a community-driven database and deck builder for the Hololive Official Card Game.</p>
-      <p>Card data, images, and artwork belong to Cover Corp and Bushiroad.</p>
-      <p>Created with <span style="color: var(--brand-pink);">♥</span> for the Hololive community.</p>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <p style="margin: 0"><strong>Developed by:</strong> Siuspras</p>
+        <span class="app-version" style="background: var(--navy-4); color: var(--brand-main); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 800; border: 1px solid var(--border-mid); letter-spacing: 0.05em;"></span>
+      </div>
+
+      <p style="margin-bottom: 16px; line-height: 1.8">
+        <strong>Contact & Feedback:</strong><br />
+        <i class="ti ti-brand-discord" style="color: #5865f2; font-size: 16px"></i> Discord:
+        <span style="color: var(--text-bright); font-weight: 600">Siuspras</span><br />
+        <i class="ti ti-mail" style="color: var(--danger); font-size: 16px"></i> Email:
+        <a href="mailto:Siusprass@gmail.com" style="display: inline; border: none; margin: 0; font-weight: 600; color: var(--brand-main);">Siusprass@gmail.com</a>
+      </p>
+
+      <p>
+        <strong>Translations provided by:</strong> ogbajoj<br />
+        <a href="https://docs.google.com/spreadsheets/d/1IdaueY-Jw8JXjYLOhA9hUd2w0VRBao9Z1URJwmCWJ64/edit?pli=1&gid=975361685#gid=975361685" target="_blank"><i class="ti ti-external-link"></i> View Translation Sheet</a>
+      </p>
+      <p>
+        <strong>Card Images sourced from:</strong> hololive-official-cardgame<br />
+        <a href="https://hololive-official-cardgame.com/" target="_blank"><i class="ti ti-external-link"></i> Visit holocard hololive-official-cardgame</a>
+      </p>
+
+      <hr style="border-color: var(--border-dim); margin: 20px 0" />
+
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; background: rgba(0, 0, 0, 0.2); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-dim);">
+        <span style="font-weight: 700; color: var(--text-mid); font-size: 14px">Total Visitors</span>
+        <span id="visitor-count" style="font-weight: 800; color: var(--brand-main); font-size: 16px; background: var(--navy-4); padding: 2px 8px; border-radius: 4px; border: 0.5px solid var(--border-mid);">...</span>
+      </div>
+
+      <hr style="border-color: var(--border-dim); margin: 20px 0" />
+      <p style="font-size: 12px; color: var(--text-dim); margin: 0; line-height: 1.4;">
+        This is an unofficial fan-made application. Not affiliated with or endorsed by COVER Corp. or Hololive Production. All intellectual property belongs to their respective owners.
+      </p>
     </div>
   </div>
 </div>
@@ -1783,6 +1881,17 @@
     </div>
   </div>
 </div>
+<!-- ── FULLSCREEN IMAGE LIGHTBOX ── -->
+<div id="image-overlay" class="about-overlay" onclick="if(event.target === this) window.closeDeckImage()">
+  <div style="position: relative; max-width: 95vw; max-height: 95vh; display: flex; flex-direction: column; align-items: center; animation: popIn 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;">
+    
+    <button onclick="window.closeDeckImage()" style="position: absolute; top: -40px; right: -10px; background: transparent; border: none; color: var(--text-bright); font-size: 32px; cursor: pointer; text-shadow: 0 2px 10px rgba(0,0,0,0.8); transition: 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-bright)'">
+      <i class="ti ti-x"></i>
+    </button>
+    
+    <img id="lightbox-image" src="" style="max-width: 100%; max-height: 90vh; border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); object-fit: contain; border: 1px solid var(--border-mid);" />
+  </div>
+</div>
 <script>
   window.openAboutModal = function () {
     document.getElementById("about-modal").classList.add("open");
@@ -1792,7 +1901,38 @@
     document.getElementById("about-modal").classList.remove("open");
     document.getElementById("about-overlay").classList.remove("open");
   };
+  /* ── VISITOR COUNTER ── */
+  async function updateVisitorCounter() {
+    const counterEl = document.getElementById("visitor-count");
+    if (!counterEl) return;
+
+    try {
+      const response = await fetch("https://api.counterapi.dev/v1/hocg_db_siuspras/visits_2/up");
+      if (response.ok) {
+        const data = await response.json();
+        let count = data.count;
+        let displayStr = "";
+
+        if (count < 10) {
+          displayStr = count.toString();
+        } else {
+          const magnitude = Math.pow(10, Math.floor(Math.log10(count)));
+          const rounded = Math.floor(count / magnitude) * magnitude;
+          displayStr = rounded.toLocaleString() + "+";
+        }
+
+        counterEl.innerText = displayStr;
+      } else {
+        counterEl.innerText = "Online";
+      }
+    } catch (error) {
+      counterEl.innerText = "1";
+    }
+  }
+
+  updateVisitorCounter();
 </script>
+<script src="version.js"></script>
 <script type="module">
   
   
@@ -1922,6 +2062,7 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
   }
 
   // ENHANCED FETCH FUNCTION
+  // ENHANCED FETCH FUNCTION
   async function fetchTournaments() {
     try {
       const q = query(collection(db, "tournaments"), orderBy("date", "desc"));
@@ -1934,40 +2075,186 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
 
       if (tournamentHistory.length > 0) {
         activeTournament = tournamentHistory[0];
-        initTournamentSelector();
-        renderTournamentData();
+        window.renderTournamentList(); 
+        window.renderTournamentData();
       } else {
         // UI for a successful connection to an EMPTY database
         document.getElementById("champ-name").innerText = "No Tournaments Found";
         document.getElementById("champ-deck-name").innerText = "Database is empty.";
-        document.getElementById("event-date").innerText = "";
-        document.getElementById("winning-deck-container").innerHTML = `<div class="empty-state">Your Firebase database is connected, but it has no data. Click "+ Add Event" to save your first tournament!</div>`;
+        document.getElementById("event-meta").innerHTML = "";
+        document.getElementById("winning-deck-container").innerHTML = `<div class="empty-state">Your Firebase database is connected, but it has no data. Click "Add Event" to save your first tournament!</div>`;
       }
     } catch (error) {
-      // UI for a failed connection (Permissions or Configuration Error)
+      // UI for a failed connection
       console.error("Firebase Error: ", error);
       document.getElementById("champ-name").innerText = "Connection Error";
       document.getElementById("champ-deck-name").innerText = "Check your Firebase Rules";
-      document.getElementById("event-date").innerText = "";
+      document.getElementById("event-meta").innerHTML = "";
       document.getElementById("winning-deck-container").innerHTML = `<div class="empty-state" style="color: var(--danger);">Failed to load data. Please ensure your Firestore Database is created and your Rules are set to <b>allow read, write: if true;</b></div>`;
     }
   }
 
-  function initTournamentSelector() {
-    const selector = document.getElementById("tournament-selector");
-    selector.innerHTML = "";
-    tournamentHistory.forEach(event => {
-      const option = document.createElement("option");
-      option.value = event.id;
-      option.textContent = `${event.eventName} (${event.date})`;
-      selector.appendChild(option);
+  // RESTORED: Sidebar List Renderer
+  window.renderTournamentList = function(searchTerm = "") {
+    const listContainer = document.getElementById("tournament-list");
+    if (!listContainer) return;
+    listContainer.innerHTML = "";
+    
+    const lowerTerm = searchTerm.toLowerCase();
+    
+    // Filter the history based on the search box
+    const filtered = tournamentHistory.filter(event => {
+      const eName = event.eventName ? event.eventName.toLowerCase() : "";
+      const wName = event.winner && event.winner.name ? event.winner.name.toLowerCase() : "";
+      const loc = event.location ? event.location.toLowerCase() : "";
+      return eName.includes(lowerTerm) || wName.includes(lowerTerm) || loc.includes(lowerTerm);
     });
-  }
 
+    if (filtered.length === 0) {
+      listContainer.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-dim); font-size: 14px;">No matches found.</div>`;
+      return;
+    }
+
+    // Build the sidebar buttons
+    filtered.forEach(event => {
+      const isActive = activeTournament && activeTournament.id === event.id;
+      const bgClass = isActive ? "background: rgba(65, 195, 227, 0.15); border-left: 4px solid var(--brand-main);" : "background: transparent; border-left: 4px solid transparent;";
+      
+      const div = document.createElement("div");
+      div.style = `padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border-dim); transition: 0.2s; ${bgClass}`;
+      div.onmouseover = () => { if(!isActive) div.style.background = "rgba(255,255,255,0.05)"; };
+      div.onmouseout = () => { if(!isActive) div.style.background = "transparent"; };
+      
+      div.onclick = () => window.changeTournament(event.id);
+      
+      div.innerHTML = `
+        <div style="font-size: 15px; font-weight: 800; color: ${isActive ? 'var(--brand-main)' : 'var(--text-bright)'}; margin-bottom: 4px;">${escapeHTML(event.eventName)}</div>
+        <div style="font-size: 12px; color: var(--text-dim); display: flex; justify-content: space-between;">
+          <span><i class="ti ti-trophy"></i> ${escapeHTML(event.winner.name)}</span>
+          <span>${escapeHTML(event.date)}</span>
+        </div>
+      `;
+      listContainer.appendChild(div);
+    });
+  };
+
+  window.renderTournamentData = function() {
+    // 1. Update the Hero Banner
+    document.getElementById("champ-name").innerHTML = `<i class="ti ti-trophy" style="color: var(--holo-gold); font-size: 36px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));"></i> ${escapeHTML(activeTournament.winner.name)}`;
+    document.getElementById("champ-deck-name").innerText = activeTournament.winner.deckName || "Unknown Deck";
+    
+    // Build sleek UI chips for Metadata
+    let metaHtml = `
+      <span style="background: var(--navy-4); color: var(--text-bright); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-dim); display: flex; align-items: center; gap: 6px;">
+        <i class="ti ti-calendar" style="color: var(--brand-main);"></i> ${escapeHTML(activeTournament.date)}
+      </span>
+    `;
+    if (activeTournament.location) {
+      metaHtml += `
+      <span style="background: rgba(65, 195, 227, 0.1); color: var(--brand-main); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(65, 195, 227, 0.2); display: flex; align-items: center; gap: 6px;">
+        <i class="ti ti-map-pin"></i> ${escapeHTML(activeTournament.location)}
+      </span>`;
+    }
+    if (activeTournament.players) {
+      metaHtml += `
+      <span style="background: rgba(255, 94, 153, 0.1); color: var(--brand-pink); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255, 94, 153, 0.2); display: flex; align-items: center; gap: 6px;">
+        <i class="ti ti-users"></i> ${Number(activeTournament.players)} Players
+      </span>`;
+    }
+    document.getElementById("event-meta").innerHTML = metaHtml;
+
+    // 2. Prepare the Container
+    const container = document.getElementById("winning-deck-container");
+    container.innerHTML = ""; // Clear out previous loads
+
+    // 3. Render Deck Area (Image or Code)
+    if (activeTournament.winner.imageUrl) {
+      container.innerHTML = `
+        <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-dim); border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 24px;">
+          <img src="${activeTournament.winner.imageUrl}" 
+               onclick="window.openDeckImage('${activeTournament.winner.imageUrl}')" 
+               style="max-width: 100%; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.2s;" 
+               onmouseover="this.style.transform='scale(1.02)'" 
+               onmouseout="this.style.transform='scale(1)'" 
+               alt="Winning Deck" 
+               title="Click to enlarge" />
+        </div>`;
+    } else if (activeTournament.winner.deckCode) {
+      renderWinningDeck(activeTournament.winner.deckCode); 
+    } else {
+      container.innerHTML = `
+        <div style="background: rgba(0,0,0,0.2); border: 1px dashed var(--border-dim); border-radius: 12px; padding: 40px 20px; text-align: center; color: var(--text-dim); margin-bottom: 24px;">
+          <i class="ti ti-cards" style="font-size: 48px; opacity: 0.5; margin-bottom: 12px; display: block;"></i>
+          No deck list or image available for this match.
+        </div>`;
+    }
+
+    // 4. Render Modern Match Info (Grid Layout Cards)
+    if (activeTournament.winner.youtubeLink || activeTournament.winner.comments) {
+      let footerHtml = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; padding-top: 24px; border-top: 1px dashed var(--border-dim); padding-bottom: 40px;">`;
+      
+      // Card 1: VOD / YouTube Replay
+      if (activeTournament.winner.youtubeLink) {
+        const ytUrl = escapeHTML(activeTournament.winner.youtubeLink);
+        const ytRegex = /(?:v=|v\/|vi\/|youtu\.be\/|\/v\/|embed\/)([a-zA-Z0-9_-]{11})/;
+        const match = ytUrl.match(ytRegex);
+        const ytId = match ? match[1] : null;
+        
+        let videoContent = "";
+        if (ytId) {
+           videoContent = `
+             <a href="${ytUrl}" target="_blank" style="display: block; width: 100%; position: relative; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-dim); box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.2s; text-decoration: none;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+               <img src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" style="width: 100%; display: block;" alt="YouTube Match" />
+               <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); transition: background 0.2s;">
+                 <div style="background: #ff0000; padding: 10px 20px; border-radius: 6px; color: white; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                   <i class="ti ti-player-play-filled"></i> PLAY VIDEO
+                 </div>
+               </div>
+             </a>`;
+        } else {
+           videoContent = `<a href="${ytUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,0,0,0.15); color: #ff5252; border: 1px solid rgba(255,0,0,0.3); padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 800;"><i class="ti ti-external-link"></i> Open External Video Link</a>`;
+        }
+        
+        footerHtml += `
+          <div style="background: var(--navy-3); border: 1px solid var(--border-dim); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+             <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-dim); background: rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--text-bright);">
+               <i class="ti ti-brand-youtube" style="color: #ff0000; font-size: 18px;"></i> VOD / Replay
+             </div>
+             <div style="padding: 16px; flex: 1; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.1);">
+                ${videoContent}
+             </div>
+          </div>`;
+      }
+
+      // Card 2: Match Notes
+      if (activeTournament.winner.comments) {
+        footerHtml += `
+          <div style="background: var(--navy-3); border: 1px solid var(--border-dim); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+             <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-dim); background: rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--brand-main);">
+               <i class="ti ti-message-2" style="font-size: 18px;"></i> Match Notes
+             </div>
+             <div style="padding: 16px; flex: 1; color: var(--text-bright); font-size: 15px; line-height: 1.7; white-space: pre-wrap; background: rgba(0,0,0,0.1);">${escapeHTML(activeTournament.winner.comments)}</div>
+          </div>`;
+      }
+      
+      footerHtml += `</div>`;
+      container.insertAdjacentHTML('beforeend', footerHtml);
+    }
+  }
+  
+
+  window.filterTournaments = function() {
+    const term = document.getElementById("tournament-search").value;
+    window.renderTournamentList(term);
+  };
+
+  // Update changeTournament to re-render the list so the active highlight moves
   window.changeTournament = function(eventId) {
     activeTournament = tournamentHistory.find(t => t.id === eventId);
     if (activeTournament) {
-      renderTournamentData();
+      const term = document.getElementById("tournament-search").value;
+      window.renderTournamentList(term); 
+      window.renderTournamentData(); // <-- Added 'window.' here
     }
   };
   
@@ -1978,91 +2265,6 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
       const escapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
       return escapeMap[match];
     });
-  }
-
- function renderTournamentData() {
-    document.getElementById("champ-name").innerText = `🏆 ${activeTournament.winner.name}`;
-    document.getElementById("champ-deck-name").innerText = activeTournament.winner.deckName;
-    document.getElementById("event-date").innerHTML = `<i class="ti ti-calendar"></i> ${escapeHTML(activeTournament.date)}`;
-    document.getElementById("event-location").innerHTML = `
-      <span style="background: rgba(65, 195, 227, 0.15); border: 1px solid var(--border-mid); padding: 4px 10px; border-radius: 6px; color: var(--brand-main); font-weight: 800;">
-        <i class="ti ti-map-pin"></i> ${escapeHTML(activeTournament.location || "Online/Unknown")}
-      </span>`;
-      
-    document.getElementById("event-players").innerHTML = `
-      <span style="background: rgba(255, 94, 153, 0.15); border: 1px solid rgba(255, 94, 153, 0.35); padding: 4px 10px; border-radius: 6px; color: var(--brand-pink); font-weight: 800;">
-        <i class="ti ti-users"></i> ${Number(activeTournament.players || 0)} Players
-      </span>`;
-
-    // 1. Remove the old header details container if it exists from the previous implementation
-    const oldDetails = document.getElementById("tournament-extra-details");
-    if (oldDetails) oldDetails.remove();
-    
-    const container = document.getElementById("winning-deck-container");
-    
-    // 2. Render the Deck or Image FIRST
-    if (activeTournament.winner.imageUrl) {
-      container.innerHTML = `
-        <div style="text-align: center; padding: 10px 0 20px 0;">
-          <img src="${activeTournament.winner.imageUrl}" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-mid); box-shadow: 0 10px 30px rgba(0,0,0,0.5);" alt="Winning Deck" />
-        </div>`;
-    } else if (activeTournament.winner.deckCode) {
-      renderWinningDeck(activeTournament.winner.deckCode); // Note: This function clears container.innerHTML
-    } else {
-      container.innerHTML = `<div class="empty-state">No deck list available.</div>`;
-    }
-
-    // 3. Build the Match Info (Thumbnail & Notes) and append to the BOTTOM
-    if (activeTournament.winner.youtubeLink || activeTournament.winner.comments) {
-      let footerHtml = `<div style="margin-top: 30px; padding-top: 20px; padding-bottom: 60px; border-top: 1px solid var(--border-dim); display: flex; flex-direction: column; gap: 24px;">`;
-
-      // Generate YouTube Thumbnail
-      if (activeTournament.winner.youtubeLink) {
-        const ytUrl = escapeHTML(activeTournament.winner.youtubeLink);
-        const ytRegex = /(?:v=|v\/|vi\/|youtu\.be\/|\/v\/|embed\/)([a-zA-Z0-9_-]{11})/;
-        const match = ytUrl.match(ytRegex);
-        const ytId = match ? match[1] : null;
-
-        if (ytId) {
-          const thumbnailUrl = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
-          footerHtml += `
-            <div>
-              <h4 style="color: var(--text-bright); font-size: 16px; margin-bottom: 12px;"><i class="ti ti-brand-youtube" style="color: #ff0000;"></i> Watch Match</h4>
-              <a href="${ytUrl}" target="_blank" style="display: block; width: 100%; max-width: 320px; position: relative; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-dim); box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: 0.2s;">
-                <img src="${thumbnailUrl}" style="width: 100%; display: block;" alt="YouTube Match" />
-                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); transition: background 0.2s;">
-                  <div style="background: #ff0000; padding: 10px 20px; border-radius: 6px; color: white; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-                    <i class="ti ti-player-play-filled"></i> PLAY
-                  </div>
-                </div>
-              </a>
-            </div>`;
-        } else {
-          // Fallback if the link is not a standard YouTube video
-          footerHtml += `
-            <div>
-              <h4 style="color: var(--text-bright); font-size: 16px; margin-bottom: 8px;"><i class="ti ti-brand-youtube" style="color: #ff0000;"></i> Watch Match</h4>
-              <a href="${ytUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #ff0000; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 14px;">
-                Open Video Link <i class="ti ti-external-link"></i>
-              </a>
-            </div>`;
-        }
-      }
-      
-      // Generate Notes/Comments
-      if (activeTournament.winner.comments) {
-        footerHtml += `
-          <div>
-            <h4 style="color: var(--text-bright); font-size: 16px; margin-bottom: 8px;"><i class="ti ti-message-2" style="color: var(--brand-main);"></i> Match Notes & Comments</h4>
-            <div style="padding: 16px; background: rgba(255,255,255,0.03); border-left: 3px solid var(--brand-main); border-radius: 0 8px 8px 0; color: var(--text-bright); font-size: 15px; line-height: 1.6; white-space: pre-wrap;">${escapeHTML(activeTournament.winner.comments)}</div>
-          </div>`;
-      }
-
-      footerHtml += `</div>`;
-      
-      // Append the newly generated footer below the deck list/image
-      container.insertAdjacentHTML('beforeend', footerHtml);
-    }
   }
 
   function renderWinningDeck(base64Code) {
@@ -2287,14 +2489,20 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
     }
   };
 
-  window.copyWinningDeck = function() {
-    if (!activeTournament || !activeTournament.winner) return;
-    navigator.clipboard.writeText(activeTournament.winner.deckCode).then(() => {
-      alert("Winning Deck Code copied to clipboard!");
-    });
+  initializeDatabase();
+  // Lightbox Functions
+  window.openDeckImage = function(url) {
+    document.getElementById("lightbox-image").src = url;
+    document.getElementById("image-overlay").classList.add("open");
   };
 
-  initializeDatabase();
+  window.closeDeckImage = function() {
+    document.getElementById("image-overlay").classList.remove("open");
+    // Clear the image source after the fade animation finishes so it doesn't flash next time
+    setTimeout(() => {
+      document.getElementById("lightbox-image").src = "";
+    }, 300);
+  };
   
 </script>
 </body>

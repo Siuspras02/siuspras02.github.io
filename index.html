@@ -1363,6 +1363,37 @@
 
       /* Hide the 'Default' buttons by default */
       .btn-def-left, .btn-def-right { display: none !important; }
+      .brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-icon {
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  transition: transform 0.2s ease;
+}
+
+.brand-logo:hover .logo-icon {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.brand-text {
+  /* Uses your system's default clean sans-serif font */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.text-white {
+  color: #FFFFFF;
+}
+
+.text-cyan {
+  color: #41C3E3;
+}
     </style>
   </head>
   <body>
@@ -1375,7 +1406,23 @@
     <header class="topbar">
       <div class="topbar-left">
         <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-            <div class="logo">Hololive OCG <span>DB</span></div>
+           <a href="index.html" class="brand-logo">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="38" height="38" class="logo-icon">
+    <!-- Card Base Rotated 12 Degrees -->
+    <g transform="rotate(12 32 32)">
+      <!-- Outer Card with Cyan Border -->
+      <rect x="14" y="8" width="36" height="48" rx="4" fill="#FFFFFF" stroke="#41C3E3" stroke-width="3"/>
+      <!-- Cyan Diagonal Split -->
+      <path d="M15.5 9.5 h 33 a 2.5 2.5 0 0 1 2.5 2.5 v 24 L 15.5 16 z" fill="#41C3E3"/>
+      <!-- White Play Button -->
+      <polygon points="26,22 42,32 26,42" fill="#FFFFFF" stroke="#41C3E3" stroke-width="2" stroke-linejoin="round" />
+    </g>
+  </svg>
+  
+  <span class="brand-text">
+    <span class="text-white">Holo</span><span class="text-cyan">Deck</span>
+  </span>
+</a>
             
             <button class="burger-btn" onclick="document.getElementById('mobile-tabs').classList.toggle('open')">
                 <i class="ti ti-menu-2"></i>

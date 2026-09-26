@@ -9,37 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
     <link rel="icon" type="image/svg+xml" href="images/Holodeck-logo.svg.svg" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+    <link rel="icon" type="image/svg+xml" href="images/Holodeck-logo.svg.svg" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-              :root {
-        /* ── CARD EFFECT COLORS (DO NOT CHANGE) ── */
-        --holo-teal: #1d9e75; /* Gift */
-        --holo-rose: #ff2c2c; /* Collab */
-        --holo-romance: #ff2c72; /* Arts */
-        --holo-gold: #ba7517; /* Saved Stars */
-        --holo-blue: #378add; /* Bloom */
-        --brand-orange: #ef9f27; /* Auto / Cheer */
-        --danger: #ff5252;
-
-        /* ── HOLOLIVE BRAND UI THEME ── */
-        --brand-main: #41c3e3; /* Hololive Cyan */
-        --brand-hover: #00a6d6; /* Hololive Deep Blue */
-        --brand-pink: #ff5e99; /* Hololive Pink Accent */
-
-        /* ── DEEP NAVY LAYOUT ── */
-        --navy: #0b111a;
-        --navy-2: #15202b;
-        --navy-3: #1a2636;
-        --navy-4: #243447;
-
-        --border-dim: rgba(65, 195, 227, 0.15);
-        --border-mid: rgba(65, 195, 227, 0.35);
-
-        --text-bright: #f8fafc;
-        --text-mid: #94a3b8;
-        --text-dim: #475569;
-        --tag-r: 4px;
-      }
-      *,
       *::before,
       *::after {
         box-sizing: border-box;
@@ -1844,8 +1817,18 @@
       <!-- ROW: Winner Name and Deck Name -->
       <div style="display: flex; gap: 12px;">
         <input type="text" id="add-winner-name" placeholder="Winner Name" style="flex: 1; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
-        <input type="text" id="add-deck-name" placeholder="Deck Name (e.g. Blue/Green Aggro)" style="flex: 1; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+        <input type="text" id="add-deck-name" placeholder="Oshi Name" style="flex: 1; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+        <select id="add-theme-color" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: 'nunito', sans-serif;">
+        <option value="blue">Blue</option>
+        <option value="red">Red</option>
+        <option value="green">Green</option>
+        <option value="yellow">Yellow</option>
+        <option value="purple">Purple</option>
+        <option value="white">White</option>
+      </select>
       </div>
+      <!-- META BREAKDOWN -->
+      <textarea id="add-meta-breakdown" placeholder="Meta Breakdown (List decks here, e.g. 'Moona' on each line, or 'Moona: 5')" rows="3" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: 'nunito', sans-serif;"></textarea>
       
       <!-- DECK IMAGE UPLOAD -->
       <!-- UPLOAD IMAGE -->
@@ -1878,8 +1861,19 @@
     <div class="about-content" style="display: flex; flex-direction: column; gap: 12px;">
       
       <input type="url" id="edit-youtube-link" placeholder="YouTube Match Link URL" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
-      
       <textarea id="edit-comments" placeholder="Match history, player notes, or deck performance..." rows="4" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: 'nunito', sans-serif;"></textarea>
+      <div>
+      <text>Oshi Color</text>
+      <select id="edit-theme-color" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: 'nunito', sans-serif;">
+        <option value="blue">Blue</option>
+        <option value="red">Red</option>
+        <option value="green">Green</option>
+        <option value="yellow">Yellow</option>
+        <option value="purple">Purple</option>
+        <option value="white">White</option>
+      </select>
+      </div>
+      <textarea id="edit-meta-breakdown" placeholder="Meta Breakdown (List decks here, e.g. 'Moona' on each line, or 'Moona: 5')" rows="3" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: 'nunito', sans-serif;"></textarea>
 
       <button id="save-update-btn" class="btn-action" onclick="window.saveTournamentUpdates()" style="justify-content: center; background: var(--brand-main); color: var(--navy); margin-top: 10px;">
         Save Updates
@@ -1903,6 +1897,7 @@
   window.openAboutModal = function () {
     document.getElementById("about-modal").classList.add("open");
     document.getElementById("about-overlay").classList.add("open");
+    document.getElementById("edit-meta-breakdown").value = activeTournament.metaBreakdown || "";
   };
   window.closeAboutModal = function () {
     document.getElementById("about-modal").classList.remove("open");
@@ -2069,7 +2064,6 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
   }
 
   // ENHANCED FETCH FUNCTION
-  // ENHANCED FETCH FUNCTION
   async function fetchTournaments() {
     try {
       const q = query(collection(db, "tournaments"), orderBy("date", "desc"));
@@ -2146,6 +2140,57 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
   };
 
   window.renderTournamentData = function() {
+    // --- 🎨 EXPLICIT OSHI THEME SETTER ---
+    const rightPanel = document.getElementById("tournament-hero").parentElement;
+    
+    // Clear previous custom styles (Resets to global Blue theme)
+    rightPanel.style.removeProperty('--brand-main');
+    rightPanel.style.removeProperty('--navy');
+    rightPanel.style.removeProperty('--navy-2');
+    rightPanel.style.removeProperty('--navy-3');
+    rightPanel.style.removeProperty('--border-dim');
+    rightPanel.style.removeProperty('--border-mid');
+
+    // Pull the exact color you saved from the database
+    const themeColor = activeTournament.themeColor || "blue";
+
+    // 4. APPLY THE THEME
+    if (themeColor === "red") {
+        rightPanel.style.setProperty('--brand-main', '#D58936');
+        rightPanel.style.setProperty('--navy', '#3C1518');
+        rightPanel.style.setProperty('--navy-2', '#4f1d20');
+        rightPanel.style.setProperty('--navy-3', '#69140E');
+        rightPanel.style.setProperty('--border-dim', 'rgba(213, 137, 54, 0.2)');
+        rightPanel.style.setProperty('--border-mid', 'rgba(213, 137, 54, 0.4)');
+    } else if (themeColor === "green") {
+        rightPanel.style.setProperty('--brand-main', '#5dcaa5');
+        rightPanel.style.setProperty('--navy', '#0a1510');
+        rightPanel.style.setProperty('--navy-2', '#0f2a20');
+        rightPanel.style.setProperty('--navy-3', '#143d2e');
+        rightPanel.style.setProperty('--border-dim', 'rgba(93, 202, 165, 0.2)');
+        rightPanel.style.setProperty('--border-mid', 'rgba(93, 202, 165, 0.4)');
+    } else if (themeColor === "yellow") {
+        rightPanel.style.setProperty('--brand-main', '#ef9f27');
+        rightPanel.style.setProperty('--navy', '#1a140a');
+        rightPanel.style.setProperty('--navy-2', '#2a220f');
+        rightPanel.style.setProperty('--navy-3', '#3d3114');
+        rightPanel.style.setProperty('--border-dim', 'rgba(239, 159, 39, 0.2)');
+        rightPanel.style.setProperty('--border-mid', 'rgba(239, 159, 39, 0.4)');
+    } else if (themeColor === "purple") {
+        rightPanel.style.setProperty('--brand-main', '#b072d6');
+        rightPanel.style.setProperty('--navy', '#0f0a14');
+        rightPanel.style.setProperty('--navy-2', '#1a102a');
+        rightPanel.style.setProperty('--navy-3', '#2d1a47');
+        rightPanel.style.setProperty('--border-dim', 'rgba(176, 114, 214, 0.2)');
+        rightPanel.style.setProperty('--border-mid', 'rgba(176, 114, 214, 0.4)');
+    } else if (themeColor === "white") {
+        rightPanel.style.setProperty('--brand-main', '#e2e8f0');
+        rightPanel.style.setProperty('--navy', '#0f172a');
+        rightPanel.style.setProperty('--navy-2', '#1e293b');
+        rightPanel.style.setProperty('--navy-3', '#334155');
+        rightPanel.style.setProperty('--border-dim', 'rgba(226, 232, 240, 0.2)');
+        rightPanel.style.setProperty('--border-mid', 'rgba(226, 232, 240, 0.4)');
+    }
     // 1. Update the Hero Banner
     document.getElementById("champ-name").innerHTML = `<i class="ti ti-trophy" style="color: var(--holo-gold); font-size: 36px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));"></i> ${escapeHTML(activeTournament.winner.name)}`;
     document.getElementById("champ-deck-name").innerText = activeTournament.winner.deckName || "Unknown Deck";
@@ -2247,6 +2292,81 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
       footerHtml += `</div>`;
       container.insertAdjacentHTML('beforeend', footerHtml);
     }
+    // 5. Render Meta Breakdown Pie Chart (With Custom Oshi Images)
+    if (activeTournament.metaBreakdown) {
+      const metaLines = activeTournament.metaBreakdown.split('\n').map(l => l.trim()).filter(l => l);
+      let labels = [];
+      let data = [];
+      
+      metaLines.forEach(line => {
+        let parts = line.split(/[:,-]/);
+        let name = parts[0].trim();
+        let count = parts.length > 1 ? parseInt(parts[1].trim()) || 1 : 1;
+        
+        let existingIdx = labels.indexOf(name);
+        if(existingIdx >= 0) {
+           data[existingIdx] += count;
+        } else {
+           labels.push(name);
+           data.push(count);
+        }
+      });
+
+      if (labels.length > 0) {
+         const chartHtml = `
+          <div style="background: var(--navy-3); border: 1px solid var(--border-dim); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-top: 20px; margin-bottom: 40px;">
+             <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-dim); background: rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--brand-main);">
+               <i class="ti ti-chart-pie" style="font-size: 18px;"></i> Oshi Population
+             </div>
+             <div style="padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: center; background: rgba(0,0,0,0.1);">
+                <div style="width: 100%; max-width: 600px; min-height: 350px; position: relative;">
+                  <canvas id="metaPieChart"></canvas>
+                </div>
+             </div>
+          </div>`;
+          container.insertAdjacentHTML('beforeend', chartHtml);
+
+          const ctx = document.getElementById('metaPieChart').getContext('2d');
+          if (window.metaChartInstance) window.metaChartInstance.destroy(); 
+          
+          // Reverting back to crisp, solid colors
+          const solidColors = ['#41c3e3', '#ff5e99', '#1d9e75', '#ef9f27', '#ba7517', '#9b59b6', '#e74c3c', '#f1c40f'];
+          const sliceColors = labels.map((_, i) => solidColors[i % solidColors.length]);
+
+          window.metaChartInstance = new Chart(ctx, {
+              type: 'pie',
+              data: {
+                  labels: labels,
+                  datasets: [{
+                      data: data,
+                      backgroundColor: sliceColors,
+                      borderWidth: 2,
+                      borderColor: '#1a2636',
+                      hoverOffset: 12
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                      legend: { 
+                          position: 'right', 
+                          labels: { 
+                              color: '#f8fafc', 
+                              font: { family: 'Nunito', size: 14, weight: 'bold' },
+                              padding: 16
+                          } 
+                      },
+                      tooltip: {
+                          titleFont: { size: 16, family: 'Nunito' },
+                          bodyFont: { size: 14, family: 'Nunito' },
+                          padding: 12
+                      }
+                  }
+              }
+          });
+      }
+    }
   }
   
 
@@ -2343,6 +2463,8 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
     }
   }
   window.openUpdateModal = async function() {
+    document.getElementById("edit-meta-breakdown").value = activeTournament.metaBreakdown || "";
+    document.getElementById("edit-theme-color").value = activeTournament.themeColor || "blue"; // <-- ADD THIS
     if (!activeTournament) return alert("No tournament selected!");
     
     // Check if the user is already logged in
@@ -2370,6 +2492,7 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
   };
 
   window.saveTournamentUpdates = async function() {
+    
     if (!activeTournament) return;
     
     const saveBtn = document.getElementById("save-update-btn");
@@ -2379,14 +2502,18 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
     try {
       const newYoutube = document.getElementById("edit-youtube-link").value.trim();
       const newComments = document.getElementById("edit-comments").value.trim();
+      const newMeta = document.getElementById("edit-meta-breakdown").value.trim();
 
       // Point to the specific document using activeTournament.id
       const tournamentRef = doc(db, "tournaments", activeTournament.id);
+      const newTheme = document.getElementById("edit-theme-color").value;
       
       // Update only these specific fields inside the 'winner' object
       await updateDoc(tournamentRef, {
         "winner.youtubeLink": newYoutube,
-        "winner.comments": newComments
+        "winner.comments": newComments,
+        "metaBreakdown": newMeta,
+        "themeColor": newTheme
       });
 
       alert("Tournament updated successfully!");
@@ -2411,6 +2538,8 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
     const players = document.getElementById("add-players").value || 0;
     const deckName = document.getElementById("add-deck-name").value;
     const deckCode = document.getElementById("add-deck-code").value.trim();
+    const metaBreakdown = document.getElementById("add-meta-breakdown").value.trim();
+    const themeColor = document.getElementById("add-theme-color").value;
     
     // Grab the image file
     const fileInput = document.getElementById("add-deck-image");

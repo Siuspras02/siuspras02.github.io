@@ -627,11 +627,30 @@
         document.getElementById("quiz-choices").innerHTML = "";
         
         let validPool = masterCardPool.filter(c => c.card_name && c.card_id);
+        
+        // Remove alternate arts so they don't count as "duplicates"
         validPool = validPool.filter(c => !c.card_id.match(/_(OUR|SEC|UR|HR|SR)$/i));
+        
+        // 👉 NEW FIX: Advanced filtering for Text Mode
         if (mode === 'text') {
-            validPool = validPool.filter(c => c.skills_text && c.skills_text.length > 15 && c.skills_text !== "None");
+            // 1. Filter out Cheer cards and cards with no real text
+            validPool = validPool.filter(c => 
+                c.skills_text && 
+                c.skills_text.length > 15 && 
+                c.skills_text !== "None" && 
+                !c.raw_type.toLowerCase().includes("cheer")
+            );
+            
+            // 2. Count how many times each exact effect text appears
+            const textCounts = {};
+            validPool.forEach(c => {
+                textCounts[c.skills_text] = (textCounts[c.skills_text] || 0) + 1;
+            });
+            
+            // 3. Only keep cards whose effect text is 100% unique! 
+            // (This automatically removes Nodoka/A-chan duplicates)
+            validPool = validPool.filter(c => textCounts[c.skills_text] === 1);
         }
-
         correctCard = validPool[Math.floor(Math.random() * validPool.length)];
 
         let wrongChoices = [];

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>hOCG DB — Modern Library</title>
+    <title>HoloDeck — Modern Library</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -1395,6 +1395,39 @@
 .text-cyan {
   color: #41C3E3;
 }
+/* ── SHORT SCREEN & TABLET LANDSCAPE FIX ── */
+      @media (max-height: 900px) {
+        /* Move the scrollbar to the outer column so headers scroll away */
+        .panel-col {
+          overflow-y: auto;
+          padding-right: 6px;
+        }
+        .panel-col::-webkit-scrollbar {
+          width: 6px;
+        }
+        .panel-col::-webkit-scrollbar-thumb {
+          background: var(--border-mid);
+          border-radius: 3px;
+        }
+        
+        /* Allow the card grid to expand fully to push the headers up */
+        .card-grid {
+          overflow-y: visible;
+          height: auto;
+          flex: none;
+          padding-right: 0;
+        }
+        
+        /* Compact the headers slightly to save initial space */
+        .section-header {
+          padding-bottom: 8px;
+          margin-bottom: 4px;
+        }
+        .filter-chips {
+          padding-bottom: 6px;
+          margin-bottom: 4px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -2054,6 +2087,16 @@
         let currentIndex = variants.indexOf(currentId);
         let nextIndex = (currentIndex + 1) % variants.length;
         let nextId = variants[nextIndex];
+        let deck = getDeck();
+        let deckIndex = deck.findIndex(c => c.card_id === currentId);
+        if (deckIndex > -1) {
+            let nextCardData = masterCardPool.find(c => c.card_id === nextId);
+            if (nextCardData) {
+                deck.splice(deckIndex, 1, nextCardData);
+                // Save silently without triggering a re-render of the list
+                localStorage.setItem("ocgCustomDeck", JSON.stringify(deck)); 
+            }
+        }
 
         let setPrefix = nextId.split("-")[0];
         let imagePath = `images/${setPrefix}/${nextId}.webp`;
@@ -2495,6 +2538,92 @@
           formattedArtsHtml,
         };
       }
+      function buildCardHtml(card, isSaved) {
+        const type = card.card_type || "Type";
+        const level = card.bloom_level ? `[${card.bloom_level}] ` : "";
+        const typeClass = getTypeClass(card.card_type);
+        const iconClass = getIconClass(card.card_type);
+        const setPrefix = card.card_id.split("-")[0];
+        const imagePath = card.thumbnail ? card.thumbnail : `images/${setPrefix}/${card.card_id}.webp`;
+        const baseId = card.card_id.split("_")[0];
+        
+        // 👉 Includes the Alt-Art toggle button dynamically!
+        const hasAltArts = window.cardVariants[baseId] && window.cardVariants[baseId].length > 1;
+        const altToggleHtml = hasAltArts ? `<button class="btn-alt-toggle" onclick="event.stopPropagation(); window.toggleAltArt(this, '${baseId}')" title="Switch Art"><i class="ti ti-refresh"></i></button>` : "";
+
+        const { formattedTagsHtml, formattedSkillHtml, formattedArtsHtml } = formatSkillText(card);
+        const isAltArt = card.card_id.match(/_(OUR|SEC|UR|HR|SR)$/i);
+        const premiumClass = isAltArt ? "premium-alt-art" : "";
+
+        let btnHtml = isSaved
+          ? `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.toggleBookmarkFromSheet('${card.card_id}')"><i class="ti ti-star-filled"></i></button>`
+          : `<button class="bookmark-btn unsaved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.toggleBookmarkFromSheet('${card.card_id}')"><i class="ti ti-star"></i></button>`;
+
+        let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : "";
+
+        return `
+            <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)" onmouseleave="this.classList.remove('hide-translation')">
+                ${altToggleHtml}
+                <div class="card-face ${typeClass} grid-element">
+                    <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
+                    <i class="ti ${iconClass}"></i>
+                    <span class="face-label">${type.toUpperCase()}</span>
+                </div>
+                <div class="card-meta grid-element">
+                    <span class="card-name-jp">${level}${card.card_name}</span>
+                    <span class="card-id">${card.card_id}</span>
+                    <div class="card-badges">
+                        <span class="badge ${typeClass}">${type.toUpperCase()}</span>
+                    </div>
+                </div>
+                <div class="translation-overlay grid-element">
+                    <div class="tl-header">
+                        <span class="tl-type badge ${typeClass}">${type.toUpperCase()}</span>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="btn-hide-overlay" onclick="event.stopPropagation(); window.hideOverlay(this)" title="Hide Text">
+                                <i class="ti ti-eye-off"></i>
+                            </button>
+                            ${btnHtml}
+                        </div>
+                    </div>
+                    <div class="tl-title">${level}${card.card_name}</div>
+                    <div class="tl-scroll-area">
+                        ${formattedTagsHtml}
+                        ${formattedSkillHtml}
+                        ${formattedArtsHtml}
+                    </div>
+                    ${hpHtml}
+                </div>
+
+                <div class="list-header list-element" onclick="event.stopPropagation(); toggleAccordion(this)">
+                    <div class="list-thumb ${typeClass}">
+                        <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
+                    </div>
+                    <div class="list-info">
+                        <div class="list-name">${level}${card.card_name}</div>
+                        <div class="list-sub">${type.toUpperCase()} • ${card.card_id}</div>
+                    </div>
+                    <div class="list-actions">
+                        ${btnHtml}
+                        <i class="ti ti-plus accordion-icon"></i>
+                    </div>
+                </div>
+                <div class="list-content list-element">
+                    <div class="list-content-inner">
+                        <div class="list-full-img">
+                            <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
+                        </div>
+                        <div class="list-details">
+                            ${formattedTagsHtml}
+                            ${formattedSkillHtml}
+                            ${formattedArtsHtml}
+                            ${hpHtml}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+      }
 
       function renderCardPool(searchQuery = "") {
         const poolContainer = document.getElementById("scanned-pool");
@@ -2710,118 +2839,20 @@
         const currentBookmarks = getDeck();
         const savedCardIds = new Set(currentBookmarks.map((c) => c.card_id));
 
-        const endIndex = Math.min(
-          renderedCount + CHUNK_SIZE,
-          currentFilteredPool.length,
-        );
+        const endIndex = Math.min(renderedCount + CHUNK_SIZE, currentFilteredPool.length);
         let htmlBuilder = "";
 
         for (let i = renderedCount; i < endIndex; i++) {
           const card = currentFilteredPool[i];
           const isSaved = savedCardIds.has(card.card_id);
-          const type = card.card_type || "Type";
-          const level = card.bloom_level ? `[${card.bloom_level}] ` : "";
-
-          const typeClass = getTypeClass(card.card_type);
-          const iconClass = getIconClass(card.card_type);
-          const setPrefix = card.card_id.split("-")[0];
-          const imagePath = card.thumbnail
-            ? card.thumbnail
-            : `images/${setPrefix}/${card.card_id}.webp`;
-          const baseId = card.card_id.split("_")[0];
-          const hasAltArts =
-            window.cardVariants[baseId] &&
-            window.cardVariants[baseId].length > 1;
-          const altToggleHtml = hasAltArts
-            ? `<button class="btn-alt-toggle" onclick="event.stopPropagation(); window.toggleAltArt(this, '${baseId}')" title="Switch Art"><i class="ti ti-refresh"></i></button>`
-            : "";
-
-          const { formattedTagsHtml, formattedSkillHtml, formattedArtsHtml } =
-            formatSkillText(card);
-
-          const isAltArt = card.card_id.match(/_(OUR|SEC|UR|HR|SR)$/i);
-          const premiumClass = isAltArt ? "premium-alt-art" : "";
-
-          let btnHtml = isSaved
-            ? `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.toggleBookmarkFromSheet('${card.card_id}')"><i class="ti ti-star-filled"></i></button>`
-            : `<button class="bookmark-btn unsaved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.toggleBookmarkFromSheet('${card.card_id}')"><i class="ti ti-star"></i></button>`;
-
-          let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : "";
-
-          htmlBuilder += `
-              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)" onmouseleave="this.classList.remove('hide-translation')">
-                  ${altToggleHtml}
-                  <div class="card-face ${typeClass} grid-element">
-                      <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
-                      <i class="ti ${iconClass}"></i>
-                      <span class="face-label">${type.toUpperCase()}</span>
-                  </div>
-                  <div class="card-meta grid-element">
-                      <span class="card-name-jp">${level}${card.card_name}</span>
-                      <span class="card-id">${card.card_id}</span>
-                      <div class="card-badges">
-                          <span class="badge ${typeClass}">${type.toUpperCase()}</span>
-                      </div>
-                  </div>
-                  <div class="translation-overlay grid-element">
-                      <div class="tl-header">
-                          <span class="tl-type badge ${typeClass}">${type.toUpperCase()}</span>
-                          <div style="display: flex; gap: 6px;">
-                              <button class="btn-hide-overlay" onclick="event.stopPropagation(); window.hideOverlay(this)" title="Hide Text">
-                                  <i class="ti ti-eye-off"></i>
-                              </button>
-                              ${btnHtml}
-                          </div>
-                      </div>
-                      <div class="tl-title">${level}${card.card_name}</div>
-                      <div class="tl-scroll-area">
-                          ${formattedTagsHtml}
-                          ${formattedSkillHtml}
-                          ${formattedArtsHtml}
-                      </div>
-                      ${hpHtml}
-                  </div>
-
-                  <div class="list-header list-element" onclick="event.stopPropagation(); toggleAccordion(this)">
-                      <div class="list-thumb ${typeClass}">
-                          <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
-                      </div>
-                      <div class="list-info">
-                          <div class="list-name">${level}${card.card_name}</div>
-                          <div class="list-sub">${type.toUpperCase()} • ${card.card_id}</div>
-                      </div>
-                      <div class="list-actions">
-                          ${btnHtml}
-                          <i class="ti ti-plus accordion-icon"></i>
-                      </div>
-                  </div>
-                  <div class="list-content list-element">
-                      <div class="list-content-inner">
-                          <div class="list-full-img">
-                              <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
-                          </div>
-                          <div class="list-details">
-                              ${formattedTagsHtml}
-                              ${formattedSkillHtml}
-                              ${formattedArtsHtml}
-                              ${hpHtml}
-                          </div>
-                      </div>
-                  </div>
-
-              </div>
-          `;
+          htmlBuilder += buildCardHtml(card, isSaved); // 👉 Uses the helper
         }
         poolContainer.insertAdjacentHTML("beforeend", htmlBuilder);
         renderedCount = endIndex;
 
-        const targetUnrevealed = poolContainer.querySelectorAll(
-          ".card-item:not(.fade-in)",
-        );
+        const targetUnrevealed = poolContainer.querySelectorAll(".card-item:not(.fade-in)");
         targetUnrevealed.forEach((card, index) => {
-          setTimeout(() => {
-            card.classList.add("fade-in");
-          }, index * 20);
+          setTimeout(() => { card.classList.add("fade-in"); }, index * 20);
         });
       }
 
@@ -2991,99 +3022,13 @@
 
         let htmlBuilder = "";
         deck.forEach((card) => {
-          const type = card.card_type || "Type";
-          const level = card.bloom_level ? `[${card.bloom_level}] ` : "";
-
-          const typeClass = getTypeClass(card.card_type);
-          const iconClass = getIconClass(card.card_type);
-          const setPrefix = card.card_id.split("-")[0];
-          const imagePath = card.thumbnail
-            ? card.thumbnail
-            : `images/${setPrefix}/${card.card_id}.webp`;
-
-          const { formattedTagsHtml, formattedSkillHtml, formattedArtsHtml } =
-            formatSkillText(card);
-
-          const isAltArt = card.card_id.match(/_(OUR|SEC|UR|HR|SR)$/i);
-          const premiumClass = isAltArt ? "premium-alt-art" : "";
-
-          let btnHtml = `<button class="bookmark-btn saved" data-card-id="${card.card_id}" onclick="event.stopPropagation(); window.removeCardFromDeckByCardId('${card.card_id}')"><i class="ti ti-star-filled"></i></button>`;
-
-          let hpHtml = card.hp ? `<div class="tl-hp">HP: ${card.hp}</div>` : "";
-
-          htmlBuilder += `
-              <div class="card-item ${premiumClass}" tabindex="0" data-id="${card.card_id}" data-name="${card.card_name}" onclick="tapToggle(this)" onmouseleave="this.classList.remove('hide-translation')">
-                  
-                  <div class="card-face ${typeClass} grid-element">
-                      <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
-                      <i class="ti ${iconClass}"></i>
-                      <span class="face-label">${type.toUpperCase()}</span>
-                  </div>
-                  <div class="card-meta grid-element">
-                      <span class="card-name-jp">${level}${card.card_name}</span>
-                      <span class="card-id">${card.card_id}</span>
-                      <div class="card-badges">
-                          <span class="badge ${typeClass}">${type.toUpperCase()}</span>
-                      </div>
-                  </div>
-                  <div class="translation-overlay grid-element">
-                      <div class="tl-header">
-                          <span class="tl-type badge ${typeClass}">${type.toUpperCase()}</span>
-                          <div style="display: flex; gap: 6px;">
-                              <button class="btn-hide-overlay" onclick="event.stopPropagation(); window.hideOverlay(this)" title="Hide Text">
-                                  <i class="ti ti-eye-off"></i>
-                              </button>
-                              ${btnHtml}
-                          </div>
-                      </div>
-                      <div class="tl-title">${level}${card.card_name}</div>
-                      <div class="tl-scroll-area">
-                          ${formattedTagsHtml}
-                          ${formattedSkillHtml}
-                          ${formattedArtsHtml}
-                      </div>
-                      ${hpHtml}
-                  </div>
-
-                  <div class="list-header list-element" onclick="event.stopPropagation(); toggleAccordion(this)">
-                      <div class="list-thumb ${typeClass}">
-                          <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
-                      </div>
-                      <div class="list-info">
-                          <div class="list-name">${level}${card.card_name}</div>
-                          <div class="list-sub">${type.toUpperCase()} • ${card.card_id}</div>
-                      </div>
-                      <div class="list-actions">
-                          ${btnHtml}
-                          <i class="ti ti-plus accordion-icon"></i>
-                      </div>
-                  </div>
-                  <div class="list-content list-element">
-                      <div class="list-content-inner">
-                          <div class="list-full-img">
-                              <img src="${imagePath}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImage}'" />
-                          </div>
-                          <div class="list-details">
-                              ${formattedTagsHtml}
-                              ${formattedSkillHtml}
-                              ${formattedArtsHtml}
-                              ${hpHtml}
-                          </div>
-                      </div>
-                  </div>
-
-              </div>
-          `;
+          htmlBuilder += buildCardHtml(card, true); // 👉 Uses the helper
         });
         deckContainer.innerHTML = htmlBuilder;
 
-        const targetDeckUnrevealed = deckContainer.querySelectorAll(
-          ".card-item:not(.fade-in)",
-        );
+        const targetDeckUnrevealed = deckContainer.querySelectorAll(".card-item:not(.fade-in)");
         targetDeckUnrevealed.forEach((card, index) => {
-          setTimeout(() => {
-            card.classList.add("fade-in");
-          }, index * 25);
+          setTimeout(() => { card.classList.add("fade-in"); }, index * 25);
         });
       }
 

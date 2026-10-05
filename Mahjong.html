@@ -209,11 +209,6 @@
             appId: "1:379699137048:web:8d2c997bb7fbba87d1116d",
             measurementId: "G-5SJV6D4R91"
         };
-        try {
-            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        } catch (e) {
-            console.error("Firebase config parse error", e);
-        }
         
         let app, auth, db, currentUser;
         

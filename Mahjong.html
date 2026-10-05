@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Mahjong Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Prevent number input arrows */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col">
+
+    <!-- Custom Modal Overlay -->
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center transform transition-all fade-in">
+            <div id="modal-icon" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"></div>
+            <h3 id="modal-title" class="text-xl font-bold text-slate-900 mb-2">Notice</h3>
+            <p id="modal-message" class="text-sm text-slate-500 mb-6">Message content</p>
+            <div id="modal-actions" class="flex gap-3 justify-center">
+                <button id="modal-cancel-btn" class="hidden flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-xl transition-colors">Cancel</button>
+                <button id="modal-confirm-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl transition-colors">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex-1 flex flex-col">
+        <!-- Header -->
+        <header class="text-center mb-8 relative">
+            <div id="connection-status" class="absolute top-0 right-0 flex items-center gap-2 text-xs font-semibold text-slate-400 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-200">
+                <span class="w-2 h-2 rounded-full bg-slate-300" id="status-dot"></span>
+                <span id="status-text">Connecting...</span>
+            </div>
+            
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-emerald-800 flex items-center justify-center gap-3 mt-8 sm:mt-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256" class="text-emerald-600"><path fill="currentColor" d="M208 32H48a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16m-32 96h-16v16h16a8 8 0 0 1 0 16h-16v16a8 8 0 0 1-16 0v-16h-16v16a8 8 0 0 1-16 0v-16H96v16a8 8 0 0 1-16 0v-16H64a8 8 0 0 1 0-16h16v-16H64a8 8 0 0 1 0-16h16V96a8 8 0 0 1 16 0v16h16V96a8 8 0 0 1 16 0v16h16V96a8 8 0 0 1 16 0v16h16a8 8 0 0 1 0 16M96 128h16v16H96Zm48 0h16v16h-16Z"/></svg>
+                Mahjong Live
+            </h1>
+        </header>
+
+        <!-- Lobby Section -->
+        <div id="lobby-section" class="bg-white rounded-3xl shadow-xl p-8 sm:p-12 border border-slate-100 max-w-md mx-auto w-full text-center">
+            <h2 class="text-2xl font-bold mb-8 text-slate-800">Join the Table</h2>
+            
+            <div class="space-y-8">
+                <button onclick="showSetup()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 text-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                    Create New Room
+                </button>
+                
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink-0 mx-4 text-slate-400 font-medium text-sm">OR JOIN EXISTING</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <div class="space-y-3">
+                    <input type="text" id="join-room-code" placeholder="4-Letter Code" maxlength="4" class="uppercase w-full px-4 py-4 border-2 border-slate-200 rounded-2xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all font-mono text-2xl text-center font-bold tracking-[0.5em] text-slate-800">
+                    <button onclick="joinRoom()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 px-6 rounded-2xl shadow-md transition-all active:scale-[0.98]">
+                        Join Room
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Section -->
+        <div id="setup-section" class="hidden bg-white rounded-3xl shadow-xl p-6 sm:p-10 border border-slate-100 max-w-2xl mx-auto w-full fade-in">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                <h2 class="text-2xl font-bold text-slate-800">Configure Game</h2>
+                <button onclick="cancelSetup()" class="text-sm font-semibold text-slate-400 hover:text-slate-600">Cancel</button>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Starting Score (Each Player)</label>
+                    <input type="number" id="setup-start-score" value="25000" class="w-full sm:w-1/2 px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-bold text-xl text-slate-800">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-3">Player Names (Exactly 4)</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <input type="text" id="setup-p1" placeholder="Player 1 (East)" value="Player 1" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700">
+                        <input type="text" id="setup-p2" placeholder="Player 2 (South)" value="Player 2" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700">
+                        <input type="text" id="setup-p3" placeholder="Player 3 (West)" value="Player 3" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700">
+                        <input type="text" id="setup-p4" placeholder="Player 4 (North)" value="Player 4" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700">
+                    </div>
+                </div>
+
+                <button onclick="createRoom()" id="create-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-4 rounded-2xl shadow-lg transition-all active:scale-[0.98] text-lg mt-8">
+                    Start Match
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Game Section -->
+        <div id="game-section" class="hidden space-y-6 fade-in flex-1 flex flex-col">
+            
+            <!-- Room Info Bar -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Room Code</span>
+                    <div class="bg-slate-100 text-slate-800 font-mono font-bold text-2xl px-4 py-1.5 rounded-xl tracking-widest select-all border border-slate-200" id="display-room-code">
+                        ----
+                    </div>
+                </div>
+                <button onclick="leaveRoomPrompt()" class="text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 px-4 py-2.5 rounded-xl transition-colors w-full sm:w-auto">
+                    Leave Room
+                </button>
+            </div>
+            
+            <!-- Current Scores Dashboard -->
+            <div id="score-dashboard" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Cards injected dynamically -->
+            </div>
+
+            <!-- Input Round Section -->
+            <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-8 border border-slate-100">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Record Round</h2>
+                        <p class="text-sm text-slate-500 mt-1">Enter point changes. Total sum must equal 0.</p>
+                    </div>
+                    <div id="sum-indicator" class="px-5 py-2.5 bg-slate-100 rounded-xl text-lg font-bold text-slate-500 border-2 border-slate-200 transition-colors">Sum: 0</div>
+                </div>
+
+                <div id="input-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <!-- Inputs injected dynamically -->
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="submitRound()" id="submit-btn" disabled class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-4 rounded-2xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed opacity-50 cursor-not-allowed">
+                        Submit Round
+                    </button>
+                    <button onclick="clearInputs()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-4 px-8 rounded-2xl transition-all active:scale-[0.98]">
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ledger / History Section -->
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex-1 flex flex-col min-h-[300px]">
+                <div class="p-6 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <svg class="pulse-dot text-emerald-500" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256"><circle cx="128" cy="128" r="96" fill="currentColor"/></svg>
+                        Match Ledger
+                    </h2>
+                    <button onclick="undoPrompt()" class="text-sm font-bold text-slate-500 hover:text-red-600 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+                        Undo Last
+                    </button>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar flex-1">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr id="history-header" class="bg-white text-xs uppercase tracking-wider text-slate-400 border-b border-slate-100 font-bold">
+                                <th class='py-4 px-6 text-center w-16'>Rnd</th>
+                                <!-- Player headers injected dynamically -->
+                            </tr>
+                        </thead>
+                        <tbody id="history-body" class="divide-y divide-slate-50 bg-white">
+                            <!-- History rows injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Environment Setup
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mahjong-tracker-v1';
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7J9TzZ5vrAD4nr29gX2xk-HwTQPTnYKg",
+            authDomain: "mahjong-a5267.firebaseapp.com",
+            projectId: "mahjong-a5267",
+            storageBucket: "mahjong-a5267.firebasestorage.app",
+            messagingSenderId: "379699137048",
+            appId: "1:379699137048:web:8d2c997bb7fbba87d1116d",
+            measurementId: "G-5SJV6D4R91"
+        };
+        try {
+            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        } catch (e) {
+            console.error("Firebase config parse error", e);
+        }
+        
+        let app, auth, db, currentUser;
+        
+        // Application State
+        let currentRoomCode = null;
+        let unsubscribeRoom = null;
+        let localRoomState = null;
+
+        const DOM = {
+            lobby: document.getElementById('lobby-section'),
+            setup: document.getElementById('setup-section'),
+            game: document.getElementById('game-section'),
+            scoreDashboard: document.getElementById('score-dashboard'),
+            inputContainer: document.getElementById('input-container'),
+            historyHeader: document.getElementById('history-header'),
+            historyBody: document.getElementById('history-body'),
+            sumIndicator: document.getElementById('sum-indicator'),
+            submitBtn: document.getElementById('submit-btn'),
+            displayRoomCode: document.getElementById('display-room-code'),
+            statusDot: document.getElementById('status-dot'),
+            statusText: document.getElementById('status-text')
+        };
+
+        async function init() {
+            try {
+                if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+                    console.warn("No Firebase config found. App requires Firebase to function.");
+                    updateStatus(false, "Config Missing");
+                    return;
+                }
+                
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // Authenticate
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        updateStatus(true, "Online");
+                    } else {
+                        updateStatus(false, "Offline");
+                    }
+                });
+
+                // Attach UI Handlers to Window
+                window.showSetup = () => { DOM.lobby.classList.add('hidden'); DOM.setup.classList.remove('hidden'); };
+                window.cancelSetup = () => { DOM.setup.classList.add('hidden'); DOM.lobby.classList.remove('hidden'); };
+                window.createRoom = handleCreateRoom;
+                window.joinRoom = handleJoinRoom;
+                window.submitRound = handleSubmitRound;
+                window.clearInputs = clearInputs;
+                window.leaveRoomPrompt = handleLeaveRoom;
+                window.undoPrompt = handleUndo;
+                window.validateSum = validateSum;
+
+            } catch (err) {
+                console.error("Init Error:", err);
+                updateStatus(false, "Connection Error");
+            }
+        }
+
+        function updateStatus(isOnline, text) {
+            DOM.statusText.textContent = text;
+            if (isOnline) {
+                DOM.statusDot.className = "w-2 h-2 rounded-full bg-emerald-500 pulse-dot";
+                DOM.statusText.className = "text-emerald-600";
+            } else {
+                DOM.statusDot.className = "w-2 h-2 rounded-full bg-red-500";
+                DOM.statusText.className = "text-red-600";
+            }
+        }
+
+        function showModal(title, message, type = "info", onConfirm = null) {
+            const overlay = document.getElementById('modal-overlay');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            
+            const icon = document.getElementById('modal-icon');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+
+            // Reset
+            icon.className = "mx-auto flex items-center justify-center h-14 w-14 rounded-full mb-4";
+            confirmBtn.className = "flex-1 font-bold py-3 px-4 rounded-xl transition-colors text-white shadow-md active:scale-95";
+            cancelBtn.className = "flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl transition-colors active:scale-95";
+
+            if (type === "error") {
+                icon.classList.add('bg-red-100', 'text-red-600');
+                icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+                confirmBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+                cancelBtn.classList.add('hidden');
+            } else if (type === "confirm") {
+                icon.classList.add('bg-amber-100', 'text-amber-600');
+                icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+                confirmBtn.classList.add('bg-amber-600', 'hover:bg-amber-700');
+                cancelBtn.classList.remove('hidden');
+            } else {
+                icon.classList.add('bg-emerald-100', 'text-emerald-600');
+                icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                confirmBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+                cancelBtn.classList.add('hidden');
+            }
+
+            overlay.classList.remove('hidden');
+
+            confirmBtn.onclick = () => {
+                overlay.classList.add('hidden');
+                if (onConfirm) onConfirm();
+            };
+            cancelBtn.onclick = () => overlay.classList.add('hidden');
+        }
+
+        function generateRoomCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // Excluded confusing chars
+            let result = '';
+            for (let i = 0; i < 4; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        async function handleCreateRoom() {
+            if (!currentUser) return showModal("Error", "Not connected to server.", "error");
+            
+            const startScore = parseInt(document.getElementById('setup-start-score').value) || 25000;
+            const players = [];
+            
+            for (let i = 1; i <= 4; i++) {
+                const name = document.getElementById(`setup-p${i}`).value.trim() || `Player ${i}`;
+                players.push({
+                    id: `p${i}`,
+                    name: name,
+                    currentScore: startScore
+                });
+            }
+
+            const btn = document.getElementById('create-btn');
+            btn.disabled = true;
+            btn.innerHTML = 'Creating...';
+
+            try {
+                // Generate unique code
+                let code;
+                let isUnique = false;
+                let roomRef;
+                
+                while (!isUnique) {
+                    code = generateRoomCode();
+                    roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', code);
+                    const docSnap = await getDoc(roomRef);
+                    if (!docSnap.exists()) {
+                        isUnique = true;
+                    }
+                }
+
+                const initialData = {
+                    createdAt: new Date().toISOString(),
+                    startingScore: startScore,
+                    players: players,
+                    history: []
+                };
+
+                await setDoc(roomRef, initialData);
+                
+                DOM.setup.classList.add('hidden');
+                enterRoom(code);
+
+            } catch (err) {
+                console.error("Create room error:", err);
+                showModal("Error", "Failed to create room.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Start Match';
+            }
+        }
+
+        async function handleJoinRoom() {
+            if (!currentUser) return showModal("Error", "Not connected to server.", "error");
+
+            const codeInput = document.getElementById('join-room-code').value.toUpperCase().trim();
+            if (codeInput.length !== 4) {
+                return showModal("Invalid Code", "Please enter a 4-letter room code.", "error");
+            }
+
+            try {
+                const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', codeInput);
+                const docSnap = await getDoc(roomRef);
+                
+                if (docSnap.exists()) {
+                    enterRoom(codeInput);
+                } else {
+                    showModal("Not Found", `No active room found with code ${codeInput}.`, "error");
+                }
+            } catch (err) {
+                console.error("Join room error:", err);
+                showModal("Error", "Failed to join room.", "error");
+            }
+        }
+
+        function enterRoom(code) {
+            currentRoomCode = code;
+            DOM.lobby.classList.add('hidden');
+            DOM.game.classList.remove('hidden');
+            DOM.displayRoomCode.textContent = code;
+
+            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', code);
+            
+            // Listen for real-time updates
+            unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    localRoomState = docSnap.data();
+                    renderGameUI();
+                } else {
+                    showModal("Room Closed", "This room has been deleted or closed.", "error", handleLeaveRoom);
+                }
+            }, (error) => {
+                console.error("Snapshot error:", error);
+                showModal("Sync Error", "Lost connection to the room.", "error");
+            });
+        }
+
+        function handleLeaveRoom() {
+            showModal("Leave Room?", "Are you sure you want to exit? You can rejoin later using the code.", "confirm", () => {
+                if (unsubscribeRoom) {
+                    unsubscribeRoom();
+                    unsubscribeRoom = null;
+                }
+                currentRoomCode = null;
+                localRoomState = null;
+                DOM.game.classList.add('hidden');
+                DOM.lobby.classList.remove('hidden');
+                document.getElementById('join-room-code').value = '';
+            });
+        }
+
+        function renderGameUI() {
+            if (!localRoomState) return;
+            const players = localRoomState.players;
+            const history = localRoomState.history;
+
+            // 1. Dashboard
+            let dashHTML = '';
+            // Calculate max score to highlight leader
+            const maxScore = Math.max(...players.map(p => p.currentScore));
+            
+            players.forEach(p => {
+                const isLeader = p.currentScore === maxScore && p.currentScore > localRoomState.startingScore;
+                const scoreColor = p.currentScore < 0 ? 'text-red-500' : (isLeader ? 'text-emerald-600' : 'text-slate-800');
+                const diff = p.currentScore - localRoomState.startingScore;
+                const diffStr = diff > 0 ? `+${diff}` : (diff === 0 ? `0` : `${diff}`);
+                const diffColor = diff > 0 ? 'text-emerald-500' : (diff < 0 ? 'text-red-500' : 'text-slate-400');
+
+                dashHTML += `
+                    <div class="bg-white rounded-2xl border ${isLeader ? 'border-emerald-300 shadow-md bg-emerald-50/30' : 'border-slate-100 shadow-sm'} p-4 sm:p-5 flex flex-col relative overflow-hidden transition-all">
+                        ${isLeader ? '<div class="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">LEADER</div>' : ''}
+                        <span class="text-sm font-bold text-slate-500 truncate mb-1">${p.name}</span>
+                        <span class="text-2xl sm:text-3xl font-extrabold ${scoreColor} tracking-tight">${p.currentScore.toLocaleString()}</span>
+                        <div class="mt-2 text-xs font-semibold ${diffColor} bg-slate-50 px-2 py-1 rounded-md self-start border border-slate-100">
+                            Net: ${diffStr}
+                        </div>
+                    </div>
+                `;
+            });
+            DOM.scoreDashboard.innerHTML = dashHTML;
+
+            // 2. Input Container
+            // Only rebuild if empty to preserve typed values, just update names
+            if (DOM.inputContainer.children.length === 0) {
+                let inputHTML = '';
+                players.forEach(p => {
+                    inputHTML += `
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2 truncate">${p.name}</label>
+                            <input type="number" id="input-${p.id}" oninput="window.validateSum()" placeholder="0" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-bold text-lg text-slate-800 text-center score-input">
+                        </div>
+                    `;
+                });
+                DOM.inputContainer.innerHTML = inputHTML;
+            } else {
+                players.forEach(p => {
+                    const label = DOM.inputContainer.querySelector(`label[for="input-${p.id}"]`) || DOM.inputContainer.querySelector(`#input-${p.id}`).previousElementSibling;
+                    if(label) label.textContent = p.name;
+                });
+            }
+
+            // 3. Ledger Header
+            let headerHTML = `<th class="py-4 px-4 text-center w-16 text-slate-400 font-extrabold">#</th>`;
+            players.forEach(p => {
+                headerHTML += `<th class="py-4 px-4 text-right font-extrabold">${p.name}</th>`;
+            });
+            DOM.historyHeader.innerHTML = headerHTML;
+
+            // 4. Ledger Body
+            let bodyHTML = '';
+            if (history.length === 0) {
+                bodyHTML = `<tr><td colspan="5" class="py-12 text-center text-slate-400 font-medium italic">No rounds recorded yet.</td></tr>`;
+            } else {
+                // Reverse to show newest first
+                [...history].reverse().forEach((record, index) => {
+                    const roundNum = history.length - index;
+                    let rowHTML = `<tr><td class="py-3 px-4 text-center font-bold text-slate-400 bg-slate-50">${roundNum}</td>`;
+                    
+                    players.forEach(p => {
+                        const delta = record.deltas[p.id] || 0;
+                        const colorClass = delta > 0 ? 'text-emerald-600 font-bold bg-emerald-50/50' : (delta < 0 ? 'text-red-500 font-semibold bg-red-50/30' : 'text-slate-400');
+                        const prefix = delta > 0 ? '+' : '';
+                        rowHTML += `<td class="py-3 px-4 text-right ${colorClass}">${prefix}${delta === 0 ? '-' : delta.toLocaleString()}</td>`;
+                    });
+                    rowHTML += `</tr>`;
+                    bodyHTML += rowHTML;
+                });
+            }
+            DOM.historyBody.innerHTML = bodyHTML;
+        }
+
+        function validateSum() {
+            if (!localRoomState) return;
+            
+            let sum = 0;
+            let hasInput = false;
+            
+            localRoomState.players.forEach(p => {
+                const val = document.getElementById(`input-${p.id}`).value;
+                if (val !== '') {
+                    sum += parseInt(val) || 0;
+                    hasInput = true;
+                }
+            });
+
+            DOM.sumIndicator.textContent = `Sum: ${sum}`;
+            
+            if (hasInput && sum === 0) {
+                DOM.sumIndicator.className = "px-5 py-2.5 bg-emerald-100 rounded-xl text-lg font-bold text-emerald-700 border-2 border-emerald-200 transition-colors";
+                DOM.submitBtn.disabled = false;
+                DOM.submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                DOM.sumIndicator.className = "px-5 py-2.5 bg-red-50 rounded-xl text-lg font-bold text-red-500 border-2 border-red-100 transition-colors";
+                DOM.submitBtn.disabled = true;
+                DOM.submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function clearInputs() {
+            if (!localRoomState) return;
+            localRoomState.players.forEach(p => {
+                document.getElementById(`input-${p.id}`).value = '';
+            });
+            validateSum();
+        }
+
+        async function handleSubmitRound() {
+            if (!currentUser || !currentRoomCode || !localRoomState) return;
+            
+            const deltas = {};
+            let sum = 0;
+            
+            localRoomState.players.forEach(p => {
+                const val = parseInt(document.getElementById(`input-${p.id}`).value) || 0;
+                deltas[p.id] = val;
+                sum += val;
+            });
+
+            if (sum !== 0) {
+                return showModal("Error", "Sum of points must be exactly 0.", "error");
+            }
+
+            // Prepare updated state
+            const updatedPlayers = localRoomState.players.map(p => ({
+                ...p,
+                currentScore: p.currentScore + deltas[p.id]
+            }));
+
+            const newHistoryRecord = {
+                timestamp: new Date().toISOString(),
+                deltas: deltas
+            };
+
+            const updatedHistory = [...localRoomState.history, newHistoryRecord];
+
+            DOM.submitBtn.disabled = true;
+            DOM.submitBtn.innerHTML = "Saving...";
+
+            try {
+                const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomCode);
+                await updateDoc(roomRef, {
+                    players: updatedPlayers,
+                    history: updatedHistory
+                });
+                
+                clearInputs();
+            } catch (err) {
+                console.error("Submit error:", err);
+                showModal("Error", "Failed to submit round.", "error");
+            } finally {
+                DOM.submitBtn.innerHTML = "Submit Round";
+                validateSum();
+            }
+        }
+
+        function handleUndo() {
+            if (!localRoomState || localRoomState.history.length === 0) {
+                return showModal("Notice", "No rounds to undo.");
+            }
+
+            showModal("Undo Round", "Are you sure you want to delete the last recorded round? This will affect all players.", "confirm", async () => {
+                try {
+                    const lastRecord = localRoomState.history[localRoomState.history.length - 1];
+                    const deltasToRevert = lastRecord.deltas;
+
+                    // Revert scores
+                    const revertedPlayers = localRoomState.players.map(p => ({
+                        ...p,
+                        currentScore: p.currentScore - (deltasToRevert[p.id] || 0)
+                    }));
+
+                    // Remove last history item
+                    const revertedHistory = localRoomState.history.slice(0, -1);
+
+                    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomCode);
+                    await updateDoc(roomRef, {
+                        players: revertedPlayers,
+                        history: revertedHistory
+                    });
+
+                } catch (err) {
+                    console.error("Undo error:", err);
+                    showModal("Error", "Failed to undo round.", "error");
+                }
+            });
+        }
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>

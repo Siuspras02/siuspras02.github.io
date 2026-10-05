@@ -195,6 +195,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        // Add this line right below your Firebase imports:
+        import Riichi from 'https://esm.sh/riichi';
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -646,10 +649,204 @@
                 }
             });
         }
+        // --- Calculator Logic ---
+        let calcTiles = [];
+        const calcModal = document.getElementById('calc-modal');
+        const calcDisplay = document.getElementById('calc-display');
+        const calcCount = document.getElementById('calc-count');
+        
+        window.openCalculator = () => { calcModal.classList.remove('hidden'); };
+        window.closeCalculator = () => { calcModal.classList.add('hidden'); };
+        
+        window.addCalcTile = (suit, value, char) => {
+            if (calcTiles.length >= 14) return;
+            calcTiles.push({ suit, value, char, id: Date.now() + Math.random() });
+            renderCalcDisplay();
+        };
+
+        window.removeCalcTile = (idToRemove) => {
+            calcTiles = calcTiles.filter(t => t.id !== idToRemove);
+            renderCalcDisplay();
+        };
+
+        window.clearCalculator = () => {
+            calcTiles = [];
+            document.getElementById('calc-result').classList.add('hidden');
+            document.getElementById('calc-error').classList.add('hidden');
+            renderCalcDisplay();
+        };
+
+        function renderCalcDisplay() {
+            calcCount.textContent = `${calcTiles.length} / 14`;
+            
+            if (calcTiles.length === 0) {
+                calcDisplay.innerHTML = `<span class="text-slate-500 text-sm font-medium w-full text-center">Select up to 14 tiles...</span>`;
+                return;
+            }
+
+            calcDisplay.innerHTML = calcTiles.map(t => 
+                `<button onclick="removeCalcTile(${t.id})" class="text-4xl text-white hover:text-red-400 transition-colors transform hover:scale-110">${t.char}</button>`
+            ).join('');
+        }
+
+        window.calculateHand = () => {
+            document.getElementById('calc-result').classList.add('hidden');
+            document.getElementById('calc-error').classList.add('hidden');
+
+            if (calcTiles.length < 14) {
+                document.getElementById('calc-error').classList.remove('hidden');
+                document.getElementById('calc-error').textContent = "Incomplete hand. Please select exactly 14 tiles.";
+                return;
+            }
+
+            // Convert to riichi string format (e.g. 123m456p789s11222z)
+            // Group by suit first
+            const suits = { m: [], p: [], s: [], z: [] };
+            calcTiles.forEach(t => suits[t.suit].push(t.value));
+            
+            let handString = '';
+            for (const [suit, values] of Object.entries(suits)) {
+                if (values.length > 0) {
+                    values.sort((a, b) => a - b);
+                    handString += values.join('') + suit;
+                }
+            }
+
+            try {
+                const mahjong = new Riichi(handString);
+                const result = mahjong.calc();
+
+                if (result.error || Object.keys(result.yaku || {}).length === 0) {
+                    document.getElementById('calc-error').classList.remove('hidden');
+                    document.getElementById('calc-error').textContent = result.error ? `Error: ${result.error}` : "No Yaku found.";
+                    return;
+                }
+
+                document.getElementById('calc-han-fu').textContent = `${result.han} Han, ${result.fu} Fu`;
+                document.getElementById('calc-yaku').textContent = Object.keys(result.yaku).join(", ");
+                document.getElementById('calc-points').textContent = `${result.ten} Points`;
+                document.getElementById('calc-result').classList.remove('hidden');
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('calc-error').classList.remove('hidden');
+                document.getElementById('calc-error').textContent = "Calculation error. Make sure the hand is valid.";
+            }
+        };
 
         // Initialize App
         window.addEventListener('DOMContentLoaded', init);
-
     </script>
+
+    <!-- Hand Calculator Modal -->
+<div id="calc-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[90vh] overflow-hidden fade-in">
+        
+        <!-- Header & Display -->
+        <div class="bg-slate-800 text-white p-4 sm:p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Hand Calculator</h3>
+                <button onclick="closeCalculator()" class="text-slate-400 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <!-- Selected Tiles Display -->
+            <div class="bg-slate-900 rounded-xl p-3 min-h-[80px] flex flex-wrap gap-1 items-center justify-start border-2 border-slate-700" id="calc-display">
+                <span class="text-slate-500 text-sm font-medium w-full text-center">Select up to 14 tiles...</span>
+            </div>
+            <button onclick="openCalculator()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-4 px-6 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h14z"/></svg>
+            Calculator
+            </button>
+            <div class="flex justify-between items-center mt-3 text-sm">
+                <span id="calc-count" class="text-slate-400 font-bold">0 / 14</span>
+                <button onclick="clearCalculator()" class="text-red-400 hover:text-red-300 font-bold">Clear All</button>
+            </div>
+        </div>
+
+        <!-- Tile Keyboard -->
+        <div class="overflow-y-auto p-4 sm:p-6 custom-scrollbar bg-slate-50 space-y-4">
+            
+            <!-- Man (Characters) -->
+            <div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Manzu (Characters)</div>
+                <div class="grid grid-cols-9 gap-1 sm:gap-2">
+                    <button onclick="addCalcTile('m', 1, '🀇')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀇</button>
+                    <button onclick="addCalcTile('m', 2, '🀈')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀈</button>
+                    <button onclick="addCalcTile('m', 3, '🀉')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀉</button>
+                    <button onclick="addCalcTile('m', 4, '🀊')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀊</button>
+                    <button onclick="addCalcTile('m', 5, '🀋')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀋</button>
+                    <button onclick="addCalcTile('m', 6, '🀌')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀌</button>
+                    <button onclick="addCalcTile('m', 7, '🀍')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀍</button>
+                    <button onclick="addCalcTile('m', 8, '🀎')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀎</button>
+                    <button onclick="addCalcTile('m', 9, '🀏')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀏</button>
+                </div>
+            </div>
+
+            <!-- Pin (Circles) -->
+            <div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Pinzu (Circles)</div>
+                <div class="grid grid-cols-9 gap-1 sm:gap-2">
+                    <button onclick="addCalcTile('p', 1, '🀙')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀙</button>
+                    <button onclick="addCalcTile('p', 2, '🀚')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀚</button>
+                    <button onclick="addCalcTile('p', 3, '🀛')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀛</button>
+                    <button onclick="addCalcTile('p', 4, '🀜')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀜</button>
+                    <button onclick="addCalcTile('p', 5, '🀝')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀝</button>
+                    <button onclick="addCalcTile('p', 6, '🀞')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀞</button>
+                    <button onclick="addCalcTile('p', 7, '🀟')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀟</button>
+                    <button onclick="addCalcTile('p', 8, '🀠')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀠</button>
+                    <button onclick="addCalcTile('p', 9, '🀡')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀡</button>
+                </div>
+            </div>
+
+            <!-- Sou (Bamboo) -->
+            <div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Souzu (Bamboo)</div>
+                <div class="grid grid-cols-9 gap-1 sm:gap-2">
+                    <button onclick="addCalcTile('s', 1, '🀐')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀐</button>
+                    <button onclick="addCalcTile('s', 2, '🀑')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀑</button>
+                    <button onclick="addCalcTile('s', 3, '🀒')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀒</button>
+                    <button onclick="addCalcTile('s', 4, '🀓')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀓</button>
+                    <button onclick="addCalcTile('s', 5, '🀔')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀔</button>
+                    <button onclick="addCalcTile('s', 6, '🀕')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀕</button>
+                    <button onclick="addCalcTile('s', 7, '🀖')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀖</button>
+                    <button onclick="addCalcTile('s', 8, '🀗')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀗</button>
+                    <button onclick="addCalcTile('s', 9, '🀘')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀘</button>
+                </div>
+            </div>
+
+            <!-- Jihai (Honors) -->
+            <div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Jihai (Honors)</div>
+                <div class="grid grid-cols-7 gap-1 sm:gap-2">
+                    <button onclick="addCalcTile('z', 1, '🀀')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀀</button>
+                    <button onclick="addCalcTile('z', 2, '🀁')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀁</button>
+                    <button onclick="addCalcTile('z', 3, '🀂')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀂</button>
+                    <button onclick="addCalcTile('z', 4, '🀃')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀃</button>
+                    <button onclick="addCalcTile('z', 5, '🀆')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀆</button>
+                    <button onclick="addCalcTile('z', 6, '🀅')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀅</button>
+                    <button onclick="addCalcTile('z', 7, '🀄')" class="text-3xl sm:text-4xl bg-white border-b-4 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-lg p-1 active:translate-y-1 active:border-b-0 transition-all">🀄</button>
+                </div>
+            </div>
+
+            <!-- Output Region -->
+            <div id="calc-result" class="hidden mt-6 p-4 bg-emerald-100 border border-emerald-200 rounded-xl">
+                <div class="text-sm font-bold text-emerald-800 mb-1" id="calc-han-fu"></div>
+                <div class="text-xs text-emerald-700 font-medium mb-3" id="calc-yaku"></div>
+                <div class="text-2xl font-extrabold text-emerald-900" id="calc-points"></div>
+            </div>
+            <div id="calc-error" class="hidden mt-6 p-4 bg-red-100 border border-red-200 rounded-xl text-red-700 font-bold text-sm">
+                Invalid hand or incomplete (need 14 tiles).
+            </div>
+
+        </div>
+        
+        <div class="p-4 sm:p-6 bg-white border-t border-slate-100 flex gap-3">
+            <button onclick="calculateHand()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98]">
+                Calculate Score
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

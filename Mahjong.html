@@ -772,6 +772,100 @@
             }
         };
 
+        window.clearCalculator = () => {
+    calcTiles = [];
+    document.getElementById('calc-result').classList.add('hidden');
+    document.getElementById('calc-error').classList.add('hidden');
+    
+    // Reset all toggles and inputs
+    document.getElementById('calc-riichi').checked = false;
+    document.getElementById('calc-ippatsu').checked = false;
+    document.getElementById('calc-tsumo').checked = false;
+    document.getElementById('calc-dealer').checked = false;
+    document.getElementById('calc-dora').value = 0;
+    document.getElementById('calc-uradora').value = 0;
+    document.getElementById('calc-akadora').value = 0;
+
+    renderCalcDisplay();
+};
+
+window.calculateHand = () => {
+    document.getElementById('calc-result').classList.add('hidden');
+    document.getElementById('calc-error').classList.add('hidden');
+
+    if (calcTiles.length < 14) {
+        document.getElementById('calc-error').classList.remove('hidden');
+        document.getElementById('calc-error').textContent = "Incomplete hand. Please select exactly 14 tiles.";
+        return;
+    }
+
+    // Convert to riichi string format
+    const suits = { m: [], p: [], s: [], z: [] };
+    calcTiles.forEach(t => suits[t.suit].push(t.value));
+    
+    let handString = '';
+    for (const [suit, values] of Object.entries(suits)) {
+        if (values.length > 0) {
+            values.sort((a, b) => a - b);
+            handString += values.join('') + suit;
+        }
+    }
+
+    try {
+        const mahjong = new Riichi(handString);
+        const result = mahjong.calc();
+
+        if (result.error || Object.keys(result.yaku || {}).length === 0) {
+            document.getElementById('calc-error').classList.remove('hidden');
+            document.getElementById('calc-error').textContent = result.error ? `Error: ${result.error}` : "No Yaku found. Hand is invalid.";
+            return;
+        }
+
+        // --- Add Situational Yaku ---
+        let totalHan = result.han;
+        let finalFu = result.fu;
+        const extraYaku = [];
+
+        if (document.getElementById('calc-riichi').checked) { totalHan += 1; extraYaku.push("Riichi"); }
+        if (document.getElementById('calc-ippatsu').checked) { totalHan += 1; extraYaku.push("Ippatsu"); }
+        if (document.getElementById('calc-tsumo').checked) { totalHan += 1; extraYaku.push("Menzen Tsumo"); }
+        const isDealer = document.getElementById('calc-dealer').checked;
+
+        const dora = parseInt(document.getElementById('calc-dora').value) || 0;
+        const uradora = parseInt(document.getElementById('calc-uradora').value) || 0;
+        const akadora = parseInt(document.getElementById('calc-akadora').value) || 0;
+        
+        if (dora > 0) { totalHan += dora; extraYaku.push(`Dora ${dora}`); }
+        if (uradora > 0) { totalHan += uradora; extraYaku.push(`Ura Dora ${uradora}`); }
+        if (akadora > 0) { totalHan += akadora; extraYaku.push(`Aka Dora ${akadora}`); }
+
+        // --- Calculate Tournament Points ---
+        let points = 0;
+        if (totalHan >= 13) points = isDealer ? 48000 : 32000; // Yakuman
+        else if (totalHan >= 11) points = isDealer ? 36000 : 24000; // Sanbaiman
+        else if (totalHan >= 8) points = isDealer ? 24000 : 16000; // Baiman
+        else if (totalHan >= 6) points = isDealer ? 18000 : 12000; // Haneman
+        else if (totalHan >= 5 || (totalHan === 4 && finalFu >= 40) || (totalHan === 3 && finalFu >= 70)) {
+            points = isDealer ? 12000 : 8000; // Mangan
+        } else {
+            let base = finalFu * Math.pow(2, totalHan + 2);
+            points = isDealer ? base * 6 : base * 4;
+            points = Math.ceil(points / 100) * 100;
+        }
+
+        const allYaku = [...Object.keys(result.yaku), ...extraYaku].join(", ");
+
+        document.getElementById('calc-han-fu').textContent = `${totalHan} Han, ${finalFu} Fu`;
+        document.getElementById('calc-yaku').textContent = allYaku;
+        document.getElementById('calc-points').textContent = `${points} Points`;
+        document.getElementById('calc-result').classList.remove('hidden');
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('calc-error').classList.remove('hidden');
+            document.getElementById('calc-error').textContent = "Calculation error. Make sure the hand is valid.";
+        }
+        };
         // Initialize App
         window.addEventListener('DOMContentLoaded', init);
     </script>
@@ -871,6 +965,40 @@
                 </div>
                 <div id="calc-error" class="hidden mt-6 p-4 bg-red-100 border border-red-200 rounded-xl text-red-700 font-bold text-sm">
                     Invalid hand or incomplete (need 14 tiles).
+                </div>
+                <!-- Situational Conditions -->
+                <div class="mt-4 border-t border-slate-200 pt-4">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Situational Yaku & Dora</div>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                        <label class="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
+                            <input type="checkbox" id="calc-riichi" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"> Riichi
+                        </label>
+                        <label class="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
+                            <input type="checkbox" id="calc-ippatsu" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"> Ippatsu
+                        </label>
+                        <label class="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
+                            <input type="checkbox" id="calc-tsumo" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"> Tsumo
+                        </label>
+                        <label class="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
+                            <input type="checkbox" id="calc-dealer" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"> Dealer (East)
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">Dora</label>
+                            <input type="number" id="calc-dora" value="0" min="0" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-center font-bold outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">Ura Dora</label>
+                            <input type="number" id="calc-uradora" value="0" min="0" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-center font-bold outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">Aka Dora</label>
+                            <input type="number" id="calc-akadora" value="0" min="0" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-center font-bold outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
                 </div>
 
             </div>

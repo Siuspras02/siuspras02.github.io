@@ -540,7 +540,6 @@
       }
 
       /* ── DESKTOP TRANSLATION OVERLAY ── */
-      /* ── DESKTOP TRANSLATION OVERLAY ── */
       .translation-overlay {
         position: absolute;
         inset: 0;
@@ -919,6 +918,7 @@
       .hide-on-desktop {
         display: none;
       }
+      
       /* ── ALT ART TOGGLE BUTTON ── */
       .btn-alt-toggle {
         position: absolute;
@@ -1154,6 +1154,7 @@
           transform: translateY(-50%) scale(1.1) rotate(45deg);
         }
       }
+      
       /* ── PREMIUM ALT ART SNAKE BORDER ANIMATION ── */
       @property --angle {
         syntax: "<angle>";
@@ -1300,6 +1301,7 @@
           transform: translate(-8vw, -8vh);
         }
       }
+      
       /* ── FULL SCREEN LAYOUT TOGGLES ── */
       .main-panel.layout-left-full { grid-template-columns: 1fr !important; }
       .main-panel.layout-left-full .panel-col:nth-child(2) { display: none !important; }
@@ -1350,6 +1352,7 @@
         background: rgba(65, 195, 227, 0.1);
         color: var(--brand-main);
       }
+      
       :root {
         --holo-teal: #1d9e75; 
         --holo-rose: #ff2c2c; 
@@ -1597,36 +1600,36 @@
         }
       }
       .brand-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
 
-.logo-icon {
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-  transition: transform 0.2s ease;
-}
+      .logo-icon {
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        transition: transform 0.2s ease;
+      }
 
-.brand-logo:hover .logo-icon {
-  transform: translateY(-2px) scale(1.05);
-}
+      .brand-logo:hover .logo-icon {
+        transform: translateY(-2px) scale(1.05);
+      }
 
-.brand-text {
-  /* Uses your system's default clean sans-serif font */
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 26px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-}
+      .brand-text {
+        /* Uses your system's default clean sans-serif font */
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+      }
 
-.text-white {
-  color: #FFFFFF;
-}
+      .text-white {
+        color: #FFFFFF;
+      }
 
-.text-cyan {
-  color: #41C3E3;
-}
+      .text-cyan {
+        color: #41C3E3;
+      }
     </style>
 </head>
 <body>
@@ -1858,22 +1861,44 @@
       </h3>
       <button class="btn-close-modal" onclick="document.getElementById('update-modal').classList.remove('open')">✕</button>
     </div>
-    <div class="about-content" style="display: flex; flex-direction: column; gap: 12px;">
+    <div class="about-content" style="display: flex; flex-direction: column; gap: 12px; max-height: 80vh; overflow-y: auto;">
+      
+      <div style="display: flex; gap: 12px;">
+        <input type="text" id="edit-event-name" placeholder="Event Name (e.g. Weekly #3 + place)" style="flex: 2; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+        <input type="date" id="edit-date" style="flex: 1; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+      </div>
+
+      <div style="display: flex; gap: 12px;">
+        <input type="text" id="edit-location" placeholder="Location/Venue (e.g. Local Game Store)" style="flex: 2; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+        <input type="number" id="edit-players" placeholder="Players" style="flex: 1; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+      </div>
+
+      <div style="display: flex; gap: 12px;">
+        <input type="text" id="edit-winner-name" placeholder="Winner Name" style="flex: 1; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+        <input type="text" id="edit-deck-name" placeholder="Oshi Name" style="flex: 1; padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
+        <select id="edit-theme-color" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: 'nunito', sans-serif;">
+          <option value="blue">Blue</option>
+          <option value="red">Red</option>
+          <option value="green">Green</option>
+          <option value="yellow">Yellow</option>
+          <option value="purple">Purple</option>
+          <option value="white">White</option>
+        </select>
+      </div>
       
       <input type="url" id="edit-youtube-link" placeholder="YouTube Match Link URL" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px;">
-      <textarea id="edit-comments" placeholder="Match history, player notes, or deck performance..." rows="4" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: 'nunito', sans-serif;"></textarea>
-      <div>
-      <text>Oshi Color</text>
-      <select id="edit-theme-color" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: 'nunito', sans-serif;">
-        <option value="blue">Blue</option>
-        <option value="red">Red</option>
-        <option value="green">Green</option>
-        <option value="yellow">Yellow</option>
-        <option value="purple">Purple</option>
-        <option value="white">White</option>
-      </select>
-      </div>
+      <textarea id="edit-comments" placeholder="Match history, player notes, or deck performance..." rows="3" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: 'nunito', sans-serif;"></textarea>
+      
       <textarea id="edit-meta-breakdown" placeholder="Meta Breakdown (List decks here, e.g. 'Moona' on each line, or 'Moona: 5')" rows="3" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: 'nunito', sans-serif;"></textarea>
+
+      <div style="display: flex; gap: 12px; align-items: center; background: var(--navy-3); padding: 8px; border: 1px solid var(--border-dim); border-radius: 4px;">
+        <span style="color: var(--text-mid); font-size: 14px; font-weight: 700;">Deck Image:</span>
+        <input type="file" id="edit-deck-image" accept="image/*" style="color: white; font-size: 14px; outline: none;">
+      </div>
+
+      <div style="text-align: center; color: var(--text-dim); font-size: 12px; font-weight: 700;">— OR —</div>
+
+      <textarea id="edit-deck-code" placeholder="Paste Base64 Deck Code Here..." rows="3" style="padding: 8px; background: var(--navy-3); color: white; border: 1px solid var(--border-dim); border-radius: 4px; font-family: monospace;"></textarea>
 
       <button id="save-update-btn" class="btn-action" onclick="window.saveTournamentUpdates()" style="justify-content: center; background: var(--brand-main); color: var(--navy); margin-top: 10px;">
         Save Updates
@@ -1893,6 +1918,7 @@
     <img id="lightbox-image" src="" style="max-width: 100%; max-height: 90vh; border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); object-fit: contain; border: 1px solid var(--border-mid);" />
   </div>
 </div>
+
 <script>
   window.openAboutModal = function () {
     document.getElementById("about-modal").classList.add("open");
@@ -1943,6 +1969,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/fireba
 import { getFirestore, collection, getDocs, addDoc, orderBy, query, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  
   // 2. Your Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyCAIHsG9fB7dRih74FgPv805Lud2q0BfGE",
@@ -2462,9 +2489,8 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
       container.innerHTML = `<div class="empty-state">Invalid deck code format or no deck selected.</div>`;
     }
   }
+
   window.openUpdateModal = async function() {
-    document.getElementById("edit-meta-breakdown").value = activeTournament.metaBreakdown || "";
-    document.getElementById("edit-theme-color").value = activeTournament.themeColor || "blue"; // <-- ADD THIS
     if (!activeTournament) return alert("No tournament selected!");
     
     // Check if the user is already logged in
@@ -2485,8 +2511,18 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
     }
     
     // If we reach here, the user is authenticated securely
-    document.getElementById("edit-youtube-link").value = activeTournament.winner.youtubeLink || "";
-    document.getElementById("edit-comments").value = activeTournament.winner.comments || "";
+    document.getElementById("edit-event-name").value = activeTournament.eventName || "";
+    document.getElementById("edit-date").value = activeTournament.date || "";
+    document.getElementById("edit-location").value = activeTournament.location || "";
+    document.getElementById("edit-players").value = activeTournament.players || "";
+    document.getElementById("edit-winner-name").value = activeTournament.winner?.name || "";
+    document.getElementById("edit-deck-name").value = activeTournament.winner?.deckName || "";
+    document.getElementById("edit-theme-color").value = activeTournament.themeColor || "blue";
+    document.getElementById("edit-youtube-link").value = activeTournament.winner?.youtubeLink || "";
+    document.getElementById("edit-comments").value = activeTournament.winner?.comments || "";
+    document.getElementById("edit-meta-breakdown").value = activeTournament.metaBreakdown || "";
+    document.getElementById("edit-deck-code").value = activeTournament.winner?.deckCode || "";
+    document.getElementById("edit-deck-image").value = ""; // Clear file input
     
     document.getElementById("update-modal").classList.add("open");
   };
@@ -2496,24 +2532,66 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
     if (!activeTournament) return;
     
     const saveBtn = document.getElementById("save-update-btn");
+    const originalBtnText = saveBtn.innerHTML;
     saveBtn.innerHTML = "Saving... <i class='ti ti-loader' style='animation: spin 1s linear infinite;'></i>";
     saveBtn.disabled = true;
 
     try {
+      const newEventName = document.getElementById("edit-event-name").value.trim();
+      const newDate = document.getElementById("edit-date").value;
+      const newLocation = document.getElementById("edit-location").value.trim();
+      const newPlayers = document.getElementById("edit-players").value;
+      const newWinnerName = document.getElementById("edit-winner-name").value.trim();
+      const newDeckName = document.getElementById("edit-deck-name").value.trim();
+      const newTheme = document.getElementById("edit-theme-color").value;
       const newYoutube = document.getElementById("edit-youtube-link").value.trim();
       const newComments = document.getElementById("edit-comments").value.trim();
       const newMeta = document.getElementById("edit-meta-breakdown").value.trim();
+      const newDeckCode = document.getElementById("edit-deck-code").value.trim();
+
+      const fileInput = document.getElementById("edit-deck-image");
+      const file = fileInput.files[0];
+      
+      let imageUrl = activeTournament.winner?.imageUrl || null;
+
+      if (file) {
+        saveBtn.innerHTML = "Uploading Image... <i class='ti ti-loader' style='animation: spin 1s linear infinite;'></i>";
+        const imgbbApiKey = "2ef6b8bf3830635548bbdaefe156ba24"; 
+        const formData = new FormData();
+        formData.append("key", imgbbApiKey); 
+        formData.append("image", file);
+
+        const imgbbResponse = await fetch("https://api.imgbb.com/1/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        const imgbbData = await imgbbResponse.json();
+        
+        if (imgbbData.success) {
+          imageUrl = imgbbData.data.url;
+        } else {
+          throw new Error("ImgBB upload failed: " + imgbbData.error.message);
+        }
+      }
 
       // Point to the specific document using activeTournament.id
       const tournamentRef = doc(db, "tournaments", activeTournament.id);
-      const newTheme = document.getElementById("edit-theme-color").value;
       
-      // Update only these specific fields inside the 'winner' object
+      // Update all relevant fields in Firestore
       await updateDoc(tournamentRef, {
+        "eventName": newEventName,
+        "date": newDate,
+        "location": newLocation,
+        "players": parseInt(newPlayers) || 0,
+        "themeColor": newTheme,
+        "metaBreakdown": newMeta,
+        "winner.name": newWinnerName,
+        "winner.deckName": newDeckName,
         "winner.youtubeLink": newYoutube,
         "winner.comments": newComments,
-        "metaBreakdown": newMeta,
-        "themeColor": newTheme
+        "winner.deckCode": newDeckCode || null,
+        "winner.imageUrl": imageUrl
       });
 
       alert("Tournament updated successfully!");
@@ -2525,7 +2603,7 @@ import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/fir
       console.error("Error updating document:", error);
       alert("Failed to update: " + error.message);
     } finally {
-      saveBtn.innerHTML = "Save Updates";
+      saveBtn.innerHTML = originalBtnText;
       saveBtn.disabled = false;
     }
   };

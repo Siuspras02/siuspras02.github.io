@@ -186,7 +186,7 @@
             </div>
             
             <!-- Current Scores Dashboard -->
-            <div id="score-dashboard" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div id="score-dashboard" class="grid gap-4">
                 <!-- Cards injected dynamically -->
             </div>
 
@@ -200,8 +200,13 @@
                     <div id="sum-indicator" class="px-5 py-2.5 bg-slate-100 rounded-xl text-lg font-bold text-slate-500 border-2 border-slate-200 transition-colors">Sum: 0</div>
                 </div>
 
-                <div id="input-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div id="input-container" class="grid gap-4 mb-8">
                     <!-- Inputs injected dynamically -->
+                </div>
+
+                <!-- ADDED: Optional Note Field -->
+                <div class="mb-6">
+                    <input type="text" id="input-note" placeholder="Optional Note (e.g., Tsumo, Ron, Stole Riichi...)" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-medium text-slate-800">
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-4" style="margin-bottom: 20px;">
@@ -234,8 +239,7 @@
                     <table class="w-full text-left border-collapse min-w-[600px]">
                         <thead>
                             <tr id="history-header" class="bg-white text-xs uppercase tracking-wider text-slate-400 border-b border-slate-100 font-bold">
-                                <th class='py-4 px-6 text-center w-16'>Rnd</th>
-                                <!-- Player headers injected dynamically -->
+                                <!-- Headers injected dynamically -->
                             </tr>
                         </thead>
                         <tbody id="history-body" class="divide-y divide-slate-50 bg-white">
@@ -324,9 +328,13 @@
                 window.clearInputs = clearInputs;
                 window.leaveRoomPrompt = handleLeaveRoom;
                 window.undoPrompt = handleUndo;
-                window.validateSum = validateSum;
                 window.openCalculator = handleOpenCalculator;
                 window.toggleGameMode = handleToggleGameMode;
+                
+                // New Action Handlers
+                window.declareRiichi = handleDeclareRiichi;
+                window.claimPot = handleClaimPot;
+                window.validateSum = validateSum;
 
             } catch (err) {
                 console.error("Init Error:", err);
@@ -385,7 +393,6 @@
             cancelBtn.onclick = () => overlay.classList.add('hidden');
         }
 
-        // --- Game Mode Toggle Logic ---
         function handleToggleGameMode() {
             const mode = document.querySelector('input[name="gameMode"]:checked').value;
             const p4Input = document.getElementById('setup-p4');
@@ -412,11 +419,8 @@
         async function handleCreateRoom() {
             if (!currentUser) return showModal("Error", "Not connected to server.", "error");
             
-            // Determine Player Count based on Game Mode selection
             const mode = document.querySelector('input[name="gameMode"]:checked').value;
             const numPlayers = parseInt(mode);
-            
-            // Grab starting score (Default falls back based on game mode if erased)
             const startScore = parseInt(document.getElementById('setup-start-score').value) || (numPlayers === 3 ? 35000 : 25000);
             
             const players = [];
@@ -452,6 +456,7 @@
                     createdAt: new Date().toISOString(),
                     startingScore: startScore,
                     players: players,
+                    pot: 0,
                     history: []
                 };
 
@@ -527,17 +532,104 @@
             });
         }
 
+        // --- NEW ACTION HANDLERS WITH NOTES ---
+        async function handleDeclareRiichi(playerId) {
+            if (!currentUser || !currentRoomCode || !localRoomState) return;
+            
+            const deltas = { [playerId]: -1000, pot: 1000 };
+            
+            const updatedPlayers = localRoomState.players.map(p => {
+                if (p.id === playerId) return { ...p, currentScore: p.currentScore - 1000 };
+                return p;
+            });
+            const updatedPot = (localRoomState.pot || 0) + 1000;
+            
+            const player = localRoomState.players.find(p => p.id === playerId);
+            const newRecord = { 
+                timestamp: new Date().toISOString(), 
+                deltas: deltas, 
+                note: `🔴 ${player.name} Riichi` 
+            };
+            
+            const updatedHistory = [...localRoomState.history, newRecord];
+            
+            try {
+                const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomCode);
+                await updateDoc(roomRef, {
+                    players: updatedPlayers,
+                    pot: updatedPot,
+                    history: updatedHistory
+                });
+            } catch (err) {
+                console.error(err);
+                showModal("Error", "Failed to declare Riichi.", "error");
+            }
+        }
+
+        function handleClaimPot(playerId) {
+            if (!localRoomState || !localRoomState.pot) {
+                return showModal("Notice", "The pot is currently empty.");
+            }
+            
+            const potAmount = localRoomState.pot;
+            const player = localRoomState.players.find(p => p.id === playerId);
+            
+            showModal("Claim Pot", `Give ${potAmount.toLocaleString()} points from the Pot to ${player.name}?`, "confirm", async () => {
+                const deltas = { [playerId]: potAmount, pot: -potAmount };
+                
+                const updatedPlayers = localRoomState.players.map(p => {
+                    if (p.id === playerId) return { ...p, currentScore: p.currentScore + potAmount };
+                    return p;
+                });
+                const updatedPot = 0;
+                
+                const newRecord = { 
+                    timestamp: new Date().toISOString(), 
+                    deltas: deltas, 
+                    note: `🏆 ${player.name} claimed Pot` 
+                };
+                const updatedHistory = [...localRoomState.history, newRecord];
+                
+                try {
+                    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomCode);
+                    await updateDoc(roomRef, {
+                        players: updatedPlayers,
+                        pot: updatedPot,
+                        history: updatedHistory
+                    });
+                } catch (err) {
+                    console.error(err);
+                    showModal("Error", "Failed to claim pot.", "error");
+                }
+            });
+        }
+
         function renderGameUI() {
             if (!localRoomState) return;
             const players = localRoomState.players;
             const history = localRoomState.history;
+            const currentPot = localRoomState.pot || 0;
             
-            // Adjust CSS grid layout automatically if it is a 3-player game
             const gridClass = players.length === 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2 md:grid-cols-4";
             DOM.scoreDashboard.className = `grid ${gridClass} gap-4`;
+            
             DOM.inputContainer.className = `grid ${gridClass} gap-4 mb-8`;
 
-            let dashHTML = '';
+            let dashHTML = `
+                <div class="col-span-full bg-slate-800 text-white rounded-2xl p-4 sm:p-5 flex justify-between items-center shadow-lg border border-slate-700 mb-2">
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <div class="bg-slate-700/50 p-2 sm:p-3 rounded-xl border border-slate-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400"><rect x="2" y="10" width="20" height="4" rx="2"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold uppercase tracking-widest text-slate-300 text-xs sm:text-sm">Table Pot (Riichi Sticks)</h3>
+                            <p class="text-[10px] sm:text-xs text-slate-400">Points available to win</p>
+                        </div>
+                    </div>
+                    <span class="text-3xl sm:text-4xl font-extrabold text-emerald-400 tracking-tight">${currentPot.toLocaleString()}</span>
+                </div>
+            `;
+            
             const maxScore = Math.max(...players.map(p => p.currentScore));
             
             players.forEach(p => {
@@ -548,19 +640,29 @@
                 const diffColor = diff > 0 ? 'text-emerald-500' : (diff < 0 ? 'text-red-500' : 'text-slate-400');
 
                 dashHTML += `
-                    <div class="bg-white rounded-2xl border ${isLeader ? 'border-emerald-300 shadow-md bg-emerald-50/30' : 'border-slate-100 shadow-sm'} p-4 sm:p-5 flex flex-col relative overflow-hidden transition-all">
+                    <div class="bg-white rounded-2xl border ${isLeader ? 'border-emerald-300 shadow-md bg-emerald-50/30' : 'border-slate-100 shadow-sm'} p-4 flex flex-col relative overflow-hidden transition-all">
                         ${isLeader ? '<div class="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">LEADER</div>' : ''}
                         <span class="text-sm font-bold text-slate-500 truncate mb-1">${p.name}</span>
                         <span class="text-2xl sm:text-3xl font-extrabold ${scoreColor} tracking-tight">${p.currentScore.toLocaleString()}</span>
-                        <div class="mt-2 text-xs font-semibold ${diffColor} bg-slate-50 px-2 py-1 rounded-md self-start border border-slate-100">
+                        <div class="mt-2 text-xs font-semibold ${diffColor} bg-slate-50 px-2 py-1 rounded-md self-start border border-slate-100 mb-4">
                             Net: ${diffStr}
+                        </div>
+                        
+                        <div class="flex gap-2 mt-auto">
+                            <button onclick="declareRiichi('${p.id}')" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold py-2 rounded-lg transition-colors active:scale-95 flex items-center justify-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Riichi
+                            </button>
+                            <button onclick="claimPot('${p.id}')" class="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-xs font-bold py-2 rounded-lg transition-colors active:scale-95 flex items-center justify-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+                                Win Pot
+                            </button>
                         </div>
                     </div>
                 `;
             });
             DOM.scoreDashboard.innerHTML = dashHTML;
 
-            // FIX: Now checks if the physical inputs match the current player count
             if (DOM.inputContainer.children.length !== players.length) {
                 let inputHTML = '';
                 players.forEach(p => {
@@ -579,15 +681,18 @@
                 });
             }
 
+            // ADDED NOTE HEADER
             let headerHTML = `<th class="py-4 px-4 text-center w-16 text-slate-400 font-extrabold">#</th>`;
             players.forEach(p => {
                 headerHTML += `<th class="py-4 px-4 text-right font-extrabold">${p.name}</th>`;
             });
+            headerHTML += `<th class="py-4 px-4 text-right font-extrabold text-emerald-600">POT</th>`;
+            headerHTML += `<th class="py-4 px-6 text-left font-extrabold text-slate-400">NOTE</th>`;
             DOM.historyHeader.innerHTML = headerHTML;
 
             let bodyHTML = '';
             if (history.length === 0) {
-                bodyHTML = `<tr><td colspan="5" class="py-12 text-center text-slate-400 font-medium italic">No rounds recorded yet.</td></tr>`;
+                bodyHTML = `<tr><td colspan="7" class="py-12 text-center text-slate-400 font-medium italic">No rounds recorded yet.</td></tr>`;
             } else {
                 [...history].reverse().forEach((record, index) => {
                     const roundNum = history.length - index;
@@ -599,6 +704,16 @@
                         const prefix = delta > 0 ? '+' : '';
                         rowHTML += `<td class="py-3 px-4 text-right ${colorClass}">${prefix}${delta === 0 ? '-' : delta.toLocaleString()}</td>`;
                     });
+                    
+                    const potDelta = record.deltas.pot || 0;
+                    const potColor = potDelta > 0 ? 'text-emerald-600 font-bold' : (potDelta < 0 ? 'text-red-500' : 'text-slate-400');
+                    const potPrefix = potDelta > 0 ? '+' : '';
+                    rowHTML += `<td class="py-3 px-4 text-right ${potColor} bg-slate-50/50 border-l border-slate-100">${potPrefix}${potDelta === 0 ? '-' : potDelta.toLocaleString()}</td>`;
+
+                    // ADDED NOTE CELL
+                    const noteText = record.note ? record.note : '';
+                    rowHTML += `<td class="py-3 px-6 text-left text-xs font-medium text-slate-500 italic">${noteText}</td>`;
+
                     rowHTML += `</tr>`;
                     bodyHTML += rowHTML;
                 });
@@ -638,6 +753,11 @@
             localRoomState.players.forEach(p => {
                 document.getElementById(`input-${p.id}`).value = '';
             });
+            
+            // Clear the note input as well
+            const noteInput = document.getElementById('input-note');
+            if (noteInput) noteInput.value = '';
+            
             validateSum();
         }
 
@@ -661,10 +781,14 @@
                 ...p,
                 currentScore: p.currentScore + deltas[p.id]
             }));
+            
+            // Grab the note value
+            const noteVal = document.getElementById('input-note').value.trim();
 
             const newHistoryRecord = {
                 timestamp: new Date().toISOString(),
-                deltas: deltas
+                deltas: deltas,
+                note: noteVal // ADDED NOTE TO RECORD
             };
 
             const updatedHistory = [...localRoomState.history, newHistoryRecord];
@@ -694,7 +818,7 @@
                 return showModal("Notice", "No rounds to undo.");
             }
 
-            showModal("Undo Round", "Are you sure you want to delete the last recorded round? This will affect all players.", "confirm", async () => {
+            showModal("Undo Round", "Are you sure you want to delete the last recorded round? This will affect all players and the Table Pot.", "confirm", async () => {
                 try {
                     const lastRecord = localRoomState.history[localRoomState.history.length - 1];
                     const deltasToRevert = lastRecord.deltas;
@@ -703,12 +827,15 @@
                         ...p,
                         currentScore: p.currentScore - (deltasToRevert[p.id] || 0)
                     }));
+                    
+                    const revertedPot = (localRoomState.pot || 0) - (deltasToRevert.pot || 0);
 
                     const revertedHistory = localRoomState.history.slice(0, -1);
 
                     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomCode);
                     await updateDoc(roomRef, {
                         players: revertedPlayers,
+                        pot: revertedPot,
                         history: revertedHistory
                     });
 
@@ -719,12 +846,10 @@
             });
         }
 
-        // --- External Calculator Redirection ---
         function handleOpenCalculator() {
             window.open('https://riichi.onecomp.one/#/calculator', '_blank');
         }
 
-        // Initialize App
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>

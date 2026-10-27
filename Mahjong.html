@@ -1,621 +1,1365 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Live Mahjong Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
 
-        /* Prevent number input arrows */
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+      /* Holographic Foil Card Effect for the Leader */
+      .leader-card {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); /* Richer gold background */
+        border-color: #f59e0b; 
+        box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3), 0 4px 6px -2px rgba(245, 158, 11, 0.15);
+        transform: translateY(-4px);
+        transition: all 0.3s ease;
+      }
+      
+      .leader-card::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -150%;
+        width: 150%; height: 100%;
+        /* TCG Holographic Rainbow/White Shine */
+        background: linear-gradient(
+          to right, 
+          rgba(255, 255, 255, 0) 0%, 
+          rgba(78, 78, 78, 0.3) 20%, 
+          rgba(255, 238, 1, 0.959) 40%, /* Cyan hint */
+          rgba(255, 255, 255, 0.9) 50%, /* Bright white center flash */
+          rgba(255, 145, 0, 0.918) 60%, /* Pink/Magenta hint */
+          rgba(255, 0, 0, 0.986) 80%, 
+          rgba(255, 255, 255, 0) 100%
+        );
+        transform: skewX(-25deg);
+        animation: foilShine 10s infinite cubic-bezier(0.5, 0, 0.5, 1);
+        pointer-events: none;
+        z-index: 1;
+      }
+      
+      @keyframes foilShine {
+        0% { left: -150%; }
+        25% { left: 200%; }
+        100% { left: 200%; }
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.3s ease-in-out forwards;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
         }
-        input[type="number"] {
-            -moz-appearance: textfield;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
+      }
+
+      .pulse-dot {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      /* Prevent number input arrows */
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
     </style>
-</head>
-<body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col">
-
-    <!-- Custom Modal Overlay -->
-    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center transform transition-all fade-in">
-            <div id="modal-icon" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"></div>
-            <h3 id="modal-title" class="text-xl font-bold text-slate-900 mb-2">Notice</h3>
-            <p id="modal-message" class="text-sm text-slate-500 mb-6">Message content</p>
-            <div id="modal-actions" class="flex gap-3 justify-center">
-                <button id="modal-cancel-btn" class="hidden flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-xl transition-colors">Cancel</button>
-                <button id="modal-confirm-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl transition-colors">OK</button>
-            </div>
+  </head>
+  <body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col">
+    <!-- Custom Modal Overlay for Alerts -->
+    <div
+      id="modal-overlay"
+      class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center transform transition-all fade-in"
+      >
+        <div
+          id="modal-icon"
+          class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"
+        ></div>
+        <h3 id="modal-title" class="text-xl font-bold text-slate-900 mb-2">
+          Notice
+        </h3>
+        <p id="modal-message" class="text-sm text-slate-500 mb-6">
+          Message content
+        </p>
+        <div id="modal-actions" class="flex gap-3 justify-center">
+          <button
+            id="modal-cancel-btn"
+            class="hidden flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-xl transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            id="modal-confirm-btn"
+            class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-xl transition-colors"
+          >
+            OK
+          </button>
         </div>
+      </div>
     </div>
 
-    <div class="max-w-5xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex-1 flex flex-col">
-        <!-- Header -->
-        <header class="text-center mb-8 relative">
-            <div id="connection-status" class="absolute top-0 right-0 flex items-center gap-2 text-xs font-semibold text-slate-400 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-200">
-                <span class="w-2 h-2 rounded-full bg-slate-300" id="status-dot"></span>
-                <span id="status-text">Connecting...</span>
-            </div>
-            
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-emerald-800 flex items-center justify-center gap-3 mt-8 sm:mt-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 120 120" class="mr-3">
-                <!-- Back Tile (Left) -->
-                <g transform="rotate(-12, 45, 60)">
-                    <!-- Base -->
-                    <rect x="20" y="20" width="50" height="75" rx="6" fill="#000000" stroke="#FFE600" stroke-width="4" stroke-linejoin="round"/>
-                    <rect x="26" y="26" width="38" height="63" rx="3" fill="none" stroke="#FFE600" stroke-width="1.5" stroke-dasharray="2 2"/>
-                    <!-- Mahjong 'Chun' Symbol -->
-                    <rect x="35" y="42" width="20" height="24" fill="none" stroke="#FFE600" stroke-width="4"/>
-                    <line x1="45" y1="32" x2="45" y2="78" stroke="#FFE600" stroke-width="4" stroke-linecap="round"/>
-                </g>
-
-                <!-- Front Tile (Right) -->
-                <g transform="rotate(8, 75, 70)">
-                    <!-- Base -->
-                    <rect x="50" y="30" width="50" height="75" rx="6" fill="#000000" stroke="#FFE600" stroke-width="4" stroke-linejoin="round"/>
-                    <rect x="56" y="36" width="38" height="63" rx="3" fill="none" stroke="#FFE600" stroke-width="1.5" />
-                    
-                    <!-- Geometric Owl Crest -->
-                    <path d="M 58 46 
-                            L 75 54 
-                            L 92 46 
-                            L 88 59
-                            L 94 63 
-                            L 85 69 
-                            L 92 74 
-                            L 75 88 
-                            L 58 74 
-                            L 65 69 
-                            L 56 63 
-                            L 62 59 
-                            Z" fill="#FFE600"/>
-                    
-                    <!-- Eyes & Beak -->
-                    <circle cx="68" cy="66" r="3.5" fill="#000000"/>
-                    <circle cx="82" cy="66" r="3.5" fill="#000000"/>
-                    <polygon points="75,70 71,78 79,78" fill="#000000"/>
-                </g>
-                </svg>
-                Riichi Tracker
-            </h1>
-        </header>
-
-        <!-- Lobby Section -->
-        <div id="lobby-section" class="bg-white rounded-3xl shadow-xl p-8 sm:p-12 border border-slate-100 max-w-md mx-auto w-full text-center">
-            <h2 class="text-2xl font-bold mb-8 text-slate-800">Join the Table</h2>
-            
-            <div class="space-y-8">
-                <button onclick="showSetup()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 text-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-                    Create New Room
-                </button>
-                
-                <div class="relative flex py-2 items-center">
-                    <div class="flex-grow border-t border-slate-200"></div>
-                    <span class="flex-shrink-0 mx-4 text-slate-400 font-medium text-sm">OR JOIN EXISTING</span>
-                    <div class="flex-grow border-t border-slate-200"></div>
-                </div>
-
-                <div class="space-y-3">
-                    <input type="text" id="join-room-code" placeholder="4-Letter Code" maxlength="4" class="uppercase w-full px-4 py-4 border-2 border-slate-200 rounded-2xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all font-mono text-2xl text-center font-bold tracking-[0.5em] text-slate-800">
-                    <button onclick="joinRoom()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 px-6 rounded-2xl shadow-md transition-all active:scale-[0.98]">
-                        Join Room
-                    </button>
-                </div>
-            </div>
+    <!-- Payout Calculator Modal -->
+    <div
+      id="payout-modal"
+      class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 transform transition-all fade-in flex flex-col max-h-[90vh]"
+      >
+        <div
+          class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4"
+        >
+          <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="text-emerald-500"
+            >
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path
+                d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+              ></path>
+            </svg>
+            Event Payouts & Margins
+          </h3>
+          <button
+            onclick="closePayoutCalculator()"
+            class="text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
 
-        <!-- Setup Section -->
-        <div id="setup-section" class="hidden bg-white rounded-3xl shadow-xl p-6 sm:p-10 border border-slate-100 max-w-2xl mx-auto w-full fade-in">
-            <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-                <h2 class="text-2xl font-bold text-slate-800">Configure Game</h2>
-                <button onclick="cancelSetup()" class="text-sm font-semibold text-slate-400 hover:text-slate-600">Cancel</button>
-            </div>
-            
-            <div class="space-y-6">
-                <!-- Game Mode Selection -->
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-3">Game Mode</label>
-                    <div class="flex gap-4">
-                        <label class="flex-1 cursor-pointer">
-                            <input type="radio" name="gameMode" value="4" class="peer hidden" checked onchange="toggleGameMode()">
-                            <div class="p-4 border-2 border-slate-200 rounded-xl peer-checked:border-emerald-500 peer-checked:bg-emerald-50 transition-all font-bold text-slate-700 text-center">4-Player (Riichi)</div>
-                        </label>
-                        <label class="flex-1 cursor-pointer">
-                            <input type="radio" name="gameMode" value="3" class="peer hidden" onchange="toggleGameMode()">
-                            <div class="p-4 border-2 border-slate-200 rounded-xl peer-checked:border-emerald-500 peer-checked:bg-emerald-50 transition-all font-bold text-slate-700 text-center">3-Player (Sanma)</div>
-                        </label>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Starting Score (Each Player)</label>
-                    <input type="number" id="setup-start-score" value="25000" class="w-full sm:w-1/2 px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-bold text-xl text-slate-800">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-3">Player Names</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <input type="text" id="setup-p1" placeholder="Player 1 (East)" value="Player 1" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700">
-                        <input type="text" id="setup-p2" placeholder="Player 2 (South)" value="Player 2" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700">
-                        <input type="text" id="setup-p3" placeholder="Player 3 (West)" value="Player 3" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700">
-                        <input type="text" id="setup-p4" placeholder="Player 4 (North)" value="Player 4" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700">
-                    </div>
-                </div>
-
-                <button onclick="createRoom()" id="create-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-4 rounded-2xl shadow-lg transition-all active:scale-[0.98] text-lg mt-8">
-                    Start Match
-                </button>
-            </div>
+        <!-- PIN PROTECT SCREEN -->
+        <div id="to-pin-screen" class="py-8 text-center space-y-4">
+          <p class="text-sm font-semibold text-slate-500">
+            Enter TO PIN Code to view financials
+          </p>
+          <input
+            type="password"
+            id="to-pin-input"
+            maxlength="4"
+            placeholder="••••"
+            onkeydown="if (event.key === 'Enter') verifyToPin();"
+            class="w-32 px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none font-mono text-2xl text-center font-bold tracking-widest text-slate-800 bg-slate-50 mx-auto block"
+          />
+          <button
+            onclick="verifyToPin()"
+            class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl transition-colors shadow-md active:scale-95"
+          >
+            Unlock
+          </button>
         </div>
 
-        <!-- Main Game Section -->
-        <div id="game-section" class="hidden space-y-6 fade-in flex-1 flex flex-col">
-            
-            <!-- Room Info Bar -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3">
-                    <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Room Code</span>
-                    <div class="bg-slate-100 text-slate-800 font-mono font-bold text-2xl px-4 py-1.5 rounded-xl tracking-widest select-all border border-slate-200" id="display-room-code">
-                        ----
-                    </div>
-                </div>
-                <button onclick="leaveRoomPrompt()" class="text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 px-4 py-2.5 rounded-xl transition-colors w-full sm:w-auto">
-                    Leave Room
-                </button>
+        <!-- CALCULATOR CONTENT (Hidden by default until unlocked) -->
+        <div
+          id="to-calc-content"
+          class="hidden flex flex-col flex-1 overflow-hidden"
+        >
+          <div class="mb-4">
+            <label
+              class="block text-sm font-bold text-slate-700 mb-2 text-center"
+              >Total Players (Entry Rp 50.000)</label
+            >
+            <div class="flex items-center justify-center gap-4">
+              <button
+                id="btn-minus-player"
+                onclick="adjustPlayers(-1)"
+                class="w-12 h-12 rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-2xl text-slate-600 flex items-center justify-center transition-colors"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                id="calc-players"
+                value="8"
+                min="4"
+                max="12"
+                oninput="updatePayoutCalc()"
+                class="w-24 px-2 py-3 border-2 border-emerald-200 rounded-xl focus:border-emerald-500 outline-none font-extrabold text-2xl text-emerald-800 text-center bg-emerald-50"
+              />
+              <button
+                id="btn-plus-player"
+                onclick="adjustPlayers(1)"
+                class="w-12 h-12 rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-2xl text-slate-600 flex items-center justify-center transition-colors"
+              >
+                +
+              </button>
             </div>
-            
-            <!-- Current Scores Dashboard -->
-            <div id="score-dashboard" class="grid gap-4">
-                <!-- Cards injected dynamically -->
+          </div>
+
+          <div class="overflow-y-auto custom-scrollbar flex-1 pr-1 mt-2">
+            <div id="calc-results" class="space-y-4">
+              <!-- Results injected via JS -->
             </div>
+          </div>
 
-            <!-- Input Round Section -->
-            <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-8 border border-slate-100">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
-                    <div>
-                        <h2 class="text-2xl font-bold text-slate-800">Record Round</h2>
-                        <p class="text-sm text-slate-500 mt-1">Enter point changes. Total sum must equal 0.</p>
-                    </div>
-                    <div id="sum-indicator" class="px-5 py-2.5 bg-slate-100 rounded-xl text-lg font-bold text-slate-500 border-2 border-slate-200 transition-colors">Sum: 0</div>
-                </div>
-
-                <div id="input-container" class="grid gap-4 mb-8">
-                    <!-- Inputs injected dynamically -->
-                </div>
-
-                <!-- ADDED: Optional Note Field -->
-                <div class="mb-6">
-                    <input type="text" id="input-note" placeholder="Optional Note (e.g., Tsumo, Ron, Stole Riichi...)" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-medium text-slate-800">
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-4" style="margin-bottom: 20px;">
-                    <button onclick="submitRound()" id="submit-btn" disabled class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-4 rounded-2xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed opacity-50 cursor-not-allowed">
-                        Submit Round
-                    </button>
-                    <button onclick="clearInputs()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-4 px-8 rounded-2xl transition-all active:scale-[0.98]">
-                        Clear
-                    </button>
-                    <button onclick="openCalculator()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-4 px-6 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h14z"/></svg>
-                        Calculator
-                    </button>
-                </div>
-            </div>
-
-            <!-- Ledger / History Section -->
-            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex-1 flex flex-col min-h-[300px]">
-                <div class="p-6 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        <svg class="pulse-dot text-emerald-500" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256"><circle cx="128" cy="128" r="96" fill="currentColor"/></svg>
-                        Match Ledger
-                    </h2>
-                    <button onclick="undoPrompt()" class="text-sm font-bold text-slate-500 hover:text-red-600 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
-                        Undo Last
-                    </button>
-                </div>
-                <div class="overflow-x-auto custom-scrollbar flex-1">
-                    <table class="w-full text-left border-collapse min-w-[600px]">
-                        <thead>
-                            <tr id="history-header" class="bg-white text-xs uppercase tracking-wider text-slate-400 border-b border-slate-100 font-bold">
-                                <!-- Headers injected dynamically -->
-                            </tr>
-                        </thead>
-                        <tbody id="history-body" class="divide-y divide-slate-50 bg-white">
-                            <!-- History rows injected dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
+          <button
+            onclick="closePayoutCalculator()"
+            class="w-full mt-6 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg active:scale-95"
+          >
+            Close Calculator
+          </button>
         </div>
+      </div>
+    </div>
+
+    <div
+      class="max-w-5xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex-1 flex flex-col"
+    >
+      <!-- Header -->
+      <header
+        class="text-center mb-8 relative flex justify-center items-center sm:block"
+      >
+        <button
+          onclick="openPayoutCalculator()"
+          class="absolute top-0 left-0 flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-3 py-1.5 rounded-full shadow-sm transition-colors border border-emerald-200 active:scale-95"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+            <rect x="9" y="9" width="6" height="6"></rect>
+            <line x1="9" y1="1" x2="9" y2="4"></line>
+            <line x1="15" y1="1" x2="15" y2="4"></line>
+            <line x1="9" y1="20" x2="9" y2="23"></line>
+            <line x1="15" y1="20" x2="15" y2="23"></line>
+            <line x1="20" y1="9" x2="23" y2="9"></line>
+            <line x1="20" y1="14" x2="23" y2="14"></line>
+            <line x1="1" y1="9" x2="4" y2="9"></line>
+            <line x1="1" y1="14" x2="4" y2="14"></line>
+          </svg>
+          TO Payouts
+        </button>
+
+        <!-- Connection Status -->
+        <div
+          id="connection-status"
+          class="absolute top-0 right-0 flex items-center gap-2 text-xs font-semibold text-slate-400 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-200 hidden sm:flex"
+        >
+          <span
+            class="w-2 h-2 rounded-full bg-slate-300"
+            id="status-dot"
+          ></span>
+          <span id="status-text">Connecting...</span>
+        </div>
+
+        <h1
+          class="text-3xl sm:text-4xl font-extrabold text-emerald-800 flex items-center justify-center gap-3 mt-10 sm:mt-0"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 120 120"
+            class="mr-3"
+          >
+            <!-- Back Tile (Left) -->
+            <g transform="rotate(-12, 45, 60)">
+              <rect
+                x="20"
+                y="20"
+                width="50"
+                height="75"
+                rx="6"
+                fill="#000000"
+                stroke="#FFE600"
+                stroke-width="4"
+                stroke-linejoin="round"
+              />
+              <rect
+                x="26"
+                y="26"
+                width="38"
+                height="63"
+                rx="3"
+                fill="none"
+                stroke="#FFE600"
+                stroke-width="1.5"
+                stroke-dasharray="2 2"
+              />
+              <rect
+                x="35"
+                y="42"
+                width="20"
+                height="24"
+                fill="none"
+                stroke="#FFE600"
+                stroke-width="4"
+              />
+              <line
+                x1="45"
+                y1="32"
+                x2="45"
+                y2="78"
+                stroke="#FFE600"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+            </g>
+            <!-- Front Tile (Right) -->
+            <g transform="rotate(8, 75, 70)">
+              <rect
+                x="50"
+                y="30"
+                width="50"
+                height="75"
+                rx="6"
+                fill="#000000"
+                stroke="#FFE600"
+                stroke-width="4"
+                stroke-linejoin="round"
+              />
+              <rect
+                x="56"
+                y="36"
+                width="38"
+                height="63"
+                rx="3"
+                fill="none"
+                stroke="#FFE600"
+                stroke-width="1.5"
+              />
+              <path
+                d="M 58 46 L 75 54 L 92 46 L 88 59 L 94 63 L 85 69 L 92 74 L 75 88 L 58 74 L 65 69 L 56 63 L 62 59 Z"
+                fill="#FFE600"
+              />
+              <circle cx="68" cy="66" r="3.5" fill="#000000" />
+              <circle cx="82" cy="66" r="3.5" fill="#000000" />
+              <polygon points="75,70 71,78 79,78" fill="#000000" />
+            </g>
+          </svg>
+          Riichi Tracker
+        </h1>
+      </header>
+
+      <!-- Lobby Section -->
+      <div
+        id="lobby-section"
+        class="bg-white rounded-3xl shadow-xl p-8 sm:p-12 border border-slate-100 max-w-md mx-auto w-full text-center"
+      >
+        <h2 class="text-2xl font-bold mb-8 text-slate-800">Join the Table</h2>
+
+        <div class="space-y-8">
+          <button
+            onclick="showSetup()"
+            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 text-lg"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Create New Room
+          </button>
+
+          <div class="relative flex py-2 items-center">
+            <div class="flex-grow border-t border-slate-200"></div>
+            <span class="flex-shrink-0 mx-4 text-slate-400 font-medium text-sm"
+              >OR JOIN EXISTING</span
+            >
+            <div class="flex-grow border-t border-slate-200"></div>
+          </div>
+
+          <div class="space-y-3">
+            <input
+              type="text"
+              id="join-room-code"
+              placeholder="4-Letter Code"
+              maxlength="4"
+              class="uppercase w-full px-4 py-4 border-2 border-slate-200 rounded-2xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all font-mono text-2xl text-center font-bold tracking-[0.5em] text-slate-800"
+            />
+            <button
+              onclick="joinRoom()"
+              class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 px-6 rounded-2xl shadow-md transition-all active:scale-[0.98]"
+            >
+              Join Room
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Setup Section -->
+      <div
+        id="setup-section"
+        class="hidden bg-white rounded-3xl shadow-xl p-6 sm:p-10 border border-slate-100 max-w-2xl mx-auto w-full fade-in"
+      >
+        <div
+          class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4"
+        >
+          <h2 class="text-2xl font-bold text-slate-800">Configure Game</h2>
+          <button
+            onclick="cancelSetup()"
+            class="text-sm font-semibold text-slate-400 hover:text-slate-600"
+          >
+            Cancel
+          </button>
+        </div>
+
+        <div class="space-y-6">
+          <!-- Game Mode Selection -->
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-3"
+              >Game Mode</label
+            >
+            <div class="flex gap-4">
+              <label class="flex-1 cursor-pointer">
+                <input
+                  type="radio"
+                  name="gameMode"
+                  value="4"
+                  class="peer hidden"
+                  checked
+                  onchange="toggleGameMode()"
+                />
+                <div
+                  class="p-4 border-2 border-slate-200 rounded-xl peer-checked:border-emerald-500 peer-checked:bg-emerald-50 transition-all font-bold text-slate-700 text-center"
+                >
+                  4-Player (Riichi)
+                </div>
+              </label>
+              <label class="flex-1 cursor-pointer">
+                <input
+                  type="radio"
+                  name="gameMode"
+                  value="3"
+                  class="peer hidden"
+                  onchange="toggleGameMode()"
+                />
+                <div
+                  class="p-4 border-2 border-slate-200 rounded-xl peer-checked:border-emerald-500 peer-checked:bg-emerald-50 transition-all font-bold text-slate-700 text-center"
+                >
+                  3-Player (Sanma)
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2"
+              >Starting Score (Each Player)</label
+            >
+            <input
+              type="number"
+              id="setup-start-score"
+              value="25000"
+              class="w-full sm:w-1/2 px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-bold text-xl text-slate-800"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-3"
+              >Player Names</label
+            >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input
+                type="text"
+                id="setup-p1"
+                placeholder="Player 1 (East)"
+                value="Player 1"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700"
+              />
+              <input
+                type="text"
+                id="setup-p2"
+                placeholder="Player 2 (South)"
+                value="Player 2"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700"
+              />
+              <input
+                type="text"
+                id="setup-p3"
+                placeholder="Player 3 (West)"
+                value="Player 3"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700"
+              />
+              <input
+                type="text"
+                id="setup-p4"
+                placeholder="Player 4 (North)"
+                value="Player 4"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 outline-none transition-all font-medium text-slate-700"
+              />
+            </div>
+          </div>
+
+          <button
+            onclick="createRoom()"
+            id="create-btn"
+            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-4 rounded-2xl shadow-lg transition-all active:scale-[0.98] text-lg mt-8"
+          >
+            Start Match
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Game Section -->
+      <div
+        id="game-section"
+        class="hidden space-y-6 fade-in flex-1 flex flex-col"
+      >
+        <!-- Room Info Bar -->
+        <div
+          class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col sm:flex-row justify-between items-center gap-4"
+        >
+          <div class="flex items-center gap-3">
+            <span
+              class="text-sm font-bold text-slate-400 uppercase tracking-wider"
+              >Room Code</span
+            >
+            <div
+              class="bg-slate-100 text-slate-800 font-mono font-bold text-2xl px-4 py-1.5 rounded-xl tracking-widest select-all border border-slate-200"
+              id="display-room-code"
+            >
+              ----
+            </div>
+          </div>
+          <button
+            onclick="leaveRoomPrompt()"
+            class="text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 px-4 py-2.5 rounded-xl transition-colors w-full sm:w-auto"
+          >
+            Leave Room
+          </button>
+        </div>
+
+        <!-- Current Scores Dashboard -->
+        <div id="score-dashboard" class="grid gap-4">
+          <!-- Cards injected dynamically -->
+        </div>
+
+        <!-- Input Round Section -->
+        <div
+          class="bg-white rounded-3xl shadow-xl p-6 sm:p-8 border border-slate-100"
+        >
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-slate-100 pb-4"
+          >
+            <div>
+              <h2 class="text-2xl font-bold text-slate-800">Record Round</h2>
+              <p class="text-sm text-slate-500 mt-1">
+                Enter point changes. Total sum must equal 0.
+              </p>
+            </div>
+            <div
+              id="sum-indicator"
+              class="px-5 py-2.5 bg-slate-100 rounded-xl text-lg font-bold text-slate-500 border-2 border-slate-200 transition-colors"
+            >
+              Sum: 0
+            </div>
+          </div>
+
+          <div id="input-container" class="grid gap-4 mb-8">
+            <!-- Inputs injected dynamically -->
+          </div>
+
+          <!-- Optional Note Field -->
+          <div class="mb-6">
+            <input
+              type="text"
+              id="input-note"
+              placeholder="Optional Note (e.g., Tsumo, Ron, Stole Riichi...)"
+              class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-medium text-slate-800"
+            />
+          </div>
+
+          <div
+            class="flex flex-col sm:flex-row gap-4"
+            style="margin-bottom: 20px"
+          >
+            <button
+              onclick="submitRound()"
+              id="submit-btn"
+              disabled
+              class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-4 rounded-2xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed opacity-50 cursor-not-allowed"
+            >
+              Submit Round
+            </button>
+            <button
+              onclick="clearInputs()"
+              class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-4 px-8 rounded-2xl transition-all active:scale-[0.98]"
+            >
+              Clear
+            </button>
+            <button
+              onclick="openCalculator()"
+              class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-4 px-6 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M4 10h12" />
+                <path d="M4 14h9" />
+                <path
+                  d="M19 6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h14z"
+                />
+              </svg>
+              Calculator
+            </button>
+          </div>
+        </div>
+
+        <!-- Ledger / History Section -->
+        <div
+          class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex-1 flex flex-col min-h-[300px]"
+        >
+          <div
+            class="p-6 bg-slate-50 border-b border-slate-100 flex justify-between items-center"
+          >
+            <h2
+              class="text-xl font-bold text-slate-800 flex items-center gap-2"
+            >
+              <svg
+                class="pulse-dot text-emerald-500"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 256 256"
+              >
+                <circle cx="128" cy="128" r="96" fill="currentColor" />
+              </svg>
+              Match Ledger
+            </h2>
+            <button
+              onclick="undoPrompt()"
+              class="text-sm font-bold text-slate-500 hover:text-red-600 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 7v6h6" />
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+              </svg>
+              Undo Last
+            </button>
+          </div>
+          <div class="overflow-x-auto custom-scrollbar flex-1">
+            <table class="w-full text-left border-collapse min-w-[600px]">
+              <thead>
+                <tr
+                  id="history-header"
+                  class="bg-white text-xs uppercase tracking-wider text-slate-400 border-b border-slate-100 font-bold"
+                >
+                  <!-- Headers injected dynamically -->
+                </tr>
+              </thead>
+              <tbody
+                id="history-body"
+                class="divide-y divide-slate-50 bg-white"
+              >
+                <!-- History rows injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        signInAnonymously,
+        signInWithCustomToken,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        setDoc,
+        updateDoc,
+        onSnapshot,
+        collection,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      const _p = ["0", "2", "0", "2"]; 
 
-        // Environment Setup
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mahjong-tracker-v1';
-        let firebaseConfig = {
-            apiKey: "AIzaSyD7J9TzZ5vrAD4nr29gX2xk-HwTQPTnYKg",
-            authDomain: "mahjong-a5267.firebaseapp.com",
-            projectId: "mahjong-a5267",
-            storageBucket: "mahjong-a5267.firebasestorage.app",
-            messagingSenderId: "379699137048",
-            appId: "1:379699137048:web:8d2c997bb7fbba87d1116d",
-            measurementId: "G-5SJV6D4R91"
+      // --- WIND SEAT HELPERS ---
+      const WINDS = ["East", "South", "West", "North"];
+      const WIND_BADGES = {
+        East: {
+          bg: "bg-red-500",
+          text: "text-white",
+          label: "🀀 East (Dealer)",
+        },
+        South: { bg: "bg-slate-100", text: "text-slate-700", label: "🀁 South" },
+        West: { bg: "bg-slate-100", text: "text-slate-700", label: "🀂 West" },
+        North: { bg: "bg-slate-100", text: "text-slate-700", label: "🀃 North" },
+      };
+
+      function getPlayerWind(playerIndex, dealerIndex, totalPlayers) {
+        const relativePos =
+          (playerIndex - dealerIndex + totalPlayers) % totalPlayers;
+        return WINDS[relativePos];
+      }
+
+      // Environment Setup
+      const appId =
+        typeof __app_id !== "undefined" ? __app_id : "mahjong-tracker-v1";
+      let firebaseConfig = {
+        apiKey: "AIzaSyD7J9TzZ5vrAD4nr29gX2xk-HwTQPTnYKg",
+        authDomain: "mahjong-a5267.firebaseapp.com",
+        projectId: "mahjong-a5267",
+        storageBucket: "mahjong-a5267.firebasestorage.app",
+        messagingSenderId: "379699137048",
+        appId: "1:379699137048:web:8d2c997bb7fbba87d1116d",
+        measurementId: "G-5SJV6D4R91",
+      };
+
+      let app, auth, db, currentUser;
+
+      // Application State
+      let currentRoomCode = null;
+      let unsubscribeRoom = null;
+      let localRoomState = null;
+
+      const DOM = {
+        lobby: document.getElementById("lobby-section"),
+        setup: document.getElementById("setup-section"),
+        game: document.getElementById("game-section"),
+        scoreDashboard: document.getElementById("score-dashboard"),
+        inputContainer: document.getElementById("input-container"),
+        historyHeader: document.getElementById("history-header"),
+        historyBody: document.getElementById("history-body"),
+        sumIndicator: document.getElementById("sum-indicator"),
+        submitBtn: document.getElementById("submit-btn"),
+        displayRoomCode: document.getElementById("display-room-code"),
+        statusDot: document.getElementById("status-dot"),
+        statusText: document.getElementById("status-text"),
+      };
+
+      async function init() {
+        try {
+          if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+            console.warn(
+              "No Firebase config found. App requires Firebase to function.",
+            );
+            updateStatus(false, "Config Missing");
+            return;
+          }
+
+          app = initializeApp(firebaseConfig);
+          auth = getAuth(app);
+          db = getFirestore(app);
+
+          if (
+            typeof __initial_auth_token !== "undefined" &&
+            __initial_auth_token
+          ) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(auth);
+          }
+
+          onAuthStateChanged(auth, (user) => {
+            if (user) {
+              currentUser = user;
+              updateStatus(true, "Online");
+            } else {
+              updateStatus(false, "Offline");
+            }
+          });
+
+          // Window Functions Attach
+          window.showSetup = () => {
+            DOM.lobby.classList.add("hidden");
+            DOM.setup.classList.remove("hidden");
+          };
+          window.cancelSetup = () => {
+            DOM.setup.classList.add("hidden");
+            DOM.lobby.classList.remove("hidden");
+          };
+          window.createRoom = handleCreateRoom;
+          window.joinRoom = handleJoinRoom;
+          window.submitRound = handleSubmitRound;
+          window.clearInputs = clearInputs;
+          window.leaveRoomPrompt = handleLeaveRoom;
+          window.undoPrompt = handleUndo;
+          window.openCalculator = handleOpenCalculator;
+          window.toggleGameMode = handleToggleGameMode;
+          window.declareRiichi = handleDeclareRiichi;
+          window.claimPot = handleClaimPot;
+          window.validateSum = validateSum;
+
+          // NEW: TO Payout Calculator
+          window.openPayoutCalculator = openPayoutCalculator;
+          window.closePayoutCalculator = closePayoutCalculator;
+          window.verifyToPin = verifyToPin;
+          window.updatePayoutCalc = updatePayoutCalc;
+          window.adjustPlayers = adjustPlayers;
+
+          // Init Calculator UI
+          updatePayoutCalc();
+        } catch (err) {
+          console.error("Init Error:", err);
+          updateStatus(false, "Connection Error");
+        }
+      }
+
+      function openPayoutCalculator() {
+          document.getElementById('payout-modal').classList.remove('hidden');
+          document.getElementById('to-pin-screen').classList.remove('hidden');
+          document.getElementById('to-calc-content').classList.add('hidden');
+          document.getElementById('to-pin-input').value = '';
+      }
+
+      function verifyToPin() {
+          const inputField = document.getElementById('to-pin-input');
+          const enteredPin = inputField.value.trim();
+          
+          if (!enteredPin) return;
+
+          // Reconstructs "0202" on the fly when you submit
+          const correctPin = _p.join('');
+
+          if (enteredPin === correctPin) {
+              document.getElementById('to-pin-screen').classList.add('hidden');
+              document.getElementById('to-calc-content').classList.remove('hidden');
+              updatePayoutCalc();
+          } else {
+              showModal("Incorrect PIN", "The code you entered is incorrect.", "error");
+              inputField.value = '';
+          }
+      }
+
+      function closePayoutCalculator() {
+        document.getElementById("payout-modal").classList.add("hidden");
+      }
+
+      function adjustPlayers(delta) {
+        const input = document.getElementById("calc-players");
+        let val = parseInt(input.value) || 4;
+
+        if (val === 4 && delta === 1) {
+          val = 6;
+        } else if (val === 6 && delta === -1) {
+          val = 4;
+        } else {
+          val += delta;
+        }
+
+        input.value = val;
+        updatePayoutCalc();
+      }
+
+      function updatePayoutCalc() {
+        const input = document.getElementById("calc-players");
+        let players = parseInt(input.value) || 4;
+
+        if (players === 5) players = 6;
+        if (players < 4) players = 4;
+        if (players > 12) players = 12;
+
+        input.value = players;
+
+        document.getElementById("btn-minus-player").style.visibility =
+          players <= 4 ? "hidden" : "visible";
+        document.getElementById("btn-plus-player").style.visibility =
+          players >= 12 ? "hidden" : "visible";
+
+        const totalIn = players * 50000;
+        const tableFund = players * 22500;
+        const storeCut = players * 7500;
+        const prizePool = players * 20000;
+
+        const predefined = {
+          4: [35000, 25000, 15000, 5000],
+          6: [50000, 35000, 20000, 15000],
+          7: [60000, 40000, 25000, 15000],
+          8: [70000, 45000, 30000, 15000],
+          9: [70000, 45000, 35000, 20000, 10000],
+          10: [75000, 50000, 35000, 25000, 15000],
+          11: [75000, 50000, 40000, 25000, 20000, 10000],
+          12: [75000, 55000, 42000, 32000, 22000, 14000],
         };
-        
-        let app, auth, db, currentUser;
-        
-        // Application State
-        let currentRoomCode = null;
-        let unsubscribeRoom = null;
-        let localRoomState = null;
 
-        const DOM = {
-            lobby: document.getElementById('lobby-section'),
-            setup: document.getElementById('setup-section'),
-            game: document.getElementById('game-section'),
-            scoreDashboard: document.getElementById('score-dashboard'),
-            inputContainer: document.getElementById('input-container'),
-            historyHeader: document.getElementById('history-header'),
-            historyBody: document.getElementById('history-body'),
-            sumIndicator: document.getElementById('sum-indicator'),
-            submitBtn: document.getElementById('submit-btn'),
-            displayRoomCode: document.getElementById('display-room-code'),
-            statusDot: document.getElementById('status-dot'),
-            statusText: document.getElementById('status-text')
+        let payouts = predefined[players];
+        let payoutHTML = "";
+
+        if (payouts) {
+          payouts.forEach((amount, index) => {
+            payoutHTML += `
+                        <div class="flex justify-between items-center bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-100">
+                            <span class="font-bold text-emerald-800">Place ${index + 1}</span>
+                            <span class="font-extrabold text-emerald-600">${amount.toLocaleString()} SC</span>
+                        </div>
+                    `;
+          });
+        }
+
+        const resultsDiv = document.getElementById("calc-results");
+        resultsDiv.innerHTML = `
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-6 space-y-3">
+                    <div class="flex justify-between text-sm items-center">
+                        <span class="text-slate-500 font-semibold">Total Event Cash</span>
+                        <span class="font-bold text-slate-700 text-lg">Rp ${totalIn.toLocaleString()}</span>
+                    </div>
+                    <hr class="border-slate-200">
+                    <div class="flex justify-between text-sm items-center">
+                        <span class="text-slate-600 font-semibold">Table Fund (45%)</span>
+                        <span class="font-extrabold text-blue-600">Rp ${tableFund.toLocaleString()}</span>
+                    </div>
+                    <div class="flex justify-between text-sm items-center">
+                        <span class="text-slate-600 font-semibold">LGS Cut (15%)</span>
+                        <span class="font-extrabold text-amber-600">Rp ${storeCut.toLocaleString()}</span>
+                    </div>
+                </div>
+                
+                <h4 class="font-bold text-slate-800 mb-3 text-lg flex items-center justify-between">
+                    Prize Pool (40%)
+                    <span class="text-emerald-600">${prizePool.toLocaleString()} SC</span>
+                </h4>
+                <div class="space-y-2">
+                    ${payoutHTML}
+                </div>
+            `;
+      }
+      // --- END TO PAYOUT CALCULATOR ---
+
+      function updateStatus(isOnline, text) {
+        DOM.statusText.textContent = text;
+        if (isOnline) {
+          DOM.statusDot.className =
+            "w-2 h-2 rounded-full bg-emerald-500 pulse-dot";
+          DOM.statusText.className = "text-emerald-600";
+        } else {
+          DOM.statusDot.className = "w-2 h-2 rounded-full bg-red-500";
+          DOM.statusText.className = "text-red-600";
+        }
+      }
+
+      function showModal(title, message, type = "info", onConfirm = null) {
+        const overlay = document.getElementById("modal-overlay");
+        document.getElementById("modal-title").textContent = title;
+        document.getElementById("modal-message").textContent = message;
+
+        const icon = document.getElementById("modal-icon");
+        const cancelBtn = document.getElementById("modal-cancel-btn");
+        const confirmBtn = document.getElementById("modal-confirm-btn");
+
+        icon.className =
+          "mx-auto flex items-center justify-center h-14 w-14 rounded-full mb-4";
+        confirmBtn.className =
+          "flex-1 font-bold py-3 px-4 rounded-xl transition-colors text-white shadow-md active:scale-95";
+        cancelBtn.className =
+          "flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl transition-colors active:scale-95";
+
+        if (type === "error") {
+          icon.classList.add("bg-red-100", "text-red-600");
+          icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+          confirmBtn.classList.add("bg-red-600", "hover:bg-red-700");
+          cancelBtn.classList.add("hidden");
+        } else if (type === "confirm") {
+          icon.classList.add("bg-amber-100", "text-amber-600");
+          icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+          confirmBtn.classList.add("bg-amber-600", "hover:bg-amber-700");
+          cancelBtn.classList.remove("hidden");
+        } else {
+          icon.classList.add("bg-emerald-100", "text-emerald-600");
+          icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+          confirmBtn.classList.add("bg-emerald-600", "hover:bg-emerald-700");
+          cancelBtn.classList.add("hidden");
+        }
+
+        overlay.classList.remove("hidden");
+
+        confirmBtn.onclick = () => {
+          overlay.classList.add("hidden");
+          if (onConfirm) onConfirm();
+        };
+        cancelBtn.onclick = () => overlay.classList.add("hidden");
+      }
+
+      function handleToggleGameMode() {
+        const mode = document.querySelector(
+          'input[name="gameMode"]:checked',
+        ).value;
+        const p4Input = document.getElementById("setup-p4");
+        const startScoreInput = document.getElementById("setup-start-score");
+
+        if (mode === "3") {
+          p4Input.classList.add("hidden");
+          startScoreInput.value = "35000";
+        } else {
+          p4Input.classList.remove("hidden");
+          startScoreInput.value = "25000";
+        }
+      }
+
+      function generateRoomCode() {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+        let result = "";
+        for (let i = 0; i < 4; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+      }
+
+      async function handleCreateRoom() {
+        if (!currentUser)
+          return showModal("Error", "Not connected to server.", "error");
+
+        const mode = document.querySelector(
+          'input[name="gameMode"]:checked',
+        ).value;
+        const numPlayers = parseInt(mode);
+        const startScore =
+          parseInt(document.getElementById("setup-start-score").value) ||
+          (numPlayers === 3 ? 35000 : 25000);
+
+        const players = [];
+
+        for (let i = 1; i <= numPlayers; i++) {
+          const name =
+            document.getElementById(`setup-p${i}`).value.trim() ||
+            `Player ${i}`;
+          players.push({
+            id: `p${i}`,
+            name: name,
+            currentScore: startScore,
+          });
+        }
+
+        const btn = document.getElementById("create-btn");
+        btn.disabled = true;
+        btn.innerHTML = "Creating...";
+
+        try {
+          let code;
+          let isUnique = false;
+          let roomRef;
+
+          while (!isUnique) {
+            code = generateRoomCode();
+            roomRef = doc(
+              db,
+              "artifacts",
+              appId,
+              "public",
+              "data",
+              "rooms",
+              code,
+            );
+            const docSnap = await getDoc(roomRef);
+            if (!docSnap.exists()) {
+              isUnique = true;
+            }
+          }
+
+          const initialData = {
+            createdAt: new Date().toISOString(),
+            startingScore: startScore,
+            players: players,
+            dealerIndex: 0,
+            pot: 0,
+            history: [],
+          };
+
+          await setDoc(roomRef, initialData);
+
+          DOM.setup.classList.add("hidden");
+          enterRoom(code);
+        } catch (err) {
+          console.error("Create room error:", err);
+          showModal("Error", "Failed to create room.", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "Start Match";
+        }
+      }
+
+      async function handleJoinRoom() {
+        if (!currentUser)
+          return showModal("Error", "Not connected to server.", "error");
+
+        const codeInput = document
+          .getElementById("join-room-code")
+          .value.toUpperCase()
+          .trim();
+        if (codeInput.length !== 4) {
+          return showModal(
+            "Invalid Code",
+            "Please enter a 4-letter room code.",
+            "error",
+          );
+        }
+
+        try {
+          const roomRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "rooms",
+            codeInput,
+          );
+          const docSnap = await getDoc(roomRef);
+
+          if (docSnap.exists()) {
+            enterRoom(codeInput);
+          } else {
+            showModal(
+              "Not Found",
+              `No active room found with code ${codeInput}.`,
+              "error",
+            );
+          }
+        } catch (err) {
+          console.error("Join room error:", err);
+          showModal("Error", "Failed to join room.", "error");
+        }
+      }
+
+      function enterRoom(code) {
+        currentRoomCode = code;
+        DOM.lobby.classList.add("hidden");
+        DOM.game.classList.remove("hidden");
+        DOM.displayRoomCode.textContent = code;
+
+        const roomRef = doc(
+          db,
+          "artifacts",
+          appId,
+          "public",
+          "data",
+          "rooms",
+          code,
+        );
+
+        unsubscribeRoom = onSnapshot(
+          roomRef,
+          (docSnap) => {
+            if (docSnap.exists()) {
+              localRoomState = docSnap.data();
+              renderGameUI();
+            } else {
+              showModal(
+                "Room Closed",
+                "This room has been deleted or closed.",
+                "error",
+                handleLeaveRoom,
+              );
+            }
+          },
+          (error) => {
+            console.error("Snapshot error:", error);
+            showModal("Sync Error", "Lost connection to the room.", "error");
+          },
+        );
+      }
+
+      function handleLeaveRoom() {
+        showModal(
+          "Leave Room?",
+          "Are you sure you want to exit? You can rejoin later using the code.",
+          "confirm",
+          () => {
+            if (unsubscribeRoom) {
+              unsubscribeRoom();
+              unsubscribeRoom = null;
+            }
+            currentRoomCode = null;
+            localRoomState = null;
+            DOM.game.classList.add("hidden");
+            DOM.lobby.classList.remove("hidden");
+            document.getElementById("join-room-code").value = "";
+          },
+        );
+      }
+
+      async function handleDeclareRiichi(playerId) {
+        if (!currentUser || !currentRoomCode || !localRoomState) return;
+
+        const deltas = { [playerId]: -1000, pot: 1000 };
+
+        const updatedPlayers = localRoomState.players.map((p) => {
+          if (p.id === playerId)
+            return { ...p, currentScore: p.currentScore - 1000 };
+          return p;
+        });
+        const updatedPot = (localRoomState.pot || 0) + 1000;
+
+        const player = localRoomState.players.find((p) => p.id === playerId);
+        const newRecord = {
+          timestamp: new Date().toISOString(),
+          deltas: deltas,
+          note: `🔴 ${player.name} Riichi`,
         };
 
-        async function init() {
-            try {
-                if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
-                    console.warn("No Firebase config found. App requires Firebase to function.");
-                    updateStatus(false, "Config Missing");
-                    return;
-                }
-                
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
+        const updatedHistory = [...localRoomState.history, newRecord];
 
-                // Authenticate
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+        try {
+          const roomRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "rooms",
+            currentRoomCode,
+          );
+          await updateDoc(roomRef, {
+            players: updatedPlayers,
+            pot: updatedPot,
+            history: updatedHistory,
+          });
+        } catch (err) {
+          console.error(err);
+          showModal("Error", "Failed to declare Riichi.", "error");
+        }
+      }
 
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        currentUser = user;
-                        updateStatus(true, "Online");
-                    } else {
-                        updateStatus(false, "Offline");
-                    }
-                });
-
-                // Attach UI Handlers to Window
-                window.showSetup = () => { DOM.lobby.classList.add('hidden'); DOM.setup.classList.remove('hidden'); };
-                window.cancelSetup = () => { DOM.setup.classList.add('hidden'); DOM.lobby.classList.remove('hidden'); };
-                window.createRoom = handleCreateRoom;
-                window.joinRoom = handleJoinRoom;
-                window.submitRound = handleSubmitRound;
-                window.clearInputs = clearInputs;
-                window.leaveRoomPrompt = handleLeaveRoom;
-                window.undoPrompt = handleUndo;
-                window.openCalculator = handleOpenCalculator;
-                window.toggleGameMode = handleToggleGameMode;
-                
-                // New Action Handlers
-                window.declareRiichi = handleDeclareRiichi;
-                window.claimPot = handleClaimPot;
-                window.validateSum = validateSum;
-
-            } catch (err) {
-                console.error("Init Error:", err);
-                updateStatus(false, "Connection Error");
-            }
+      function handleClaimPot(playerId) {
+        if (!localRoomState || !localRoomState.pot) {
+          return showModal("Notice", "The pot is currently empty.");
         }
 
-        function updateStatus(isOnline, text) {
-            DOM.statusText.textContent = text;
-            if (isOnline) {
-                DOM.statusDot.className = "w-2 h-2 rounded-full bg-emerald-500 pulse-dot";
-                DOM.statusText.className = "text-emerald-600";
-            } else {
-                DOM.statusDot.className = "w-2 h-2 rounded-full bg-red-500";
-                DOM.statusText.className = "text-red-600";
-            }
-        }
+        const potAmount = localRoomState.pot;
+        const player = localRoomState.players.find((p) => p.id === playerId);
 
-        function showModal(title, message, type = "info", onConfirm = null) {
-            const overlay = document.getElementById('modal-overlay');
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-message').textContent = message;
-            
-            const icon = document.getElementById('modal-icon');
-            const cancelBtn = document.getElementById('modal-cancel-btn');
-            const confirmBtn = document.getElementById('modal-confirm-btn');
+        showModal(
+          "Claim Pot",
+          `Give ${potAmount.toLocaleString()} points from the Pot to ${player.name}?`,
+          "confirm",
+          async () => {
+            const deltas = { [playerId]: potAmount, pot: -potAmount };
 
-            // Reset
-            icon.className = "mx-auto flex items-center justify-center h-14 w-14 rounded-full mb-4";
-            confirmBtn.className = "flex-1 font-bold py-3 px-4 rounded-xl transition-colors text-white shadow-md active:scale-95";
-            cancelBtn.className = "flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl transition-colors active:scale-95";
+            const updatedPlayers = localRoomState.players.map((p) => {
+              if (p.id === playerId)
+                return { ...p, currentScore: p.currentScore + potAmount };
+              return p;
+            });
+            const updatedPot = 0;
 
-            if (type === "error") {
-                icon.classList.add('bg-red-100', 'text-red-600');
-                icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
-                confirmBtn.classList.add('bg-red-600', 'hover:bg-red-700');
-                cancelBtn.classList.add('hidden');
-            } else if (type === "confirm") {
-                icon.classList.add('bg-amber-100', 'text-amber-600');
-                icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
-                confirmBtn.classList.add('bg-amber-600', 'hover:bg-amber-700');
-                cancelBtn.classList.remove('hidden');
-            } else {
-                icon.classList.add('bg-emerald-100', 'text-emerald-600');
-                icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-                confirmBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
-                cancelBtn.classList.add('hidden');
-            }
-
-            overlay.classList.remove('hidden');
-
-            confirmBtn.onclick = () => {
-                overlay.classList.add('hidden');
-                if (onConfirm) onConfirm();
+            const newRecord = {
+              timestamp: new Date().toISOString(),
+              deltas: deltas,
+              note: `🏆 ${player.name} claimed Pot`,
             };
-            cancelBtn.onclick = () => overlay.classList.add('hidden');
-        }
-
-        function handleToggleGameMode() {
-            const mode = document.querySelector('input[name="gameMode"]:checked').value;
-            const p4Input = document.getElementById('setup-p4');
-            const startScoreInput = document.getElementById('setup-start-score');
-            
-            if (mode === '3') {
-                p4Input.classList.add('hidden');
-                startScoreInput.value = '35000';
-            } else {
-                p4Input.classList.remove('hidden');
-                startScoreInput.value = '25000';
-            }
-        }
-
-        function generateRoomCode() {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-            let result = '';
-            for (let i = 0; i < 4; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
-
-        async function handleCreateRoom() {
-            if (!currentUser) return showModal("Error", "Not connected to server.", "error");
-            
-            const mode = document.querySelector('input[name="gameMode"]:checked').value;
-            const numPlayers = parseInt(mode);
-            const startScore = parseInt(document.getElementById('setup-start-score').value) || (numPlayers === 3 ? 35000 : 25000);
-            
-            const players = [];
-            
-            for (let i = 1; i <= numPlayers; i++) {
-                const name = document.getElementById(`setup-p${i}`).value.trim() || `Player ${i}`;
-                players.push({
-                    id: `p${i}`,
-                    name: name,
-                    currentScore: startScore
-                });
-            }
-
-            const btn = document.getElementById('create-btn');
-            btn.disabled = true;
-            btn.innerHTML = 'Creating...';
-
-            try {
-                let code;
-                let isUnique = false;
-                let roomRef;
-                
-                while (!isUnique) {
-                    code = generateRoomCode();
-                    roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', code);
-                    const docSnap = await getDoc(roomRef);
-                    if (!docSnap.exists()) {
-                        isUnique = true;
-                    }
-                }
-
-                const initialData = {
-                    createdAt: new Date().toISOString(),
-                    startingScore: startScore,
-                    players: players,
-                    pot: 0,
-                    history: []
-                };
-
-                await setDoc(roomRef, initialData);
-                
-                DOM.setup.classList.add('hidden');
-                enterRoom(code);
-
-            } catch (err) {
-                console.error("Create room error:", err);
-                showModal("Error", "Failed to create room.", "error");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Start Match';
-            }
-        }
-
-        async function handleJoinRoom() {
-            if (!currentUser) return showModal("Error", "Not connected to server.", "error");
-
-            const codeInput = document.getElementById('join-room-code').value.toUpperCase().trim();
-            if (codeInput.length !== 4) {
-                return showModal("Invalid Code", "Please enter a 4-letter room code.", "error");
-            }
-
-            try {
-                const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', codeInput);
-                const docSnap = await getDoc(roomRef);
-                
-                if (docSnap.exists()) {
-                    enterRoom(codeInput);
-                } else {
-                    showModal("Not Found", `No active room found with code ${codeInput}.`, "error");
-                }
-            } catch (err) {
-                console.error("Join room error:", err);
-                showModal("Error", "Failed to join room.", "error");
-            }
-        }
-
-        function enterRoom(code) {
-            currentRoomCode = code;
-            DOM.lobby.classList.add('hidden');
-            DOM.game.classList.remove('hidden');
-            DOM.displayRoomCode.textContent = code;
-
-            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', code);
-            
-            unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    localRoomState = docSnap.data();
-                    renderGameUI();
-                } else {
-                    showModal("Room Closed", "This room has been deleted or closed.", "error", handleLeaveRoom);
-                }
-            }, (error) => {
-                console.error("Snapshot error:", error);
-                showModal("Sync Error", "Lost connection to the room.", "error");
-            });
-        }
-
-        function handleLeaveRoom() {
-            showModal("Leave Room?", "Are you sure you want to exit? You can rejoin later using the code.", "confirm", () => {
-                if (unsubscribeRoom) {
-                    unsubscribeRoom();
-                    unsubscribeRoom = null;
-                }
-                currentRoomCode = null;
-                localRoomState = null;
-                DOM.game.classList.add('hidden');
-                DOM.lobby.classList.remove('hidden');
-                document.getElementById('join-room-code').value = '';
-            });
-        }
-
-        // --- NEW ACTION HANDLERS WITH NOTES ---
-        async function handleDeclareRiichi(playerId) {
-            if (!currentUser || !currentRoomCode || !localRoomState) return;
-            
-            const deltas = { [playerId]: -1000, pot: 1000 };
-            
-            const updatedPlayers = localRoomState.players.map(p => {
-                if (p.id === playerId) return { ...p, currentScore: p.currentScore - 1000 };
-                return p;
-            });
-            const updatedPot = (localRoomState.pot || 0) + 1000;
-            
-            const player = localRoomState.players.find(p => p.id === playerId);
-            const newRecord = { 
-                timestamp: new Date().toISOString(), 
-                deltas: deltas, 
-                note: `🔴 ${player.name} Riichi` 
-            };
-            
             const updatedHistory = [...localRoomState.history, newRecord];
-            
+
             try {
-                const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomCode);
-                await updateDoc(roomRef, {
-                    players: updatedPlayers,
-                    pot: updatedPot,
-                    history: updatedHistory
-                });
+              const roomRef = doc(
+                db,
+                "artifacts",
+                appId,
+                "public",
+                "data",
+                "rooms",
+                currentRoomCode,
+              );
+              await updateDoc(roomRef, {
+                players: updatedPlayers,
+                pot: updatedPot,
+                history: updatedHistory,
+              });
             } catch (err) {
-                console.error(err);
-                showModal("Error", "Failed to declare Riichi.", "error");
+              console.error(err);
+              showModal("Error", "Failed to claim pot.", "error");
             }
-        }
+          },
+        );
+      }
 
-        function handleClaimPot(playerId) {
-            if (!localRoomState || !localRoomState.pot) {
-                return showModal("Notice", "The pot is currently empty.");
-            }
-            
-            const potAmount = localRoomState.pot;
-            const player = localRoomState.players.find(p => p.id === playerId);
-            
-            showModal("Claim Pot", `Give ${potAmount.toLocaleString()} points from the Pot to ${player.name}?`, "confirm", async () => {
-                const deltas = { [playerId]: potAmount, pot: -potAmount };
-                
-                const updatedPlayers = localRoomState.players.map(p => {
-                    if (p.id === playerId) return { ...p, currentScore: p.currentScore + potAmount };
-                    return p;
-                });
-                const updatedPot = 0;
-                
-                const newRecord = { 
-                    timestamp: new Date().toISOString(), 
-                    deltas: deltas, 
-                    note: `🏆 ${player.name} claimed Pot` 
-                };
-                const updatedHistory = [...localRoomState.history, newRecord];
-                
-                try {
-                    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomCode);
-                    await updateDoc(roomRef, {
-                        players: updatedPlayers,
-                        pot: updatedPot,
-                        history: updatedHistory
-                    });
-                } catch (err) {
-                    console.error(err);
-                    showModal("Error", "Failed to claim pot.", "error");
-                }
-            });
-        }
+      function renderGameUI() {
+        if (!localRoomState) return;
+        const players = localRoomState.players;
+        const history = localRoomState.history;
+        const currentPot = localRoomState.pot || 0;
 
-        function renderGameUI() {
-            if (!localRoomState) return;
-            const players = localRoomState.players;
-            const history = localRoomState.history;
-            const currentPot = localRoomState.pot || 0;
-            
-            const gridClass = players.length === 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2 md:grid-cols-4";
-            DOM.scoreDashboard.className = `grid ${gridClass} gap-4`;
-            
-            DOM.inputContainer.className = `grid ${gridClass} gap-4 mb-8`;
+        const gridClass =
+          players.length === 3
+            ? "grid-cols-1 sm:grid-cols-3"
+            : "grid-cols-2 md:grid-cols-4";
+        DOM.scoreDashboard.className = `grid ${gridClass} gap-4`;
 
-            let dashHTML = `
+        DOM.inputContainer.className = `grid ${gridClass} gap-4 mb-8`;
+
+        let dashHTML = `
                 <div class="col-span-full bg-slate-800 text-white rounded-2xl p-4 sm:p-5 flex justify-between items-center shadow-lg border border-slate-700 mb-2">
                     <div class="flex items-center gap-3 sm:gap-4">
                         <div class="bg-slate-700/50 p-2 sm:p-3 rounded-xl border border-slate-600">
@@ -629,228 +1373,330 @@
                     <span class="text-3xl sm:text-4xl font-extrabold text-emerald-400 tracking-tight">${currentPot.toLocaleString()}</span>
                 </div>
             `;
-            
-            const maxScore = Math.max(...players.map(p => p.currentScore));
-            
-            players.forEach(p => {
-                const isLeader = p.currentScore === maxScore && p.currentScore > localRoomState.startingScore;
-                const scoreColor = p.currentScore < 0 ? 'text-red-500' : (isLeader ? 'text-emerald-600' : 'text-slate-800');
-                const diff = p.currentScore - localRoomState.startingScore;
-                const diffStr = diff > 0 ? `+${diff}` : (diff === 0 ? `0` : `${diff}`);
-                const diffColor = diff > 0 ? 'text-emerald-500' : (diff < 0 ? 'text-red-500' : 'text-slate-400');
 
-                dashHTML += `
-                    <div class="bg-white rounded-2xl border ${isLeader ? 'border-emerald-300 shadow-md bg-emerald-50/30' : 'border-slate-100 shadow-sm'} p-4 flex flex-col relative overflow-hidden transition-all">
-                        ${isLeader ? '<div class="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">LEADER</div>' : ''}
-                        <span class="text-sm font-bold text-slate-500 truncate mb-1">${p.name}</span>
-                        <span class="text-2xl sm:text-3xl font-extrabold ${scoreColor} tracking-tight">${p.currentScore.toLocaleString()}</span>
-                        <div class="mt-2 text-xs font-semibold ${diffColor} bg-slate-50 px-2 py-1 rounded-md self-start border border-slate-100 mb-4">
-                            Net: ${diffStr}
-                        </div>
-                        
-                        <div class="flex gap-2 mt-auto">
-                            <button onclick="declareRiichi('${p.id}')" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold py-2 rounded-lg transition-colors active:scale-95 flex items-center justify-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                Riichi
-                            </button>
-                            <button onclick="claimPot('${p.id}')" class="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-xs font-bold py-2 rounded-lg transition-colors active:scale-95 flex items-center justify-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
-                                Win Pot
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            DOM.scoreDashboard.innerHTML = dashHTML;
+        const maxScore = Math.max(...players.map((p) => p.currentScore));
 
-            if (DOM.inputContainer.children.length !== players.length) {
-                let inputHTML = '';
-                players.forEach(p => {
-                    inputHTML += `
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2 truncate">${p.name}</label>
-                            <input type="number" id="input-${p.id}" oninput="window.validateSum()" placeholder="0" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-bold text-lg text-slate-800 text-center score-input">
-                        </div>
-                    `;
-                });
-                DOM.inputContainer.innerHTML = inputHTML;
-            } else {
-                players.forEach(p => {
-                    const label = DOM.inputContainer.querySelector(`label[for="input-${p.id}"]`) || DOM.inputContainer.querySelector(`#input-${p.id}`).previousElementSibling;
-                    if(label) label.textContent = p.name;
-                });
-            }
+        const dealerIndex = localRoomState.dealerIndex || 0;
 
-            // ADDED NOTE HEADER
-            let headerHTML = `<th class="py-4 px-4 text-center w-16 text-slate-400 font-extrabold">#</th>`;
-            players.forEach(p => {
-                headerHTML += `<th class="py-4 px-4 text-right font-extrabold">${p.name}</th>`;
-            });
-            headerHTML += `<th class="py-4 px-4 text-right font-extrabold text-emerald-600">POT</th>`;
-            headerHTML += `<th class="py-4 px-6 text-left font-extrabold text-slate-400">NOTE</th>`;
-            DOM.historyHeader.innerHTML = headerHTML;
-
-            let bodyHTML = '';
-            if (history.length === 0) {
-                bodyHTML = `<tr><td colspan="7" class="py-12 text-center text-slate-400 font-medium italic">No rounds recorded yet.</td></tr>`;
-            } else {
-                [...history].reverse().forEach((record, index) => {
-                    const roundNum = history.length - index;
-                    let rowHTML = `<tr><td class="py-3 px-4 text-center font-bold text-slate-400 bg-slate-50">${roundNum}</td>`;
-                    
-                    players.forEach(p => {
-                        const delta = record.deltas[p.id] || 0;
-                        const colorClass = delta > 0 ? 'text-emerald-600 font-bold bg-emerald-50/50' : (delta < 0 ? 'text-red-500 font-semibold bg-red-50/30' : 'text-slate-400');
-                        const prefix = delta > 0 ? '+' : '';
-                        rowHTML += `<td class="py-3 px-4 text-right ${colorClass}">${prefix}${delta === 0 ? '-' : delta.toLocaleString()}</td>`;
-                    });
-                    
-                    const potDelta = record.deltas.pot || 0;
-                    const potColor = potDelta > 0 ? 'text-emerald-600 font-bold' : (potDelta < 0 ? 'text-red-500' : 'text-slate-400');
-                    const potPrefix = potDelta > 0 ? '+' : '';
-                    rowHTML += `<td class="py-3 px-4 text-right ${potColor} bg-slate-50/50 border-l border-slate-100">${potPrefix}${potDelta === 0 ? '-' : potDelta.toLocaleString()}</td>`;
-
-                    // ADDED NOTE CELL
-                    const noteText = record.note ? record.note : '';
-                    rowHTML += `<td class="py-3 px-6 text-left text-xs font-medium text-slate-500 italic">${noteText}</td>`;
-
-                    rowHTML += `</tr>`;
-                    bodyHTML += rowHTML;
-                });
-            }
-            DOM.historyBody.innerHTML = bodyHTML;
-        }
-
-        function validateSum() {
-            if (!localRoomState) return;
-            
-            let sum = 0;
-            let hasInput = false;
-            
-            localRoomState.players.forEach(p => {
-                const val = document.getElementById(`input-${p.id}`).value;
-                if (val !== '') {
-                    sum += parseInt(val) || 0;
-                    hasInput = true;
-                }
-            });
-
-            DOM.sumIndicator.textContent = `Sum: ${sum}`;
-            
-            if (hasInput && sum === 0) {
-                DOM.sumIndicator.className = "px-5 py-2.5 bg-emerald-100 rounded-xl text-lg font-bold text-emerald-700 border-2 border-emerald-200 transition-colors";
-                DOM.submitBtn.disabled = false;
-                DOM.submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else {
-                DOM.sumIndicator.className = "px-5 py-2.5 bg-red-50 rounded-xl text-lg font-bold text-red-500 border-2 border-red-100 transition-colors";
-                DOM.submitBtn.disabled = true;
-                DOM.submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-        }
-
-        function clearInputs() {
-            if (!localRoomState) return;
-            localRoomState.players.forEach(p => {
-                document.getElementById(`input-${p.id}`).value = '';
-            });
-            
-            // Clear the note input as well
-            const noteInput = document.getElementById('input-note');
-            if (noteInput) noteInput.value = '';
-            
-            validateSum();
-        }
-
-        async function handleSubmitRound() {
-            if (!currentUser || !currentRoomCode || !localRoomState) return;
-            
-            const deltas = {};
-            let sum = 0;
-            
-            localRoomState.players.forEach(p => {
-                const val = parseInt(document.getElementById(`input-${p.id}`).value) || 0;
-                deltas[p.id] = val;
-                sum += val;
-            });
-
-            if (sum !== 0) {
-                return showModal("Error", "Sum of points must be exactly 0.", "error");
-            }
-
-            const updatedPlayers = localRoomState.players.map(p => ({
-                ...p,
-                currentScore: p.currentScore + deltas[p.id]
-            }));
-            
-            // Grab the note value
-            const noteVal = document.getElementById('input-note').value.trim();
-
-            const newHistoryRecord = {
-                timestamp: new Date().toISOString(),
-                deltas: deltas,
-                note: noteVal // ADDED NOTE TO RECORD
-            };
-
-            const updatedHistory = [...localRoomState.history, newHistoryRecord];
-
-            DOM.submitBtn.disabled = true;
-            DOM.submitBtn.innerHTML = "Saving...";
-
-            try {
-                const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomCode);
-                await updateDoc(roomRef, {
-                    players: updatedPlayers,
-                    history: updatedHistory
-                });
+        players.forEach((p, idx) => {
+          const isLeader =
+            p.currentScore === maxScore &&
+            p.currentScore > localRoomState.startingScore;
+          
+          // Switch to Amber for the leader score color
+          const scoreColor =
+            p.currentScore < 0
+              ? "text-red-500"
+              : isLeader
+                ? "text-amber-600"
+                : "text-slate-800";
                 
-                clearInputs();
-            } catch (err) {
-                console.error("Submit error:", err);
-                showModal("Error", "Failed to submit round.", "error");
-            } finally {
-                DOM.submitBtn.innerHTML = "Submit Round";
-                validateSum();
-            }
+          const diff = p.currentScore - localRoomState.startingScore;
+          const diffStr = diff > 0 ? `+${diff}` : diff === 0 ? `0` : `${diff}`;
+          const diffColor =
+            diff > 0
+              ? "text-emerald-500"
+              : diff < 0
+                ? "text-red-500"
+                : "text-slate-400";
+
+          // Calculate wind badge
+          const wind = getPlayerWind(idx, dealerIndex, players.length);
+          const badge = WIND_BADGES[wind];
+
+          // Apply our new Foil Card class if they are the leader
+          const cardClass = isLeader 
+              ? "leader-card border-2 p-4 flex flex-col relative overflow-hidden rounded-2xl" 
+              : "bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col relative overflow-hidden transition-all";
+
+          // New Crown Badge for the Leader
+          const leaderBadgeHTML = isLeader ? `
+                <span class="flex items-center gap-1 bg-gradient-to-r from-amber-400 to-orange-400 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-sm border border-amber-300 z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><path d="M2 22h20v2H2v-2zm2-2l2-10 4 5 2-9 2 9 4-5 2 10H4z"/></svg>
+                    LEADER
+                </span>` : "";
+
+          // Added "z-10 relative" to contents so the shine animation passes UNDER the text/buttons
+          dashHTML += `
+        <div class="${cardClass}">
+            <div class="flex justify-between items-center mb-2 z-10 relative">
+                <span class="text-xs font-bold px-2.5 py-1 rounded-lg ${badge.bg} ${badge.text}">
+                    ${badge.label}
+                </span>
+                ${leaderBadgeHTML}
+            </div>
+            
+            <span class="text-sm font-bold text-slate-500 truncate mb-1 z-10 relative">${p.name}</span>
+            <span class="text-2xl sm:text-3xl font-extrabold ${scoreColor} tracking-tight z-10 relative">${p.currentScore.toLocaleString()}</span>
+            <div class="mt-2 text-xs font-semibold ${diffColor} bg-slate-50/90 px-2 py-1 rounded-md self-start border border-slate-200 mb-4 z-10 relative backdrop-blur-sm">
+                Net: ${diffStr}
+            </div>
+            
+            <div class="flex gap-2 mt-auto z-10 relative">
+                <button onclick="declareRiichi('${p.id}')" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold py-2 rounded-lg transition-colors active:scale-95 flex items-center justify-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Riichi
+                </button>
+                <button onclick="claimPot('${p.id}')" class="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-xs font-bold py-2 rounded-lg transition-colors active:scale-95 flex items-center justify-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+                    Win Pot
+                </button>
+            </div>
+        </div>
+    `;
+        });
+        DOM.scoreDashboard.innerHTML = dashHTML;
+
+        // Update Round Input Labels to show Wind
+        if (DOM.inputContainer.children.length !== players.length) {
+          let inputHTML = "";
+          players.forEach((p, idx) => {
+            const wind = getPlayerWind(idx, dealerIndex, players.length);
+            inputHTML += `
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2 truncate">[${wind}] ${p.name}</label>
+                <input type="number" id="input-${p.id}" oninput="window.validateSum()" placeholder="0" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-bold text-lg text-slate-800 text-center score-input">
+            </div>
+        `;
+          });
+          DOM.inputContainer.innerHTML = inputHTML;
+        } else {
+          players.forEach((p, idx) => {
+            const wind = getPlayerWind(idx, dealerIndex, players.length);
+            const label =
+              DOM.inputContainer.querySelector(`label[for="input-${p.id}"]`) ||
+              DOM.inputContainer.querySelector(`#input-${p.id}`)
+                .previousElementSibling;
+            if (label) label.textContent = `[${wind}] ${p.name}`;
+          });
         }
 
-        function handleUndo() {
-            if (!localRoomState || localRoomState.history.length === 0) {
-                return showModal("Notice", "No rounds to undo.");
-            }
+        let headerHTML = `<th class="py-4 px-4 text-center w-16 text-slate-400 font-extrabold">#</th>`;
+        players.forEach((p) => {
+          headerHTML += `<th class="py-4 px-4 text-right font-extrabold">${p.name}</th>`;
+        });
+        headerHTML += `<th class="py-4 px-4 text-right font-extrabold text-emerald-600">POT</th>`;
+        headerHTML += `<th class="py-4 px-6 text-left font-extrabold text-slate-400">NOTE</th>`;
+        DOM.historyHeader.innerHTML = headerHTML;
 
-            showModal("Undo Round", "Are you sure you want to delete the last recorded round? This will affect all players and the Table Pot.", "confirm", async () => {
-                try {
-                    const lastRecord = localRoomState.history[localRoomState.history.length - 1];
-                    const deltasToRevert = lastRecord.deltas;
+        let bodyHTML = "";
+        if (history.length === 0) {
+          bodyHTML = `<tr><td colspan="7" class="py-12 text-center text-slate-400 font-medium italic">No rounds recorded yet.</td></tr>`;
+        } else {
+          [...history].reverse().forEach((record, index) => {
+            const roundNum = history.length - index;
+            let rowHTML = `<tr><td class="py-3 px-4 text-center font-bold text-slate-400 bg-slate-50">${roundNum}</td>`;
 
-                    const revertedPlayers = localRoomState.players.map(p => ({
-                        ...p,
-                        currentScore: p.currentScore - (deltasToRevert[p.id] || 0)
-                    }));
-                    
-                    const revertedPot = (localRoomState.pot || 0) - (deltasToRevert.pot || 0);
-
-                    const revertedHistory = localRoomState.history.slice(0, -1);
-
-                    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomCode);
-                    await updateDoc(roomRef, {
-                        players: revertedPlayers,
-                        pot: revertedPot,
-                        history: revertedHistory
-                    });
-
-                } catch (err) {
-                    console.error("Undo error:", err);
-                    showModal("Error", "Failed to undo round.", "error");
-                }
+            players.forEach((p) => {
+              const delta = record.deltas[p.id] || 0;
+              const colorClass =
+                delta > 0
+                  ? "text-emerald-600 font-bold bg-emerald-50/50"
+                  : delta < 0
+                    ? "text-red-500 font-semibold bg-red-50/30"
+                    : "text-slate-400";
+              const prefix = delta > 0 ? "+" : "";
+              rowHTML += `<td class="py-3 px-4 text-right ${colorClass}">${prefix}${delta === 0 ? "-" : delta.toLocaleString()}</td>`;
             });
+
+            const potDelta = record.deltas.pot || 0;
+            const potColor =
+              potDelta > 0
+                ? "text-emerald-600 font-bold"
+                : potDelta < 0
+                  ? "text-red-500"
+                  : "text-slate-400";
+            const potPrefix = potDelta > 0 ? "+" : "";
+            rowHTML += `<td class="py-3 px-4 text-right ${potColor} bg-slate-50/50 border-l border-slate-100">${potPrefix}${potDelta === 0 ? "-" : potDelta.toLocaleString()}</td>`;
+
+            const noteText = record.note ? record.note : "";
+            rowHTML += `<td class="py-3 px-6 text-left text-xs font-medium text-slate-500 italic">${noteText}</td>`;
+
+            rowHTML += `</tr>`;
+            bodyHTML += rowHTML;
+          });
+        }
+        DOM.historyBody.innerHTML = bodyHTML;
+      }
+
+      function validateSum() {
+        if (!localRoomState) return;
+
+        let sum = 0;
+        let hasInput = false;
+
+        localRoomState.players.forEach((p) => {
+          const val = document.getElementById(`input-${p.id}`).value;
+          if (val !== "") {
+            sum += parseInt(val) || 0;
+            hasInput = true;
+          }
+        });
+
+        DOM.sumIndicator.textContent = `Sum: ${sum}`;
+
+        if (hasInput && sum === 0) {
+          DOM.sumIndicator.className =
+            "px-5 py-2.5 bg-emerald-100 rounded-xl text-lg font-bold text-emerald-700 border-2 border-emerald-200 transition-colors";
+          DOM.submitBtn.disabled = false;
+          DOM.submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        } else {
+          DOM.sumIndicator.className =
+            "px-5 py-2.5 bg-red-50 rounded-xl text-lg font-bold text-red-500 border-2 border-red-100 transition-colors";
+          DOM.submitBtn.disabled = true;
+          DOM.submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+        }
+      }
+
+      function clearInputs() {
+        if (!localRoomState) return;
+        localRoomState.players.forEach((p) => {
+          document.getElementById(`input-${p.id}`).value = "";
+        });
+
+        const noteInput = document.getElementById("input-note");
+        if (noteInput) noteInput.value = "";
+
+        validateSum();
+      }
+
+      async function handleSubmitRound() {
+        if (!currentUser || !currentRoomCode || !localRoomState) return;
+
+        const deltas = {};
+        let sum = 0;
+
+        localRoomState.players.forEach((p) => {
+          const val =
+            parseInt(document.getElementById(`input-${p.id}`).value) || 0;
+          deltas[p.id] = val;
+          sum += val;
+        });
+
+        if (sum !== 0) {
+          return showModal(
+            "Error",
+            "Sum of points must be exactly 0.",
+            "error",
+          );
         }
 
-        function handleOpenCalculator() {
-            window.open('https://riichi.onecomp.one/#/calculator', '_blank');
+        // --- DEALER ROTATION RULE ---
+        const currentDealerIdx = localRoomState.dealerIndex || 0;
+        const currentDealer = localRoomState.players[currentDealerIdx];
+        const dealerDelta = deltas[currentDealer.id] || 0;
+
+        // If East (dealer) scored <= 0, dealer moves to the next player.
+        // If East scored > 0, East stays (Renchan).
+        let nextDealerIdx = currentDealerIdx;
+        if (dealerDelta <= 0) {
+          nextDealerIdx =
+            (currentDealerIdx + 1) % localRoomState.players.length;
         }
 
-        window.addEventListener('DOMContentLoaded', init);
+        const updatedPlayers = localRoomState.players.map((p) => ({
+          ...p,
+          currentScore: p.currentScore + deltas[p.id],
+        }));
+
+        const noteVal = document.getElementById("input-note").value.trim();
+
+        const newHistoryRecord = {
+          timestamp: new Date().toISOString(),
+          deltas: deltas,
+          prevDealerIndex: currentDealerIdx, // saved to restore wind on undo
+          note: noteVal,
+        };
+
+        const updatedHistory = [...localRoomState.history, newHistoryRecord];
+
+        DOM.submitBtn.disabled = true;
+        DOM.submitBtn.innerHTML = "Saving...";
+
+        try {
+          const roomRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "rooms",
+            currentRoomCode,
+          );
+          await updateDoc(roomRef, {
+            players: updatedPlayers,
+            dealerIndex: nextDealerIdx, // <--- update dealer index in Firestore
+            history: updatedHistory,
+          });
+
+          clearInputs();
+        } catch (err) {
+          console.error("Submit error:", err);
+          showModal("Error", "Failed to submit round.", "error");
+        } finally {
+          DOM.submitBtn.innerHTML = "Submit Round";
+          validateSum();
+        }
+      }
+
+      function handleUndo() {
+        if (!localRoomState || localRoomState.history.length === 0) {
+          return showModal("Notice", "No rounds to undo.");
+        }
+
+        showModal(
+          "Undo Round",
+          "Are you sure you want to delete the last recorded round? This will affect all players and the Table Pot.",
+          "confirm",
+          async () => {
+            try {
+              const lastRecord =
+                localRoomState.history[localRoomState.history.length - 1];
+              const deltasToRevert = lastRecord.deltas;
+
+              const revertedPlayers = localRoomState.players.map((p) => ({
+                ...p,
+                currentScore: p.currentScore - (deltasToRevert[p.id] || 0),
+              }));
+
+              const revertedPot =
+                (localRoomState.pot || 0) - (deltasToRevert.pot || 0);
+              const revertedHistory = localRoomState.history.slice(0, -1);
+
+              // Revert dealer index to previous state
+              const revertedDealerIndex =
+                lastRecord.prevDealerIndex !== undefined
+                  ? lastRecord.prevDealerIndex
+                  : localRoomState.dealerIndex || 0;
+
+              const roomRef = doc(
+                db,
+                "artifacts",
+                appId,
+                "public",
+                "data",
+                "rooms",
+                currentRoomCode,
+              );
+              await updateDoc(roomRef, {
+                players: revertedPlayers,
+                dealerIndex: revertedDealerIndex, // <--- restore dealer index
+                pot: revertedPot,
+                history: revertedHistory,
+              });
+            } catch (err) {
+              console.error("Undo error:", err);
+              showModal("Error", "Failed to undo round.", "error");
+            }
+          },
+        );
+      }
+
+      function handleOpenCalculator() {
+        window.open("https://riichi.onecomp.one/#/calculator", "_blank");
+      }
+
+      window.addEventListener("DOMContentLoaded", init);
     </script>
-</body>
+  </body>
 </html>

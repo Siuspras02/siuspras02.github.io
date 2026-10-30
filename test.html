@@ -614,186 +614,188 @@
       </div>
     </div>
 
-    <!-- ADD THIS: Riichi Hand Score Calculator Modal -->
+    <!-- Riichi Hand Score Calculator Modal with Full Options & Tile Picker -->
+<div
+  id="calculator-modal"
+  class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
+>
+  <div
+    class="fade-in flex max-h-[90vh] w-full flex-col rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift sm:p-8 custom-scrollbar overflow-y-auto"
+    style="max-width: 600px;"
+  >
     <div
-      id="calculator-modal"
-      class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
+      class="mb-5 flex items-center justify-between border-b border-ink/10 pb-4 sticky top-0 bg-parchment z-20"
     >
-      <div
-        class="fade-in flex max-h-[90vh] w-full flex-col rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift sm:p-8" style="max-width: 550px;"
-      >
+      <div class="flex items-center gap-3">
         <div
-          class="mb-5 flex items-center justify-between border-b border-ink/10 pb-4"
+          class="grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-700"
         >
-          <div class="flex items-center gap-3">
-            <div
-              class="grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-700"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <rect x="4" y="2" width="16" height="20" rx="2"></rect>
-                <line x1="8" y1="6" x2="16" y2="6"></line>
-                <line x1="8" y1="11" x2="16" y2="11"></line>
-              </svg>
-            </div>
-            <div>
-              <p class="label mb-0.5">Engine</p>
-              <h3 class="font-display text-xl font-semibold text-ink">
-                Hand Score Calculator
-              </h3>
-            </div>
-          </div>
-          <button
-            onclick="closeCalculatorModal()"
-            class="grid h-9 w-9 place-items-center rounded-xl text-ink-mute hover:bg-ink/5 hover:text-ink"
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
+            <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+            <line x1="8" y1="6" x2="16" y2="6"></line>
+            <line x1="8" y1="11" x2="16" y2="11"></line>
+          </svg>
         </div>
-
-        <div class="custom-scrollbar flex-1 space-y-4 overflow-y-auto pr-1">
-          <!-- Hand input field (now populated automatically via visual picker) -->
-          <div>
-            <label class="label"
-              >Hand Tiles (Click tiles below to build hand)</label
-            >
-            <div class="flex items-center gap-2">
-              <input
-                type="text"
-                id="calc-hand"
-                value="3p,3p,4p,4p,5p,5p,6p,7p,8p,7z,7z,7z,6z,6z"
-                readonly
-                class="field px-4 py-2.5 font-mono text-sm bg-slate-50 cursor-not-allowed"
-              />
-              <button
-                onclick="clearCalcHand()"
-                class="btn btn-soft px-3 py-2 text-xs"
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-
-          <!-- VISUAL TILE PICKER BOARD -->
-          <div
-            class="rounded-2xl border border-ink/10 bg-slate-900 p-4 text-white"
-          >
-            <p
-              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
-            >
-              Manzu (Characters - m)
-            </p>
-            <div id="picker-m" class="flex flex-wrap gap-1.5 mb-2.5"></div>
-
-            <p
-              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
-            >
-              Pinzu (Circles - p)
-            </p>
-            <div id="picker-p" class="flex flex-wrap gap-1.5 mb-2.5"></div>
-
-            <p
-              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
-            >
-              Souzu (Bamboo - s)
-            </p>
-            <div id="picker-s" class="flex flex-wrap gap-1.5 mb-2.5"></div>
-
-            <p
-              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
-            >
-              Honors (Winds &amp; Dragons - z)
-            </p>
-            <div id="picker-z" class="flex flex-wrap gap-1.5"></div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="label">Win Tile (Click a tile or type code)</label>
-              <input
-                type="text"
-                id="calc-wintile"
-                value="6z"
-                class="field px-4 py-2.5 font-mono text-sm"
-              />
-            </div>
-            <div>
-              <label class="label">Win Type</label>
-              <select id="calc-wintype" class="field px-4 py-2.5 text-sm">
-                <option value="ron">Ron</option>
-                <option value="tsumo">Tsumo</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap gap-4 pt-2">
-            <label
-              class="flex items-center gap-2 text-sm font-semibold text-ink"
-              ><input
-                type="checkbox"
-                id="calc-riichi"
-                class="rounded accent-jade-600"
-              />
-              Riichi</label
-            >
-            <label
-              class="flex items-center gap-2 text-sm font-semibold text-ink"
-              ><input
-                type="checkbox"
-                id="calc-ippatsu"
-                class="rounded accent-jade-600"
-              />
-              Ippatsu</label
-            >
-          </div>
-
-          <div>
-            <label class="label">Dora Indicators</label>
-            <input
-              type="text"
-              id="calc-dora"
-              value="4p"
-              class="field px-4 py-2.5 font-mono text-sm"
-              placeholder="4p"
-            />
-          </div>
-
-          <button
-            onclick="runCalculation()"
-            class="btn btn-primary w-full py-3"
-          >
-            Calculate Score
-          </button>
-
-          <div
-            id="calc-output"
-            class="hidden mt-4 rounded-2xl border border-ink/10 bg-white p-4 space-y-2 text-sm"
-          ></div>
+        <div>
+          <p class="label mb-0.5">Engine</p>
+          <h3 class="font-display text-xl font-semibold text-ink">
+            Hand Score Calculator
+          </h3>
         </div>
       </div>
+      <button
+        onclick="closeCalculatorModal()"
+        class="grid h-9 w-9 place-items-center rounded-xl text-ink-mute hover:bg-ink/5 hover:text-ink"
+      >
+        ✕
+      </button>
     </div>
+
+    <div class="space-y-4 pr-1">
+      <div>
+        <label class="label">Hand Tiles (Click tiles below to build hand)</label>
+        <div class="flex items-center gap-2">
+          <input
+            type="text"
+            id="calc-hand"
+            value=""
+            readonly
+            placeholder="Click tiles below..."
+            class="field px-4 py-2.5 font-mono text-sm bg-slate-50 cursor-not-allowed"
+          />
+          <button
+            onclick="clearCalcHand()"
+            class="btn btn-soft px-3 py-2 text-xs"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- VISUAL TILE PICKER BOARD -->
+      <div
+        class="rounded-2xl border border-ink/10 bg-slate-900 p-4 text-white"
+      >
+        <p
+          class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
+        >
+          Manzu (Characters - m)
+        </p>
+        <div id="picker-m" class="flex flex-wrap gap-1.5 mb-2.5"></div>
+
+        <p
+          class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
+        >
+          Pinzu (Circles - p)
+        </p>
+        <div id="picker-p" class="flex flex-wrap gap-1.5 mb-2.5"></div>
+
+        <p
+          class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
+        >
+          Souzu (Bamboo - s)
+        </p>
+        <div id="picker-s" class="flex flex-wrap gap-1.5 mb-2.5"></div>
+
+        <p
+          class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
+        >
+          Honors (Winds &amp; Dragons - z)
+        </p>
+        <div id="picker-z" class="flex flex-wrap gap-1.5"></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">Win Tile</label>
+          <input
+            type="text"
+            id="calc-wintile"
+            placeholder="e.g. 6z"
+            class="field px-4 py-2.5 font-mono text-sm"
+          />
+        </div>
+        <div>
+          <label class="label">Win Type</label>
+          <select id="calc-wintype" class="field px-4 py-2.5 text-sm">
+            <option value="ron">Ron</option>
+            <option value="tsumo">Tsumo</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SEAT & ROUND WINDS -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">Seat Wind</label>
+          <select id="calc-seatwind" class="field px-4 py-2.5 text-sm">
+            <option value="1z">East (東)</option>
+            <option value="2z">South (南)</option>
+            <option value="3z">West (西)</option>
+            <option value="4z">North (北)</option>
+          </select>
+        </div>
+        <div>
+          <label class="label">Round Wind</label>
+          <select id="calc-roundwind" class="field px-4 py-2.5 text-sm">
+            <option value="1z">East (東)</option>
+            <option value="2z">South (南)</option>
+            <option value="3z">West (西)</option>
+            <option value="4z">North (北)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- COMPREHENSIVE OPTIONS CHECKBOXES -->
+      <div class="rounded-2xl border border-ink/10 bg-white p-4 space-y-3">
+        <p class="text-xs font-extrabold uppercase tracking-wider text-ink-mute">Special Hand Flags &amp; Situations</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm font-semibold text-ink">
+          <label class="flex items-center gap-2"><input type="checkbox" id="calc-riichi" class="rounded accent-jade-600" /> Riichi</label>
+          <label class="flex items-center gap-2"><input type="checkbox" id="calc-doubleriichi" class="rounded accent-jade-600" /> Double Riichi</label>
+          <label class="flex items-center gap-2"><input type="checkbox" id="calc-ippatsu" class="rounded accent-jade-600" /> Ippatsu</label>
+          <label class="flex items-center gap-2"><input type="checkbox" id="calc-afterkan" class="rounded accent-jade-600" /> After Kan (Rinshan)</label>
+          <label class="flex items-center gap-2"><input type="checkbox" id="calc-robbingkan" class="rounded accent-jade-600" /> Robbing Kan (Chankan)</label>
+          <label class="flex items-center gap-2"><input type="checkbox" id="calc-lasttile" class="rounded accent-jade-600" /> Under River (Haitei/Houtei)</label>
+          <label class="flex items-center gap-2"><input type="checkbox" id="calc-tenhou" class="rounded accent-jade-600" /> Blessing of Heaven</label>
+          <label class="flex items-center gap-2"><input type="checkbox" id="calc-chiihou" class="rounded accent-jade-600" /> Blessing of Earth</label>
+        </div>
+      </div>
+
+      <div>
+        <label class="label">Dora Indicators (comma separated)</label>
+        <input
+          type="text"
+          id="calc-dora"
+          value=""
+          class="field px-4 py-2.5 font-mono text-sm"
+          placeholder="4p, 1m"
+        />
+      </div>
+
+      <button
+        onclick="runCalculation()"
+        class="btn btn-primary w-full py-3 text-base"
+      >
+        Calculate Score
+      </button>
+
+      <div
+        id="calc-output"
+        class="hidden mt-4 rounded-2xl border border-ink/10 bg-white p-4 space-y-2 text-sm"
+      ></div>
+    </div>
+  </div>
+</div>
 
     <main
       class="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-10 pt-6 sm:px-6 sm:pt-8 lg:px-8"
@@ -2584,34 +2586,53 @@
           const hand = document
             .getElementById("calc-hand")
             .value.split(",")
-            .map((s) => s.trim());
+            .map((s) => s.trim())
+            .filter(Boolean);
           const winTile = document.getElementById("calc-wintile").value.trim();
           const winType = document.getElementById("calc-wintype").value;
+          const seatWind = document.getElementById("calc-seatwind").value;
+          const roundWind = document.getElementById("calc-roundwind").value;
+
           const riichi = document.getElementById("calc-riichi").checked;
+          const doubleRiichi = document.getElementById("calc-doubleriichi").checked;
           const ippatsu = document.getElementById("calc-ippatsu").checked;
+          const afterKan = document.getElementById("calc-afterkan").checked;
+          const robbingKan = document.getElementById("calc-robbingkan").checked;
+          const lastTile = document.getElementById("calc-lasttile").checked;
+          
+          const blessing = document.getElementById("calc-tenhou").checked ? "tenhou" : 
+                           document.getElementById("calc-chiihou").checked ? "chiihou" : null;
+
           const doraIndicators = document
             .getElementById("calc-dora")
             .value.split(",")
             .map((s) => s.trim())
             .filter(Boolean);
 
-          // Call your scoring engine function here
+          // Full argument set matching your score.js engine capabilities
           const result = RiichiScore.calculateScore({
             hand,
             winTile,
             winType,
+            seatWind,
+            roundWind,
             riichi,
+            doubleRiichi,
             ippatsu,
-            doraIndicators,
+            afterKan,
+            robbingKan,
+            lastTile,
+            blessing,
+            doraIndicators
           });
 
           const out = document.getElementById("calc-output");
           out.classList.remove("hidden");
           out.innerHTML = `
-      <p class="font-bold text-jade-700">${result.tier} · ${result.han} Han ${result.fu} Fu</p>
-      <p class="text-ink">Points to pay: <b>${result.points.toLocaleString()}</b></p>
-      <ul class="list-disc pl-4 text-xs text-ink-mute">${result.yaku.map((y) => `<li>${y.name} (${y.han} han)</li>`).join("")}</ul>
-    `;
+            <p class="font-bold text-jade-700">${result.tier || "Hand Score"} · ${result.han} Han ${result.fu} Fu</p>
+            <p class="text-ink">Points to pay: <b>${result.points ? result.points.toLocaleString() : "0"}</b></p>
+            <ul class="list-disc pl-4 text-xs text-ink-mute">${result.yaku ? result.yaku.map((y) => `<li>${y.name} (${y.han} han)</li>`).join("") : ""}</ul>
+          `;
         } catch (err) {
           alert("Error calculating score: " + err.message);
         }

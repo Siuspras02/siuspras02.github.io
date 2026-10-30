@@ -1,0 +1,2727 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0d3b2e" />
+    <meta
+      name="description"
+      content="A live riichi mahjong score tracker with real-time sync, riichi sticks, and round history."
+    />
+    <title>Riichi Tracker — Live Mahjong Scorekeeper</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: { DEFAULT: "#14231e", soft: "#3d4f47", mute: "#5f7168" },
+              ivory: "#f7f4ec",
+              parchment: "#fffdf9",
+              jade: {
+                50: "#eef7f2",
+                100: "#d7ede2",
+                200: "#b0dbc6",
+                300: "#7fc2a5",
+                400: "#4da382",
+                500: "#2f8f6b",
+                600: "#1f7355",
+                700: "#185c45",
+                800: "#144a39",
+                900: "#0e3328",
+              },
+              gold: {
+                50: "#fdf8e7",
+                100: "#f8ecc0",
+                200: "#f0d98a",
+                300: "#e5c25a",
+                400: "#d4a72c",
+                500: "#b98a17",
+                600: "#96690f",
+                700: "#7a5309",
+              },
+              felt: { DEFAULT: "#0d3b2e", light: "#155040", dark: "#082a21" },
+            },
+            fontFamily: {
+              sans: ["Manrope", "ui-sans-serif", "system-ui", "sans-serif"],
+              display: ["Fraunces", "ui-serif", "Georgia", "serif"],
+            },
+            boxShadow: {
+              soft: "0 1px 2px rgba(20,35,30,0.04), 0 12px 32px -14px rgba(20,35,30,0.18)",
+              lift: "0 2px 4px rgba(20,35,30,0.05), 0 20px 40px -18px rgba(20,35,30,0.28)",
+              glow: "0 0 0 1px rgba(212,167,44,0.35), 0 18px 40px -18px rgba(212,167,44,0.45)",
+            },
+            borderRadius: { "4xl": "2rem" },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      :root {
+        --jade: #1f7355;
+        --gold: #d4a72c;
+      }
+
+      html {
+        -webkit-text-size-adjust: 100%;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background-color: #f7f4ec;
+        background-image:
+          radial-gradient(
+            60rem 40rem at 8% -10%,
+            rgba(47, 143, 107, 0.1),
+            transparent 60%
+          ),
+          radial-gradient(
+            50rem 35rem at 100% 0%,
+            rgba(212, 167, 44, 0.1),
+            transparent 55%
+          ),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 3l3.5 13L16 29l-3.5-13z' fill='%2314231e' fill-opacity='0.022'/%3E%3C/svg%3E");
+        background-attachment: fixed;
+      }
+
+      ::selection {
+        background: #d7ede2;
+        color: #0e3328;
+      }
+
+      .font-display {
+        font-family: "Fraunces", ui-serif, Georgia, serif;
+        font-optical-sizing: auto;
+      }
+
+      .card-surface {
+        background: #fffdf9;
+        border: 1px solid rgba(20, 35, 30, 0.07);
+        box-shadow:
+          0 1px 2px rgba(20, 35, 30, 0.04),
+          0 12px 32px -14px rgba(20, 35, 30, 0.18);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-weight: 700;
+        border-radius: 0.9rem;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.2s ease,
+          background-color 0.2s ease,
+          color 0.2s ease,
+          border-color 0.2s ease;
+      }
+      .btn:active {
+        transform: scale(0.975);
+      }
+      .btn-primary {
+        background: linear-gradient(180deg, #2f8f6b, #1f7355);
+        color: #fff;
+        box-shadow:
+          0 10px 20px -10px rgba(31, 115, 85, 0.7),
+          inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      }
+      .btn-primary:hover {
+        background: linear-gradient(180deg, #37a077, #1b6a4e);
+        box-shadow: 0 14px 26px -12px rgba(31, 115, 85, 0.8);
+      }
+      .btn-dark {
+        background: linear-gradient(180deg, #1d3129, #14231e);
+        color: #fff;
+        box-shadow: 0 10px 20px -10px rgba(20, 35, 30, 0.6);
+      }
+      .btn-dark:hover {
+        background: #14231e;
+      }
+      .btn-soft {
+        background: #eef2ef;
+        color: #3d4f47;
+      }
+      .btn-soft:hover {
+        background: #e3e9e4;
+      }
+
+      .field {
+        width: 100%;
+        background: #fff;
+        border: 1.5px solid rgba(20, 35, 30, 0.12);
+        border-radius: 0.9rem;
+        color: #14231e;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s,
+          background-color 0.2s;
+      }
+      .field::placeholder {
+        color: #9aa8a1;
+      }
+      .field:hover:not(:focus) {
+        border-color: rgba(20, 35, 30, 0.22);
+      }
+      .field:focus {
+        outline: none;
+        border-color: #2f8f6b;
+        box-shadow: 0 0 0 4px rgba(47, 143, 107, 0.15);
+      }
+
+      .label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: #5f7168;
+        margin-bottom: 0.5rem;
+      }
+
+      .brand-tile {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 3rem;
+        height: 3.5rem;
+        border-radius: 0.75rem;
+        background: linear-gradient(160deg, #fdf8e7, #f0d98a 45%, #e5c25a);
+        color: #0e3328;
+        box-shadow:
+          0 6px 14px -6px rgba(20, 35, 30, 0.45),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8),
+          inset 0 -3px 0 rgba(20, 35, 30, 0.12);
+        font-family: "Fraunces", ui-serif, Georgia, serif;
+        font-weight: 700;
+        font-size: 1.6rem;
+        line-height: 1;
+        transform: rotate(-3deg);
+      }
+      .brand-tile::after {
+        content: "";
+        position: absolute;
+        inset: 0.3rem;
+        border: 1px solid rgba(20, 35, 30, 0.18);
+        border-radius: 0.4rem;
+      }
+
+      .tile-chip {
+        display: inline-grid;
+        place-items: center;
+        width: 2.1rem;
+        height: 2.6rem;
+        border-radius: 0.45rem;
+        background: #fffdf9;
+        border: 1px solid rgba(20, 35, 30, 0.12);
+        box-shadow: 0 2px 0 rgba(20, 35, 30, 0.08);
+        font-weight: 800;
+      }
+
+      .wind-mark {
+        position: absolute;
+        left: 0.85rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: grid;
+        place-items: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 0.4rem;
+        background: #eef7f2;
+        color: #185c45;
+        font-family: "Fraunces", ui-serif, Georgia, serif;
+        font-size: 0.8rem;
+        font-weight: 700;
+        pointer-events: none;
+      }
+
+      /* Leader card with a subtle foil sweep */
+      .leader-card {
+        background: linear-gradient(
+          135deg,
+          #fff9e6 0%,
+          #fdf0bf 55%,
+          #f8e6a0 100%
+        );
+        border: 1.5px solid #e5c25a;
+        box-shadow:
+          0 1px 2px rgba(20, 35, 30, 0.04),
+          0 18px 36px -18px rgba(212, 167, 44, 0.55);
+      }
+      .leader-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -150%;
+        width: 150%;
+        height: 100%;
+        background: linear-gradient(
+          to right,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.55) 45%,
+          rgba(255, 255, 255, 0.9) 50%,
+          rgba(255, 255, 255, 0.55) 55%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        transform: skewX(-25deg);
+        animation: foilShine 8s infinite cubic-bezier(0.5, 0, 0.5, 1);
+        pointer-events: none;
+        z-index: 1;
+      }
+      @keyframes foilShine {
+        0% {
+          left: -150%;
+        }
+        30% {
+          left: 200%;
+        }
+        100% {
+          left: 200%;
+        }
+      }
+
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5ce;
+        border-radius: 999px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #a9b8b0;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.3s ease-in-out forwards;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .pulse-dot {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      .ledger-table tbody tr {
+        transition: background-color 0.15s ease;
+      }
+      .ledger-table tbody tr:hover {
+        background: #fbfaf5;
+      }
+
+      /* Player dashboard / round inputs — explicit responsive grid so layout
+         never depends on dynamically generated utility classes. */
+      .player-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+      }
+      @media (min-width: 640px) {
+        .player-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .player-grid.player-grid--three {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+      @media (min-width: 768px) {
+        .player-grid:not(.player-grid--three) {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+
+      /* Prevent number input arrows */
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+
+      :focus-visible {
+        outline: 2px solid #2f8f6b;
+        outline-offset: 2px;
+      }
+      .picker-tile {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 2.2rem;
+        height: 2.8rem;
+        background: linear-gradient(145deg, #fffdf9, #f0ebd9);
+        border: 1px solid rgba(20, 35, 30, 0.2);
+        border-radius: 0.4rem;
+        box-shadow:
+          0 2px 4px rgba(0, 0, 0, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          transform 0.1s,
+          background-color 0.1s;
+      }
+      .picker-tile:hover {
+        transform: translateY(-2px);
+        background: #ffffff;
+        border-color: #2f8f6b;
+      }
+      .picker-tile:active {
+        transform: scale(0.95);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="flex min-h-screen flex-col bg-ivory font-sans text-ink antialiased"
+  >
+    <div
+      aria-hidden="true"
+      class="fixed inset-x-0 top-0 z-[60] h-1 bg-gradient-to-r from-jade-700 via-gold-300 to-jade-700"
+    ></div>
+    <!-- Custom Modal Overlay for Alerts -->
+    <div
+      id="modal-overlay"
+      class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
+    >
+      <div
+        class="fade-in w-full max-w-sm rounded-3xl border border-white/70 bg-parchment p-6 text-center shadow-lift"
+      >
+        <div
+          id="modal-icon"
+          class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
+        ></div>
+        <h3
+          id="modal-title"
+          class="font-display text-xl font-semibold text-ink"
+        >
+          Notice
+        </h3>
+        <p
+          id="modal-message"
+          class="mt-2 text-sm leading-relaxed text-ink-mute"
+        >
+          Message content
+        </p>
+        <div id="modal-actions" class="mt-6 flex justify-center gap-3">
+          <button
+            id="modal-cancel-btn"
+            class="btn btn-soft hidden flex-1 px-4 py-3 text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            id="modal-confirm-btn"
+            class="btn btn-primary flex-1 px-4 py-3 text-sm"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payout Calculator Modal -->
+    <div
+      id="payout-modal"
+      class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
+    >
+      <div
+        class="fade-in flex max-h-[95vh] w-full max-w-md flex-col rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift sm:p-8"
+      >
+        <div
+          class="mb-6 flex items-center justify-between border-b border-ink/10 pb-4"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="grid h-10 w-10 place-items-center rounded-xl bg-jade-50 text-jade-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path
+                  d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+                ></path>
+              </svg>
+            </div>
+            <div>
+              <p class="label mb-0.5">Staff only</p>
+              <h3 class="font-display text-xl font-semibold text-ink">
+                Payouts &amp; margins
+              </h3>
+            </div>
+          </div>
+          <button
+            onclick="closePayoutCalculator()"
+            aria-label="Close payout calculator"
+            class="grid h-9 w-9 place-items-center rounded-xl text-ink-mute transition-colors hover:bg-ink/5 hover:text-ink"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- PIN PROTECT SCREEN -->
+        <div id="to-pin-screen" class="space-y-4 py-8 text-center">
+          <div
+            class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-gold-50 text-gold-600"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-ink-mute">
+            Enter the TO PIN to view financials
+          </p>
+          <input
+            type="password"
+            id="to-pin-input"
+            maxlength="4"
+            placeholder="••••"
+            onkeydown="if (event.key === 'Enter') verifyToPin();"
+            class="field mx-auto block w-36 px-4 py-3 text-center font-mono text-2xl font-bold tracking-[0.4em]"
+          />
+          <button onclick="verifyToPin()" class="btn btn-primary px-8 py-3">
+            Unlock
+          </button>
+        </div>
+
+        <!-- CALCULATOR CONTENT (Hidden by default until unlocked) -->
+        <div
+          id="to-calc-content"
+          class="hidden flex flex-1 flex-col overflow-hidden"
+        >
+          <div class="mb-5 rounded-2xl border border-ink/10 bg-white/70 p-4">
+            <label class="label mb-3 text-center"
+              >Total players · Entry Rp 50.000</label
+            >
+            <div class="flex items-center justify-center gap-4">
+              <button
+                id="btn-minus-player"
+                onclick="adjustPlayers(-1)"
+                aria-label="Remove a player"
+                class="grid h-11 w-11 place-items-center rounded-xl border border-ink/10 bg-white text-xl font-bold text-ink-soft transition-colors hover:bg-ink/5"
+              >
+                −
+              </button>
+              <input
+                type="number"
+                id="calc-players"
+                value="8"
+                min="4"
+                max="12"
+                oninput="updatePayoutCalc()"
+                class="field w-24 px-2 py-2.5 text-center text-2xl font-extrabold text-jade-800"
+              />
+              <button
+                id="btn-plus-player"
+                onclick="adjustPlayers(1)"
+                aria-label="Add a player"
+                class="grid h-11 w-11 place-items-center rounded-xl border border-ink/10 bg-white text-xl font-bold text-ink-soft transition-colors hover:bg-ink/5"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div class="custom-scrollbar mt-1 flex-1 overflow-y-auto pr-1">
+            <div id="calc-results" class="space-y-4">
+              <!-- Results injected via JS -->
+            </div>
+          </div>
+
+          <button
+            onclick="closePayoutCalculator()"
+            class="btn btn-dark mt-6 w-full px-4 py-3"
+          >
+            Close calculator
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD THIS: Riichi Hand Score Calculator Modal -->
+    <div
+      id="calculator-modal"
+      class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
+    >
+      <div
+        class="fade-in flex max-h-[90vh] w-full flex-col rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift sm:p-8" style="max-width: 550px;"
+      >
+        <div
+          class="mb-5 flex items-center justify-between border-b border-ink/10 pb-4"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                <line x1="8" y1="6" x2="16" y2="6"></line>
+                <line x1="8" y1="11" x2="16" y2="11"></line>
+              </svg>
+            </div>
+            <div>
+              <p class="label mb-0.5">Engine</p>
+              <h3 class="font-display text-xl font-semibold text-ink">
+                Hand Score Calculator
+              </h3>
+            </div>
+          </div>
+          <button
+            onclick="closeCalculatorModal()"
+            class="grid h-9 w-9 place-items-center rounded-xl text-ink-mute hover:bg-ink/5 hover:text-ink"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="custom-scrollbar flex-1 space-y-4 overflow-y-auto pr-1">
+          <!-- Hand input field (now populated automatically via visual picker) -->
+          <div>
+            <label class="label"
+              >Hand Tiles (Click tiles below to build hand)</label
+            >
+            <div class="flex items-center gap-2">
+              <input
+                type="text"
+                id="calc-hand"
+                value="3p,3p,4p,4p,5p,5p,6p,7p,8p,7z,7z,7z,6z,6z"
+                readonly
+                class="field px-4 py-2.5 font-mono text-sm bg-slate-50 cursor-not-allowed"
+              />
+              <button
+                onclick="clearCalcHand()"
+                class="btn btn-soft px-3 py-2 text-xs"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <!-- VISUAL TILE PICKER BOARD -->
+          <div
+            class="rounded-2xl border border-ink/10 bg-slate-900 p-4 text-white"
+          >
+            <p
+              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
+            >
+              Manzu (Characters - m)
+            </p>
+            <div id="picker-m" class="flex flex-wrap gap-1.5 mb-2.5"></div>
+
+            <p
+              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
+            >
+              Pinzu (Circles - p)
+            </p>
+            <div id="picker-p" class="flex flex-wrap gap-1.5 mb-2.5"></div>
+
+            <p
+              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
+            >
+              Souzu (Bamboo - s)
+            </p>
+            <div id="picker-s" class="flex flex-wrap gap-1.5 mb-2.5"></div>
+
+            <p
+              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
+            >
+              Honors (Winds &amp; Dragons - z)
+            </p>
+            <div id="picker-z" class="flex flex-wrap gap-1.5"></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="label">Win Tile (Click a tile or type code)</label>
+              <input
+                type="text"
+                id="calc-wintile"
+                value="6z"
+                class="field px-4 py-2.5 font-mono text-sm"
+              />
+            </div>
+            <div>
+              <label class="label">Win Type</label>
+              <select id="calc-wintype" class="field px-4 py-2.5 text-sm">
+                <option value="ron">Ron</option>
+                <option value="tsumo">Tsumo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-4 pt-2">
+            <label
+              class="flex items-center gap-2 text-sm font-semibold text-ink"
+              ><input
+                type="checkbox"
+                id="calc-riichi"
+                class="rounded accent-jade-600"
+              />
+              Riichi</label
+            >
+            <label
+              class="flex items-center gap-2 text-sm font-semibold text-ink"
+              ><input
+                type="checkbox"
+                id="calc-ippatsu"
+                class="rounded accent-jade-600"
+              />
+              Ippatsu</label
+            >
+          </div>
+
+          <div>
+            <label class="label">Dora Indicators</label>
+            <input
+              type="text"
+              id="calc-dora"
+              value="4p"
+              class="field px-4 py-2.5 font-mono text-sm"
+              placeholder="4p"
+            />
+          </div>
+
+          <button
+            onclick="runCalculation()"
+            class="btn btn-primary w-full py-3"
+          >
+            Calculate Score
+          </button>
+
+          <div
+            id="calc-output"
+            class="hidden mt-4 rounded-2xl border border-ink/10 bg-white p-4 space-y-2 text-sm"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <main
+      class="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-10 pt-6 sm:px-6 sm:pt-8 lg:px-8"
+    >
+      <!-- Header -->
+      <header class="relative z-10 mb-8">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3 sm:gap-4">
+            <div class="brand-tile" aria-hidden="true">中</div>
+            <div>
+              <h1
+                class="font-display text-2xl font-semibold tracking-tight text-ink sm:text-3xl"
+              >
+                Riichi Tracker
+              </h1>
+              <p class="mt-0.5 text-xs font-medium text-ink-mute sm:text-sm">
+                Live scorekeeper for your mahjong table
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Connection Status -->
+            <div
+              id="connection-status"
+              class="hidden items-center gap-2 rounded-full border border-ink/10 bg-white/80 px-3 py-1.5 text-xs font-semibold text-ink-mute shadow-sm backdrop-blur sm:flex"
+            >
+              <span
+                id="status-dot"
+                class="h-2 w-2 rounded-full bg-slate-300"
+              ></span>
+              <span id="status-text">Connecting…</span>
+            </div>
+
+            <button
+              onclick="openPayoutCalculator()"
+              class="btn border border-jade-200 bg-jade-50 px-3.5 py-2 text-xs font-bold text-jade-700 hover:bg-jade-100"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                <rect x="9" y="9" width="6" height="6"></rect>
+                <line x1="9" y1="1" x2="9" y2="4"></line>
+                <line x1="15" y1="1" x2="15" y2="4"></line>
+                <line x1="9" y1="20" x2="9" y2="23"></line>
+                <line x1="15" y1="20" x2="15" y2="23"></line>
+                <line x1="20" y1="9" x2="23" y2="9"></line>
+                <line x1="20" y1="14" x2="23" y2="14"></line>
+                <line x1="1" y1="9" x2="4" y2="9"></line>
+                <line x1="1" y1="14" x2="4" y2="14"></line>
+              </svg>
+              Payouts
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Lobby Section -->
+      <div id="lobby-section" class="fade-in mx-auto w-full max-w-5xl">
+        <div class="card-surface overflow-hidden rounded-4xl">
+          <div class="grid lg:grid-cols-[1.05fr_1fr]">
+            <!-- Hero / felt panel -->
+            <div
+              class="relative overflow-hidden bg-felt p-8 text-white sm:p-10 lg:p-12"
+            >
+              <div
+                aria-hidden="true"
+                class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-jade-500/20 blur-2xl"
+              ></div>
+              <div
+                aria-hidden="true"
+                class="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-gold-400/10 blur-2xl"
+              ></div>
+              <div
+                aria-hidden="true"
+                class="pointer-events-none absolute right-6 top-8 hidden gap-2 opacity-30 sm:flex"
+              >
+                <span class="tile-chip rotate-6">東</span>
+                <span class="tile-chip -rotate-3">南</span>
+                <span class="tile-chip rotate-12">西</span>
+              </div>
+
+              <div class="relative">
+                <span
+                  class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/70"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-gold-300"></span>
+                  Riichi · Sanma · Live
+                </span>
+
+                <h2
+                  class="font-display mt-6 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl"
+                >
+                  Pull up a seat.
+                </h2>
+                <p class="mt-3 max-w-sm text-sm leading-relaxed text-white/65">
+                  Keep every hand, riichi stick, and score change in sync — no
+                  paper, no arguments, no lost points.
+                </p>
+
+                <ul class="mt-8 space-y-4 text-sm">
+                  <li class="flex items-start gap-3">
+                    <span
+                      class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/10 text-gold-200"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                        <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                        <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                      </svg>
+                    </span>
+                    <span class="text-white/80"
+                      >Real-time sync across every phone at the table</span
+                    >
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <span
+                      class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/10 text-gold-200"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 7v5l3 2"></path>
+                      </svg>
+                    </span>
+                    <span class="text-white/80"
+                      >Riichi sticks, table pot, and dealer rotation handled for
+                      you</span
+                    >
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <span
+                      class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/10 text-gold-200"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M3 7v6h6"></path>
+                        <path
+                          d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"
+                        ></path>
+                      </svg>
+                    </span>
+                    <span class="text-white/80"
+                      >A full round ledger with one-tap undo</span
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Join panel -->
+            <div class="p-8 sm:p-10 lg:p-12">
+              <p class="label">Start playing</p>
+              <h3 class="font-display text-2xl font-semibold text-ink">
+                Join the table
+              </h3>
+              <p class="mt-1 text-sm text-ink-mute">
+                Create a fresh room or enter a friend's code.
+              </p>
+
+              <button
+                onclick="showSetup()"
+                class="btn btn-primary mt-6 w-full px-6 py-4 text-base"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                Create new room
+              </button>
+
+              <div class="relative my-7 flex items-center">
+                <div class="flex-grow border-t border-ink/10"></div>
+                <span
+                  class="mx-4 flex-shrink-0 text-[10px] font-extrabold uppercase tracking-[0.18em] text-ink-mute"
+                  >or join existing</span
+                >
+                <div class="flex-grow border-t border-ink/10"></div>
+              </div>
+
+              <div class="space-y-3">
+                <label for="join-room-code" class="label">Room code</label>
+                <input
+                  type="text"
+                  id="join-room-code"
+                  placeholder="ABCD"
+                  maxlength="4"
+                  autocomplete="off"
+                  spellcheck="false"
+                  class="field px-4 py-4 text-center font-mono text-2xl font-bold uppercase tracking-[0.5em]"
+                />
+                <button
+                  onclick="joinRoom()"
+                  class="btn btn-dark w-full px-6 py-4"
+                >
+                  Join room
+                </button>
+              </div>
+
+              <p class="mt-4 text-center text-xs text-ink-mute">
+                Ask the host for the 4-letter room code.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Setup Section -->
+      <div id="setup-section" class="fade-in mx-auto hidden w-full max-w-3xl">
+        <div class="card-surface rounded-4xl p-6 sm:p-10">
+          <div
+            class="flex items-start justify-between gap-4 border-b border-ink/10 pb-6"
+          >
+            <div>
+              <p class="label mb-1">New game</p>
+              <h2
+                class="font-display text-2xl font-semibold text-ink sm:text-3xl"
+              >
+                Configure the table
+              </h2>
+              <p class="mt-1 text-sm text-ink-mute">
+                Set the format, starting score, and seats.
+              </p>
+            </div>
+            <button
+              onclick="cancelSetup()"
+              class="btn btn-soft shrink-0 px-4 py-2 text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+
+          <div class="mt-8 space-y-8">
+            <!-- Game Mode Selection -->
+            <div>
+              <span class="label">Game mode</span>
+              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <label class="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="gameMode"
+                    value="4"
+                    class="peer sr-only"
+                    checked
+                    onchange="toggleGameMode()"
+                  />
+                  <div
+                    class="rounded-2xl border-2 border-ink/10 bg-white p-4 transition-all hover:border-ink/20 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:shadow-soft"
+                  >
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="font-extrabold text-ink">4-player</span>
+                      <span
+                        class="rounded-full bg-jade-100 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-jade-700"
+                        >Riichi</span
+                      >
+                    </div>
+                    <p class="mt-1 text-xs text-ink-mute">
+                      East · South · West · North
+                    </p>
+                  </div>
+                </label>
+
+                <label class="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="gameMode"
+                    value="3"
+                    class="peer sr-only"
+                    onchange="toggleGameMode()"
+                  />
+                  <div
+                    class="rounded-2xl border-2 border-ink/10 bg-white p-4 transition-all hover:border-ink/20 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:shadow-soft"
+                  >
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="font-extrabold text-ink">3-player</span>
+                      <span
+                        class="rounded-full bg-gold-100 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-gold-700"
+                        >Sanma</span
+                      >
+                    </div>
+                    <p class="mt-1 text-xs text-ink-mute">
+                      East · South · West
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Starting score -->
+            <div>
+              <label for="setup-start-score" class="label"
+                >Starting score (each player)</label
+              >
+              <div class="relative max-w-xs">
+                <input
+                  type="number"
+                  id="setup-start-score"
+                  value="25000"
+                  class="field px-4 py-3 pr-14 text-lg font-bold"
+                />
+                <span
+                  class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs font-extrabold text-ink-mute"
+                  >pts</span
+                >
+              </div>
+              <p class="mt-1.5 text-xs text-ink-mute">
+                Default: 25,000 for 4-player, 35,000 for sanma.
+              </p>
+            </div>
+
+            <!-- Player names -->
+            <div>
+              <span class="label">Player names</span>
+              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div class="relative">
+                  <span class="wind-mark">東</span>
+                  <input
+                    type="text"
+                    id="setup-p1"
+                    placeholder="Player 1"
+                    value="Player 1"
+                    class="field py-3 pl-12 pr-4 font-medium"
+                  />
+                </div>
+                <div class="relative">
+                  <span class="wind-mark">南</span>
+                  <input
+                    type="text"
+                    id="setup-p2"
+                    placeholder="Player 2"
+                    value="Player 2"
+                    class="field py-3 pl-12 pr-4 font-medium"
+                  />
+                </div>
+                <div class="relative">
+                  <span class="wind-mark">西</span>
+                  <input
+                    type="text"
+                    id="setup-p3"
+                    placeholder="Player 3"
+                    value="Player 3"
+                    class="field py-3 pl-12 pr-4 font-medium"
+                  />
+                </div>
+                <div id="setup-p4-wrap" class="relative">
+                  <span class="wind-mark">北</span>
+                  <input
+                    type="text"
+                    id="setup-p4"
+                    placeholder="Player 4"
+                    value="Player 4"
+                    class="field py-3 pl-12 pr-4 font-medium"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              onclick="createRoom()"
+              id="create-btn"
+              class="btn btn-primary w-full px-4 py-4 text-base"
+            >
+              Start match
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Game Section -->
+      <div
+        id="game-section"
+        class="fade-in hidden flex flex-1 flex-col space-y-6"
+      >
+        <!-- Room Info Bar -->
+        <div
+          class="card-surface flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div class="flex items-center gap-3">
+            <span
+              class="grid h-10 w-10 place-items-center rounded-xl bg-jade-50 text-jade-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18" />
+              </svg>
+            </span>
+            <div>
+              <p class="label mb-0.5">Room code</p>
+              <div class="flex items-center gap-2">
+                <span
+                  id="display-room-code"
+                  class="select-all font-mono text-xl font-extrabold tracking-[0.35em] text-ink"
+                  >----</span
+                >
+                <button
+                  id="copy-room-btn"
+                  onclick="copyRoomCode()"
+                  aria-label="Copy room code"
+                  class="grid h-8 w-8 place-items-center rounded-lg text-ink-mute transition-colors hover:bg-ink/5 hover:text-jade-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect
+                      x="9"
+                      y="9"
+                      width="13"
+                      height="13"
+                      rx="2"
+                      ry="2"
+                    ></rect>
+                    <path
+                      d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <button
+            onclick="leaveRoomPrompt()"
+            class="btn w-full border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700 hover:bg-red-100 sm:w-auto"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Leave room
+          </button>
+        </div>
+
+        <!-- Current Scores Dashboard -->
+        <div id="score-dashboard" class="grid gap-4">
+          <!-- Cards injected dynamically -->
+        </div>
+
+        <!-- Input Round Section -->
+        <div class="card-surface rounded-3xl p-6 sm:p-8">
+          <div
+            class="flex flex-col gap-4 border-b border-ink/10 pb-5 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div>
+              <p class="label mb-1">This hand</p>
+              <h2 class="font-display text-2xl font-semibold text-ink">
+                Record a round
+              </h2>
+              <p class="mt-1 text-sm text-ink-mute">
+                Enter point changes — the total must equal zero.
+              </p>
+            </div>
+            <div
+              id="sum-indicator"
+              class="rounded-xl border-2 border-ink/10 bg-white px-5 py-2.5 text-lg font-extrabold tabular-nums text-ink-mute transition-colors"
+            >
+              Sum: 0
+            </div>
+          </div>
+
+          <div id="input-container" class="mt-6 grid gap-4">
+            <!-- Inputs injected dynamically -->
+          </div>
+
+          <!-- Optional Note Field -->
+          <div class="mt-6">
+            <label for="input-note" class="label">Note</label>
+            <div class="relative">
+              <span
+                class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-mute"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  ></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="input-note"
+                placeholder="e.g. Tsumo, Ron, riichi stick…"
+                class="field py-3 pl-11 pr-4 font-medium"
+              />
+            </div>
+          </div>
+
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+            <button
+              onclick="submitRound()"
+              id="submit-btn"
+              disabled
+              class="btn btn-primary flex-1 px-4 py-4 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Submit round
+            </button>
+            <button onclick="clearInputs()" class="btn btn-soft px-8 py-4">
+              Clear
+            </button>
+            <button
+              onclick="openCalculatorModal()()"
+              class="btn border border-indigo-200 bg-indigo-50 px-5 py-4 text-indigo-700 hover:bg-indigo-100"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                <line x1="8" y1="6" x2="16" y2="6"></line>
+                <line x1="8" y1="11" x2="8" y2="11"></line>
+                <line x1="12" y1="11" x2="12" y2="11"></line>
+                <line x1="16" y1="11" x2="16" y2="11"></line>
+                <line x1="8" y1="16" x2="8" y2="16"></line>
+                <line x1="12" y1="16" x2="12" y2="16"></line>
+                <line x1="16" y1="16" x2="16" y2="16"></line>
+              </svg>
+              Calculator
+            </button>
+            <button
+              onclick="openCalculator()"
+              class="btn border border-indigo-200 bg-indigo-50 px-5 py-4 text-indigo-700 hover:bg-indigo-100"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                <line x1="8" y1="6" x2="16" y2="6"></line>
+                <line x1="8" y1="11" x2="8" y2="11"></line>
+                <line x1="12" y1="11" x2="12" y2="11"></line>
+                <line x1="16" y1="11" x2="16" y2="11"></line>
+                <line x1="8" y1="16" x2="8" y2="16"></line>
+                <line x1="12" y1="16" x2="12" y2="16"></line>
+                <line x1="16" y1="16" x2="16" y2="16"></line>
+              </svg>
+              Calculator 3rd party
+            </button>
+          </div>
+        </div>
+
+        <!-- Ledger / History Section -->
+        <div
+          class="card-surface flex min-h-[300px] flex-1 flex-col overflow-hidden rounded-3xl"
+        >
+          <div
+            class="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 px-6 py-5"
+          >
+            <div>
+              <p class="label mb-1">Match history</p>
+              <h2
+                class="font-display flex items-center gap-2 text-xl font-semibold text-ink"
+              >
+                Match ledger
+                <span
+                  id="round-count"
+                  class="rounded-full bg-jade-50 px-2 py-0.5 text-[11px] font-extrabold text-jade-700"
+                  >0</span
+                >
+              </h2>
+            </div>
+            <button
+              onclick="undoPrompt()"
+              class="btn px-3 py-1.5 text-sm text-ink-mute hover:bg-red-50 hover:text-red-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 7v6h6" />
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+              </svg>
+              Undo last
+            </button>
+          </div>
+          <div class="custom-scrollbar flex-1 overflow-x-auto">
+            <table
+              class="ledger-table w-full min-w-[640px] border-collapse text-left"
+            >
+              <thead>
+                <tr
+                  id="history-header"
+                  class="border-b border-ink/10 bg-white text-[10px] font-extrabold uppercase tracking-[0.12em] text-ink-mute"
+                >
+                  <!-- Headers injected dynamically -->
+                </tr>
+              </thead>
+              <tbody id="history-body" class="divide-y divide-ink/5 bg-white">
+                <!-- History rows injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer
+      class="mx-auto w-full max-w-6xl px-4 pb-8 text-center text-xs text-ink-mute sm:px-6 lg:px-8"
+    >
+      Riichi Tracker · scores sync live · play fair, have fun
+    </footer>
+
+    <script type="module">
+      import { calculateScore } from "./riichi/score.js";
+      window.RiichiScore = { calculateScore };
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        signInAnonymously,
+        signInWithCustomToken,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        setDoc,
+        updateDoc,
+        onSnapshot,
+        collection,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      const _p = ["0", "2", "0", "2"];
+
+      // --- WIND SEAT HELPERS ---
+      const WINDS = ["East", "South", "West", "North"];
+      const WIND_BADGES = {
+        East: {
+          bg: "bg-red-50 border border-red-200",
+          text: "text-red-700",
+          label: "East · Dealer",
+          kanji: "東",
+        },
+        South: {
+          bg: "bg-jade-50 border border-jade-200",
+          text: "text-jade-700",
+          label: "South",
+          kanji: "南",
+        },
+        West: {
+          bg: "bg-indigo-50 border border-indigo-200",
+          text: "text-indigo-700",
+          label: "West",
+          kanji: "西",
+        },
+        North: {
+          bg: "bg-slate-100 border border-slate-200",
+          text: "text-slate-600",
+          label: "North",
+          kanji: "北",
+        },
+      };
+
+      function getPlayerWind(playerIndex, dealerIndex, totalPlayers) {
+        const relativePos =
+          (playerIndex - dealerIndex + totalPlayers) % totalPlayers;
+        return WINDS[relativePos];
+      }
+
+      // Environment Setup
+      const appId =
+        typeof __app_id !== "undefined" ? __app_id : "mahjong-tracker-v1";
+      let firebaseConfig = {
+        apiKey: "AIzaSyD7J9TzZ5vrAD4nr29gX2xk-HwTQPTnYKg",
+        authDomain: "mahjong-a5267.firebaseapp.com",
+        projectId: "mahjong-a5267",
+        storageBucket: "mahjong-a5267.firebasestorage.app",
+        messagingSenderId: "379699137048",
+        appId: "1:379699137048:web:8d2c997bb7fbba87d1116d",
+        measurementId: "G-5SJV6D4R91",
+      };
+
+      let app, auth, db, currentUser;
+
+      // Application State
+      let currentRoomCode = null;
+      let unsubscribeRoom = null;
+      let localRoomState = null;
+
+      const DOM = {
+        lobby: document.getElementById("lobby-section"),
+        setup: document.getElementById("setup-section"),
+        game: document.getElementById("game-section"),
+        scoreDashboard: document.getElementById("score-dashboard"),
+        inputContainer: document.getElementById("input-container"),
+        historyHeader: document.getElementById("history-header"),
+        historyBody: document.getElementById("history-body"),
+        sumIndicator: document.getElementById("sum-indicator"),
+        submitBtn: document.getElementById("submit-btn"),
+        displayRoomCode: document.getElementById("display-room-code"),
+        roundCount: document.getElementById("round-count"),
+        statusDot: document.getElementById("status-dot"),
+        statusText: document.getElementById("status-text"),
+      };
+
+      async function init() {
+        try {
+          if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+            console.warn(
+              "No Firebase config found. App requires Firebase to function.",
+            );
+            updateStatus(false, "Config Missing");
+            return;
+          }
+
+          app = initializeApp(firebaseConfig);
+          auth = getAuth(app);
+          db = getFirestore(app);
+
+          if (
+            typeof __initial_auth_token !== "undefined" &&
+            __initial_auth_token
+          ) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(auth);
+          }
+
+          onAuthStateChanged(auth, (user) => {
+            if (user) {
+              currentUser = user;
+              updateStatus(true, "Online");
+            } else {
+              updateStatus(false, "Offline");
+            }
+          });
+
+          // Window Functions Attach
+          window.showSetup = () => {
+            DOM.lobby.classList.add("hidden");
+            DOM.setup.classList.remove("hidden");
+          };
+          window.cancelSetup = () => {
+            DOM.setup.classList.add("hidden");
+            DOM.lobby.classList.remove("hidden");
+          };
+          window.createRoom = handleCreateRoom;
+          window.joinRoom = handleJoinRoom;
+          window.submitRound = handleSubmitRound;
+          window.clearInputs = clearInputs;
+          window.leaveRoomPrompt = handleLeaveRoom;
+          window.undoPrompt = handleUndo;
+          window.openCalculator = handleOpenCalculator;
+          window.toggleGameMode = handleToggleGameMode;
+          window.declareRiichi = handleDeclareRiichi;
+          window.claimPot = handleClaimPot;
+          window.validateSum = validateSum;
+          window.copyRoomCode = copyRoomCode;
+
+          // NEW: TO Payout Calculator
+          window.openPayoutCalculator = openPayoutCalculator;
+          window.closePayoutCalculator = closePayoutCalculator;
+          window.verifyToPin = verifyToPin;
+          window.updatePayoutCalc = updatePayoutCalc;
+          window.adjustPlayers = adjustPlayers;
+
+          // Init Calculator UI
+          updatePayoutCalc();
+        } catch (err) {
+          console.error("Init Error:", err);
+          updateStatus(false, "Connection Error");
+        }
+      }
+
+      function openPayoutCalculator() {
+        document.getElementById("payout-modal").classList.remove("hidden");
+        document.getElementById("to-pin-screen").classList.remove("hidden");
+        document.getElementById("to-calc-content").classList.add("hidden");
+        document.getElementById("to-pin-input").value = "";
+      }
+
+      function verifyToPin() {
+        const inputField = document.getElementById("to-pin-input");
+        const enteredPin = inputField.value.trim();
+
+        if (!enteredPin) return;
+
+        // Reconstructs "0202" on the fly when you submit
+        const correctPin = _p.join("");
+
+        if (enteredPin === correctPin) {
+          document.getElementById("to-pin-screen").classList.add("hidden");
+          document.getElementById("to-calc-content").classList.remove("hidden");
+          updatePayoutCalc();
+        } else {
+          showModal(
+            "Incorrect PIN",
+            "The code you entered is incorrect.",
+            "error",
+          );
+          inputField.value = "";
+        }
+      }
+
+      function closePayoutCalculator() {
+        document.getElementById("payout-modal").classList.add("hidden");
+      }
+
+      function adjustPlayers(delta) {
+        const input = document.getElementById("calc-players");
+        let val = parseInt(input.value) || 4;
+
+        if (val === 4 && delta === 1) {
+          val = 6;
+        } else if (val === 6 && delta === -1) {
+          val = 4;
+        } else {
+          val += delta;
+        }
+
+        input.value = val;
+        updatePayoutCalc();
+      }
+
+      function updatePayoutCalc() {
+        const input = document.getElementById("calc-players");
+        let players = parseInt(input.value) || 4;
+
+        if (players === 5) players = 6;
+        if (players < 4) players = 4;
+        if (players > 12) players = 12;
+
+        input.value = players;
+
+        document.getElementById("btn-minus-player").style.visibility =
+          players <= 4 ? "hidden" : "visible";
+        document.getElementById("btn-plus-player").style.visibility =
+          players >= 12 ? "hidden" : "visible";
+
+        const totalIn = players * 50000;
+        const tableFund = players * 22500;
+        const storeCut = players * 7500;
+        const prizePool = players * 20000;
+
+        const predefined = {
+          4: [35000, 25000, 15000, 5000],
+          6: [50000, 35000, 20000, 15000],
+          7: [60000, 40000, 25000, 15000],
+          8: [70000, 45000, 30000, 15000],
+          9: [70000, 45000, 35000, 20000, 10000],
+          10: [75000, 50000, 35000, 25000, 15000],
+          11: [75000, 50000, 40000, 25000, 20000, 10000],
+          12: [75000, 55000, 42000, 32000, 22000, 14000],
+        };
+
+        let payouts = predefined[players];
+        let payoutHTML = "";
+
+        if (payouts) {
+          payouts.forEach((amount, index) => {
+            payoutHTML += `
+                        <div class="flex items-center justify-between rounded-xl border border-ink/10 bg-white px-4 py-2.5">
+                            <span class="flex items-center gap-2 text-sm font-bold text-ink-soft">
+                                <span class="grid h-6 w-6 place-items-center rounded-md bg-jade-50 text-[11px] font-extrabold text-jade-700">${index + 1}</span>
+                                Place ${index + 1}
+                            </span>
+                            <span class="font-extrabold tabular-nums text-jade-700">${amount.toLocaleString()} SC</span>
+                        </div>
+                    `;
+          });
+        }
+
+        const resultsDiv = document.getElementById("calc-results");
+        resultsDiv.innerHTML = `
+                <div class="mb-6 space-y-3 rounded-2xl border border-ink/10 bg-white p-5">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="font-semibold text-ink-mute">Total event cash</span>
+                        <span class="text-lg font-extrabold tabular-nums text-ink">Rp ${totalIn.toLocaleString()}</span>
+                    </div>
+                    <hr class="border-ink/10">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="font-semibold text-ink-mute">Table fund <span class="text-ink-mute">45%</span></span>
+                        <span class="font-extrabold tabular-nums text-jade-700">Rp ${tableFund.toLocaleString()}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="font-semibold text-ink-mute">LGS cut <span class="text-ink-mute">15%</span></span>
+                        <span class="font-extrabold tabular-nums text-gold-600">Rp ${storeCut.toLocaleString()}</span>
+                    </div>
+                </div>
+
+                <div class="mb-3 flex items-center justify-between">
+                    <h4 class="font-display text-lg font-semibold text-ink">Prize pool</h4>
+                    <span class="font-extrabold tabular-nums text-jade-700">${prizePool.toLocaleString()} SC</span>
+                </div>
+                <div class="space-y-2">
+                    ${payoutHTML}
+                </div>
+            `;
+      }
+      // --- END TO PAYOUT CALCULATOR ---
+
+      function copyRoomCode() {
+        if (!currentRoomCode) return;
+        const btn = document.getElementById("copy-room-btn");
+        const showCopied = () => {
+          if (!btn) return;
+          const original = btn.innerHTML;
+          btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-jade-600">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>`;
+          btn.setAttribute("aria-label", "Room code copied");
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.setAttribute("aria-label", "Copy room code");
+          }, 1500);
+        };
+
+        const fallbackCopy = () => {
+          const area = document.createElement("textarea");
+          area.value = currentRoomCode;
+          area.setAttribute("readonly", "");
+          area.style.position = "absolute";
+          area.style.left = "-9999px";
+          document.body.appendChild(area);
+          area.select();
+          try {
+            document.execCommand("copy");
+            showCopied();
+          } catch (err) {
+            console.error("Copy failed:", err);
+          }
+          document.body.removeChild(area);
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard
+            .writeText(currentRoomCode)
+            .then(showCopied, fallbackCopy);
+        } else {
+          fallbackCopy();
+        }
+      }
+
+      function updateStatus(isOnline, text) {
+        DOM.statusText.textContent = text;
+        if (isOnline) {
+          DOM.statusDot.className =
+            "h-2 w-2 rounded-full bg-jade-500 pulse-dot";
+          DOM.statusText.className = "text-jade-700";
+        } else {
+          DOM.statusDot.className = "h-2 w-2 rounded-full bg-red-500";
+          DOM.statusText.className = "text-red-700";
+        }
+      }
+
+      function showModal(title, message, type = "info", onConfirm = null) {
+        const overlay = document.getElementById("modal-overlay");
+        document.getElementById("modal-title").textContent = title;
+        document.getElementById("modal-message").textContent = message;
+
+        const icon = document.getElementById("modal-icon");
+        const cancelBtn = document.getElementById("modal-cancel-btn");
+        const confirmBtn = document.getElementById("modal-confirm-btn");
+
+        icon.className =
+          "mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl";
+        confirmBtn.className =
+          "btn flex-1 px-4 py-3 text-sm text-white shadow-md";
+        cancelBtn.className = "btn btn-soft flex-1 px-4 py-3 text-sm";
+
+        if (type === "error") {
+          icon.classList.add("bg-red-100", "text-red-700");
+          icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+          confirmBtn.classList.add("bg-red-600", "hover:bg-red-700");
+          cancelBtn.classList.add("hidden");
+        } else if (type === "confirm") {
+          icon.classList.add("bg-amber-100", "text-amber-600");
+          icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+          confirmBtn.classList.add("bg-amber-500", "hover:bg-amber-600");
+          cancelBtn.classList.remove("hidden");
+        } else {
+          icon.classList.add("bg-jade-100", "text-jade-700");
+          icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+          confirmBtn.classList.add("btn-primary");
+          cancelBtn.classList.add("hidden");
+        }
+
+        overlay.classList.remove("hidden");
+
+        confirmBtn.onclick = () => {
+          overlay.classList.add("hidden");
+          if (onConfirm) onConfirm();
+        };
+        cancelBtn.onclick = () => overlay.classList.add("hidden");
+      }
+
+      function handleToggleGameMode() {
+        const mode = document.querySelector(
+          'input[name="gameMode"]:checked',
+        ).value;
+        const p4Wrap = document.getElementById("setup-p4-wrap");
+        const startScoreInput = document.getElementById("setup-start-score");
+
+        if (mode === "3") {
+          p4Wrap.classList.add("hidden");
+          startScoreInput.value = "35000";
+        } else {
+          p4Wrap.classList.remove("hidden");
+          startScoreInput.value = "25000";
+        }
+      }
+
+      function generateRoomCode() {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+        let result = "";
+        for (let i = 0; i < 4; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+      }
+
+      async function handleCreateRoom() {
+        if (!currentUser)
+          return showModal("Error", "Not connected to server.", "error");
+
+        const mode = document.querySelector(
+          'input[name="gameMode"]:checked',
+        ).value;
+        const numPlayers = parseInt(mode);
+        const startScore =
+          parseInt(document.getElementById("setup-start-score").value) ||
+          (numPlayers === 3 ? 35000 : 25000);
+
+        const players = [];
+
+        for (let i = 1; i <= numPlayers; i++) {
+          const name =
+            document.getElementById(`setup-p${i}`).value.trim() ||
+            `Player ${i}`;
+          players.push({
+            id: `p${i}`,
+            name: name,
+            currentScore: startScore,
+          });
+        }
+
+        const btn = document.getElementById("create-btn");
+        btn.disabled = true;
+        btn.innerHTML = "Creating...";
+
+        try {
+          let code;
+          let isUnique = false;
+          let roomRef;
+
+          while (!isUnique) {
+            code = generateRoomCode();
+            roomRef = doc(
+              db,
+              "artifacts",
+              appId,
+              "public",
+              "data",
+              "rooms",
+              code,
+            );
+            const docSnap = await getDoc(roomRef);
+            if (!docSnap.exists()) {
+              isUnique = true;
+            }
+          }
+
+          const initialData = {
+            createdAt: new Date().toISOString(),
+            startingScore: startScore,
+            players: players,
+            dealerIndex: 0,
+            pot: 0,
+            history: [],
+          };
+
+          await setDoc(roomRef, initialData);
+
+          DOM.setup.classList.add("hidden");
+          enterRoom(code);
+        } catch (err) {
+          console.error("Create room error:", err);
+          showModal("Error", "Failed to create room.", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "Start Match";
+        }
+      }
+
+      async function handleJoinRoom() {
+        if (!currentUser)
+          return showModal("Error", "Not connected to server.", "error");
+
+        const codeInput = document
+          .getElementById("join-room-code")
+          .value.toUpperCase()
+          .trim();
+        if (codeInput.length !== 4) {
+          return showModal(
+            "Invalid Code",
+            "Please enter a 4-letter room code.",
+            "error",
+          );
+        }
+
+        try {
+          const roomRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "rooms",
+            codeInput,
+          );
+          const docSnap = await getDoc(roomRef);
+
+          if (docSnap.exists()) {
+            enterRoom(codeInput);
+          } else {
+            showModal(
+              "Not Found",
+              `No active room found with code ${codeInput}.`,
+              "error",
+            );
+          }
+        } catch (err) {
+          console.error("Join room error:", err);
+          showModal("Error", "Failed to join room.", "error");
+        }
+      }
+
+      function enterRoom(code) {
+        currentRoomCode = code;
+        DOM.lobby.classList.add("hidden");
+        DOM.game.classList.remove("hidden");
+        DOM.displayRoomCode.textContent = code;
+
+        const roomRef = doc(
+          db,
+          "artifacts",
+          appId,
+          "public",
+          "data",
+          "rooms",
+          code,
+        );
+
+        unsubscribeRoom = onSnapshot(
+          roomRef,
+          (docSnap) => {
+            if (docSnap.exists()) {
+              localRoomState = docSnap.data();
+              renderGameUI();
+            } else {
+              showModal(
+                "Room Closed",
+                "This room has been deleted or closed.",
+                "error",
+                handleLeaveRoom,
+              );
+            }
+          },
+          (error) => {
+            console.error("Snapshot error:", error);
+            showModal("Sync Error", "Lost connection to the room.", "error");
+          },
+        );
+      }
+
+      function handleLeaveRoom() {
+        showModal(
+          "Leave Room?",
+          "Are you sure you want to exit? You can rejoin later using the code.",
+          "confirm",
+          () => {
+            if (unsubscribeRoom) {
+              unsubscribeRoom();
+              unsubscribeRoom = null;
+            }
+            currentRoomCode = null;
+            localRoomState = null;
+            DOM.game.classList.add("hidden");
+            DOM.lobby.classList.remove("hidden");
+            document.getElementById("join-room-code").value = "";
+          },
+        );
+      }
+
+      async function handleDeclareRiichi(playerId) {
+        if (!currentUser || !currentRoomCode || !localRoomState) return;
+
+        const deltas = { [playerId]: -1000, pot: 1000 };
+
+        const updatedPlayers = localRoomState.players.map((p) => {
+          if (p.id === playerId)
+            return { ...p, currentScore: p.currentScore - 1000 };
+          return p;
+        });
+        const updatedPot = (localRoomState.pot || 0) + 1000;
+
+        const player = localRoomState.players.find((p) => p.id === playerId);
+        const newRecord = {
+          timestamp: new Date().toISOString(),
+          deltas: deltas,
+          note: `🔴 ${player.name} Riichi`,
+        };
+
+        const updatedHistory = [...localRoomState.history, newRecord];
+
+        try {
+          const roomRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "rooms",
+            currentRoomCode,
+          );
+          await updateDoc(roomRef, {
+            players: updatedPlayers,
+            pot: updatedPot,
+            history: updatedHistory,
+          });
+        } catch (err) {
+          console.error(err);
+          showModal("Error", "Failed to declare Riichi.", "error");
+        }
+      }
+
+      function handleClaimPot(playerId) {
+        if (!localRoomState || !localRoomState.pot) {
+          return showModal("Notice", "The pot is currently empty.");
+        }
+
+        const potAmount = localRoomState.pot;
+        const player = localRoomState.players.find((p) => p.id === playerId);
+
+        showModal(
+          "Claim Pot",
+          `Give ${potAmount.toLocaleString()} points from the Pot to ${player.name}?`,
+          "confirm",
+          async () => {
+            const deltas = { [playerId]: potAmount, pot: -potAmount };
+
+            const updatedPlayers = localRoomState.players.map((p) => {
+              if (p.id === playerId)
+                return { ...p, currentScore: p.currentScore + potAmount };
+              return p;
+            });
+            const updatedPot = 0;
+
+            const newRecord = {
+              timestamp: new Date().toISOString(),
+              deltas: deltas,
+              note: `🏆 ${player.name} claimed Pot`,
+            };
+            const updatedHistory = [...localRoomState.history, newRecord];
+
+            try {
+              const roomRef = doc(
+                db,
+                "artifacts",
+                appId,
+                "public",
+                "data",
+                "rooms",
+                currentRoomCode,
+              );
+              await updateDoc(roomRef, {
+                players: updatedPlayers,
+                pot: updatedPot,
+                history: updatedHistory,
+              });
+            } catch (err) {
+              console.error(err);
+              showModal("Error", "Failed to claim pot.", "error");
+            }
+          },
+        );
+      }
+
+      function renderGameUI() {
+        if (!localRoomState) return;
+        const players = localRoomState.players;
+        const history = localRoomState.history;
+        const currentPot = localRoomState.pot || 0;
+
+        const gridClass =
+          players.length === 3
+            ? "player-grid player-grid--three"
+            : "player-grid";
+        DOM.scoreDashboard.className = gridClass;
+
+        DOM.inputContainer.className = `${gridClass} mt-6`;
+
+        let dashHTML = `
+                <div class="relative col-span-full mb-2 overflow-hidden rounded-2xl bg-felt p-5 text-white shadow-lift sm:p-6">
+                    <div aria-hidden="true" class="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-jade-400/15 blur-2xl"></div>
+                    <div aria-hidden="true" class="pointer-events-none absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-gold-300/10 blur-2xl"></div>
+                    <div class="relative flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/15 bg-white/10 text-gold-200 sm:h-12 sm:w-12">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="10" width="20" height="4" rx="2"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/70 sm:text-[11px]">Table pot</p>
+                                <p class="text-xs text-white/65">Riichi sticks in play</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-display text-3xl font-semibold tabular-nums text-gold-200 sm:text-4xl">${currentPot.toLocaleString()}</span>
+                            <span class="block text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">points</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+        const maxScore = Math.max(...players.map((p) => p.currentScore));
+
+        const dealerIndex = localRoomState.dealerIndex || 0;
+
+        players.forEach((p, idx) => {
+          const isLeader =
+            p.currentScore === maxScore &&
+            p.currentScore > localRoomState.startingScore;
+
+          // Leader gets the gold treatment
+          const scoreColor =
+            p.currentScore < 0
+              ? "text-red-700"
+              : isLeader
+                ? "text-gold-600"
+                : "text-ink";
+
+          const diff = p.currentScore - localRoomState.startingScore;
+          const diffStr = diff > 0 ? `+${diff}` : diff === 0 ? "0" : `${diff}`;
+          const diffChip =
+            diff > 0
+              ? "border-jade-200 bg-jade-50 text-jade-700"
+              : diff < 0
+                ? "border-red-200 bg-red-50 text-red-700"
+                : "border-ink/10 bg-ink/5 text-ink-mute";
+
+          // Calculate wind badge
+          const wind = getPlayerWind(idx, dealerIndex, players.length);
+          const badge = WIND_BADGES[wind];
+
+          const cardClass = isLeader
+            ? "leader-card relative flex flex-col overflow-hidden rounded-2xl p-4 sm:p-5"
+            : "card-surface relative flex flex-col overflow-hidden rounded-2xl p-4 transition-shadow hover:shadow-lift sm:p-5";
+
+          const leaderBadgeHTML = isLeader
+            ? `
+                <span class="z-10 flex items-center gap-1 rounded-full border border-gold-300 bg-gradient-to-r from-gold-200 to-gold-300 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-ink shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><path d="M2 22h20v2H2v-2zm2-2l2-10 4 5 2-9 2 9 4-5 2 10H4z"/></svg>
+                    Leader
+                </span>`
+            : "";
+
+          dashHTML += `
+        <div class="${cardClass}">
+            <div class="relative z-10 flex items-center justify-between gap-2">
+                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider ${badge.bg} ${badge.text}">
+                    <span class="font-display text-[13px] leading-none">${badge.kanji}</span>
+                    ${badge.label}
+                </span>
+                ${leaderBadgeHTML}
+            </div>
+
+            <p class="relative z-10 mt-3 truncate text-sm font-bold text-ink-soft">${p.name}</p>
+            <p class="font-display relative z-10 mt-0.5 text-3xl font-semibold tabular-nums tracking-tight ${scoreColor}">${p.currentScore.toLocaleString()}</p>
+            <span class="relative z-10 mt-2 inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[10px] font-extrabold tabular-nums ${diffChip}">
+                Net ${diffStr}
+            </span>
+
+            <div class="relative z-10 mt-4 flex gap-2">
+                <button onclick="declareRiichi('${p.id}')" class="flex flex-1 items-center justify-center gap-1 rounded-xl border border-red-200 bg-red-50 px-2 py-2 text-xs font-bold text-red-700 transition-colors hover:bg-red-100 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Riichi
+                </button>
+                <button onclick="claimPot('${p.id}')" class="flex flex-1 items-center justify-center gap-1 rounded-xl border border-jade-200 bg-jade-50 px-2 py-2 text-xs font-bold text-jade-700 transition-colors hover:bg-jade-100 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+                    Win pot
+                </button>
+            </div>
+        </div>
+    `;
+        });
+        DOM.scoreDashboard.innerHTML = dashHTML;
+        if (DOM.roundCount) DOM.roundCount.textContent = history.length;
+
+        // Update Round Input Labels to show Wind
+        if (DOM.inputContainer.children.length !== players.length) {
+          let inputHTML = "";
+          players.forEach((p, idx) => {
+            const wind = getPlayerWind(idx, dealerIndex, players.length);
+            const badge = WIND_BADGES[wind];
+            inputHTML += `
+            <div>
+                <label data-input-label="${p.id}" for="input-${p.id}" class="mb-2 flex items-center gap-2 text-sm font-bold text-ink-soft">
+                    <span class="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-jade-50 text-[11px] font-extrabold text-jade-700">${badge.kanji}</span>
+                    <span class="truncate">${p.name}</span>
+                </label>
+                <div class="relative">
+                    <input type="number" id="input-${p.id}" oninput="window.validateSum()" placeholder="0" class="field score-input py-3 pr-12 text-center text-lg font-bold tabular-nums">
+                    <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-extrabold uppercase text-ink-mute">pts</span>
+                </div>
+            </div>
+        `;
+          });
+          DOM.inputContainer.innerHTML = inputHTML;
+        } else {
+          players.forEach((p, idx) => {
+            const wind = getPlayerWind(idx, dealerIndex, players.length);
+            const label = DOM.inputContainer.querySelector(
+              `[data-input-label="${p.id}"]`,
+            );
+            if (label) {
+              const nameSpan = label.querySelector("span:last-child");
+              const windSpan = label.querySelector("span:first-child");
+              if (nameSpan) nameSpan.textContent = p.name;
+              if (windSpan) windSpan.textContent = WIND_BADGES[wind].kanji;
+            }
+          });
+        }
+
+        let headerHTML = `<th class="w-14 px-4 py-4 text-center font-extrabold">#</th>`;
+        players.forEach((p) => {
+          headerHTML += `<th class="px-4 py-4 text-right font-extrabold">${p.name}</th>`;
+        });
+        headerHTML += `<th class="px-4 py-4 text-right font-extrabold text-jade-700">Pot</th>`;
+        headerHTML += `<th class="px-6 py-4 text-left font-extrabold">Note</th>`;
+        DOM.historyHeader.innerHTML = headerHTML;
+
+        let bodyHTML = "";
+        if (history.length === 0) {
+          bodyHTML = `<tr><td colspan="7" class="px-6 py-14 text-center">
+            <div class="mx-auto flex max-w-xs flex-col items-center gap-1.5 text-ink-mute">
+              <span class="mb-1 grid h-11 w-11 place-items-center rounded-2xl bg-jade-50 text-jade-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+              </span>
+              <p class="text-sm font-bold text-ink-soft">No rounds yet</p>
+              <p class="text-xs">Record the first hand to start the ledger.</p>
+            </div>
+          </td></tr>`;
+        } else {
+          [...history].reverse().forEach((record, index) => {
+            const roundNum = history.length - index;
+            let rowHTML = `<tr><td class="px-4 py-3 text-center">
+              <span class="inline-grid h-7 w-7 place-items-center rounded-lg bg-ink/5 text-[11px] font-extrabold text-ink-mute">${roundNum}</span>
+            </td>`;
+
+            players.forEach((p) => {
+              const delta = record.deltas[p.id] || 0;
+              const colorClass =
+                delta > 0
+                  ? "bg-jade-50 text-jade-700"
+                  : delta < 0
+                    ? "bg-red-50 text-red-700"
+                    : "text-ink-mute";
+              const prefix = delta > 0 ? "+" : "";
+              rowHTML += `<td class="px-4 py-3 text-right">
+                <span class="inline-block rounded-lg px-2 py-1 text-sm font-bold tabular-nums ${colorClass}">${delta === 0 ? "–" : prefix + delta.toLocaleString()}</span>
+              </td>`;
+            });
+
+            const potDelta = record.deltas.pot || 0;
+            const potColor =
+              potDelta > 0
+                ? "bg-gold-50 text-gold-600"
+                : potDelta < 0
+                  ? "bg-red-50 text-red-700"
+                  : "text-ink-mute";
+            const potPrefix = potDelta > 0 ? "+" : "";
+            rowHTML += `<td class="border-l border-ink/5 px-4 py-3 text-right">
+              <span class="inline-block rounded-lg px-2 py-1 text-sm font-bold tabular-nums ${potColor}">${potDelta === 0 ? "–" : potPrefix + potDelta.toLocaleString()}</span>
+            </td>`;
+
+            const noteText = record.note ? record.note : "";
+            rowHTML += `<td class="px-6 py-3 text-left text-xs font-medium text-ink-mute">${
+              noteText
+                ? `<span class="inline-flex max-w-[16rem] items-center truncate rounded-full bg-ink/5 px-2.5 py-1">${noteText}</span>`
+                : `<span class="text-ink-mute">–</span>`
+            }</td>`;
+
+            rowHTML += `</tr>`;
+            bodyHTML += rowHTML;
+          });
+        }
+        DOM.historyBody.innerHTML = bodyHTML;
+      }
+
+      function validateSum() {
+        if (!localRoomState) return;
+
+        let sum = 0;
+        let hasInput = false;
+
+        localRoomState.players.forEach((p) => {
+          const val = document.getElementById(`input-${p.id}`).value;
+          if (val !== "") {
+            sum += parseInt(val) || 0;
+            hasInput = true;
+          }
+        });
+
+        DOM.sumIndicator.textContent = `Sum: ${sum}`;
+
+        if (!hasInput) {
+          DOM.sumIndicator.className =
+            "rounded-xl border-2 border-ink/10 bg-white px-5 py-2.5 text-lg font-extrabold tabular-nums text-ink-mute transition-colors";
+          DOM.submitBtn.disabled = true;
+          DOM.submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+        } else if (sum === 0) {
+          DOM.sumIndicator.className =
+            "rounded-xl border-2 border-jade-200 bg-jade-50 px-5 py-2.5 text-lg font-extrabold tabular-nums text-jade-700 transition-colors";
+          DOM.submitBtn.disabled = false;
+          DOM.submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        } else {
+          DOM.sumIndicator.className =
+            "rounded-xl border-2 border-red-100 bg-red-50 px-5 py-2.5 text-lg font-extrabold tabular-nums text-red-700 transition-colors";
+          DOM.submitBtn.disabled = true;
+          DOM.submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+        }
+      }
+
+      function clearInputs() {
+        if (!localRoomState) return;
+        localRoomState.players.forEach((p) => {
+          document.getElementById(`input-${p.id}`).value = "";
+        });
+
+        const noteInput = document.getElementById("input-note");
+        if (noteInput) noteInput.value = "";
+
+        validateSum();
+      }
+
+      async function handleSubmitRound() {
+        if (!currentUser || !currentRoomCode || !localRoomState) return;
+
+        const deltas = {};
+        let sum = 0;
+
+        localRoomState.players.forEach((p) => {
+          const val =
+            parseInt(document.getElementById(`input-${p.id}`).value) || 0;
+          deltas[p.id] = val;
+          sum += val;
+        });
+
+        if (sum !== 0) {
+          return showModal(
+            "Error",
+            "Sum of points must be exactly 0.",
+            "error",
+          );
+        }
+
+        // --- DEALER ROTATION RULE ---
+        const currentDealerIdx = localRoomState.dealerIndex || 0;
+        const currentDealer = localRoomState.players[currentDealerIdx];
+        const dealerDelta = deltas[currentDealer.id] || 0;
+
+        // If East (dealer) scored <= 0, dealer moves to the next player.
+        // If East scored > 0, East stays (Renchan).
+        let nextDealerIdx = currentDealerIdx;
+        if (dealerDelta <= 0) {
+          nextDealerIdx =
+            (currentDealerIdx + 1) % localRoomState.players.length;
+        }
+
+        const updatedPlayers = localRoomState.players.map((p) => ({
+          ...p,
+          currentScore: p.currentScore + deltas[p.id],
+        }));
+
+        const noteVal = document.getElementById("input-note").value.trim();
+
+        const newHistoryRecord = {
+          timestamp: new Date().toISOString(),
+          deltas: deltas,
+          prevDealerIndex: currentDealerIdx, // saved to restore wind on undo
+          note: noteVal,
+        };
+
+        const updatedHistory = [...localRoomState.history, newHistoryRecord];
+
+        DOM.submitBtn.disabled = true;
+        DOM.submitBtn.innerHTML = "Saving...";
+
+        try {
+          const roomRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "rooms",
+            currentRoomCode,
+          );
+          await updateDoc(roomRef, {
+            players: updatedPlayers,
+            dealerIndex: nextDealerIdx, // <--- update dealer index in Firestore
+            history: updatedHistory,
+          });
+
+          clearInputs();
+        } catch (err) {
+          console.error("Submit error:", err);
+          showModal("Error", "Failed to submit round.", "error");
+        } finally {
+          DOM.submitBtn.innerHTML = "Submit Round";
+          validateSum();
+        }
+      }
+
+      function handleUndo() {
+        if (!localRoomState || localRoomState.history.length === 0) {
+          return showModal("Notice", "No rounds to undo.");
+        }
+
+        showModal(
+          "Undo Round",
+          "Are you sure you want to delete the last recorded round? This will affect all players and the Table Pot.",
+          "confirm",
+          async () => {
+            try {
+              const lastRecord =
+                localRoomState.history[localRoomState.history.length - 1];
+              const deltasToRevert = lastRecord.deltas;
+
+              const revertedPlayers = localRoomState.players.map((p) => ({
+                ...p,
+                currentScore: p.currentScore - (deltasToRevert[p.id] || 0),
+              }));
+
+              const revertedPot =
+                (localRoomState.pot || 0) - (deltasToRevert.pot || 0);
+              const revertedHistory = localRoomState.history.slice(0, -1);
+
+              // Revert dealer index to previous state
+              const revertedDealerIndex =
+                lastRecord.prevDealerIndex !== undefined
+                  ? lastRecord.prevDealerIndex
+                  : localRoomState.dealerIndex || 0;
+
+              const roomRef = doc(
+                db,
+                "artifacts",
+                appId,
+                "public",
+                "data",
+                "rooms",
+                currentRoomCode,
+              );
+              await updateDoc(roomRef, {
+                players: revertedPlayers,
+                dealerIndex: revertedDealerIndex, // <--- restore dealer index
+                pot: revertedPot,
+                history: revertedHistory,
+              });
+            } catch (err) {
+              console.error("Undo error:", err);
+              showModal("Error", "Failed to undo round.", "error");
+            }
+          },
+        );
+      }
+
+      function handleOpenCalculator() {
+        window.open("https://riichi.onecomp.one/#/calculator", "_blank");
+      }
+      // ADD THESE FUNCTIONS INSIDE YOUR SCRIPT TAG:
+
+      window.openCalculatorModal = () => {
+        document.getElementById("calculator-modal").classList.remove("hidden");
+      };
+
+      window.closeCalculatorModal = () => {
+        document.getElementById("calculator-modal").classList.add("hidden");
+      };
+
+      window.runCalculation = () => {
+        try {
+          const hand = document
+            .getElementById("calc-hand")
+            .value.split(",")
+            .map((s) => s.trim());
+          const winTile = document.getElementById("calc-wintile").value.trim();
+          const winType = document.getElementById("calc-wintype").value;
+          const riichi = document.getElementById("calc-riichi").checked;
+          const ippatsu = document.getElementById("calc-ippatsu").checked;
+          const doraIndicators = document
+            .getElementById("calc-dora")
+            .value.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+
+          // Call your scoring engine function here
+          const result = RiichiScore.calculateScore({
+            hand,
+            winTile,
+            winType,
+            riichi,
+            ippatsu,
+            doraIndicators,
+          });
+
+          const out = document.getElementById("calc-output");
+          out.classList.remove("hidden");
+          out.innerHTML = `
+      <p class="font-bold text-jade-700">${result.tier} · ${result.han} Han ${result.fu} Fu</p>
+      <p class="text-ink">Points to pay: <b>${result.points.toLocaleString()}</b></p>
+      <ul class="list-disc pl-4 text-xs text-ink-mute">${result.yaku.map((y) => `<li>${y.name} (${y.han} han)</li>`).join("")}</ul>
+    `;
+        } catch (err) {
+          alert("Error calculating score: " + err.message);
+        }
+      };
+      // Render the visual tile picker buttons when the modal opens
+      function initTilePicker() {
+        const suits = {
+          m: ["1m", "2m", "3m", "4m", "0m", "5m", "6m", "7m", "8m", "9m"],
+          p: ["1p", "2p", "3p", "4p", "0p", "5p", "6p", "7p", "8p", "9p"],
+          s: ["1s", "2s", "3s", "4s", "0s", "5s", "6s", "7s", "8s", "9s"],
+          z: ["1z", "2z", "3z", "4z", "5z", "6z", "7z"],
+        };
+
+        // Traditional kanji/symbols and color styling matching Riichi tiles
+        const tileFaces = {
+          "1m": { sym: "🀇", color: "text-amber-800" },
+          "2m": { sym: "🀈", color: "text-amber-800" },
+          "3m": { sym: "🀉", color: "text-amber-800" },
+          "4m": { sym: "🀊", color: "text-amber-800" },
+          "0m": { sym: "🀋", color: "text-red-600" },
+          "5m": { sym: "🀋", color: "text-amber-800" },
+          "6m": { sym: "🀌", color: "text-amber-800" },
+          "7m": { sym: "🀍", color: "text-amber-800" },
+          "8m": { sym: "🀎", color: "text-amber-800" },
+          "9m": { sym: "🀏", color: "text-amber-800" },
+
+          "1p": { sym: "🀐", color: "text-slate-700" },
+          "2p": { sym: "🀑", color: "text-emerald-700" },
+          "3p": { sym: "🀒", color: "text-emerald-700" },
+          "4p": { sym: "🀓", color: "text-emerald-700" },
+          "0p": { sym: "🀔", color: "text-red-600" },
+          "5p": { sym: "🀔", color: "text-emerald-700" },
+          "6p": { sym: "🀕", color: "text-emerald-700" },
+          "7p": { sym: "🀖", color: "text-emerald-700" },
+          "8p": { sym: "🀗", color: "text-emerald-700" },
+          "9p": { sym: "🀘", color: "text-emerald-700" },
+
+          "1s": { sym: "🀙", color: "text-emerald-800" },
+          "2s": { sym: "🀚", color: "text-emerald-800" },
+          "3s": { sym: "🀛", color: "text-emerald-800" },
+          "4s": { sym: "🀜", color: "text-emerald-800" },
+          "0s": { sym: "🀝", color: "text-red-600" },
+          "5s": { sym: "🀝", color: "text-emerald-800" },
+          "6s": { sym: "🀞", color: "text-emerald-800" },
+          "7s": { sym: "🀟", color: "text-emerald-800" },
+          "8s": { sym: "🀠", color: "text-emerald-800" },
+          "9s": { sym: "🀡", color: "text-emerald-800" },
+
+          "1z": { sym: "東", color: "text-slate-800" },
+          "2z": { sym: "南", color: "text-slate-800" },
+          "3z": { sym: "西", color: "text-slate-800" },
+          "4z": { sym: "北", color: "text-slate-800" },
+          "5z": { sym: "白", color: "text-blue-700" },
+          "6z": { sym: "發", color: "text-emerald-600" },
+          "7z": { sym: "中", color: "text-red-600" },
+        };
+
+        for (const [suit, codes] of Object.entries(suits)) {
+          const container = document.getElementById(`picker-${suit}`);
+          if (!container) continue;
+          container.innerHTML = "";
+          codes.forEach((code) => {
+            const face = tileFaces[code] || {
+              sym: code,
+              color: "text-slate-800",
+            };
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "picker-tile";
+            btn.innerHTML = `
+        <span class="text-base leading-tight ${face.color}">${face.sym}</span>
+        <span class="text-[9px] font-bold text-slate-500 leading-none mt-0.5">${code}</span>
+      `;
+            btn.onclick = () => addTileToHand(code);
+            container.appendChild(btn);
+          });
+        }
+      }
+
+      function addTileToHand(code) {
+        const handInput = document.getElementById("calc-hand");
+        let tiles = handInput.value
+          ? handInput.value
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [];
+
+        if (tiles.length >= 14) {
+          alert("A closed hand cannot exceed 14 tiles.");
+          return;
+        }
+
+        tiles.push(code);
+        handInput.value = tiles.join(",");
+      }
+
+      window.clearCalcHand = () => {
+        document.getElementById("calc-hand").value = "";
+      };
+
+      // Hook into your existing modal open function to initialize tiles
+      const originalOpenCalc = window.openCalculatorModal;
+      window.openCalculatorModal = () => {
+        if (originalOpenCalc) originalOpenCalc();
+        document.getElementById("calculator-modal").classList.remove("hidden");
+        initTilePicker();
+      };
+
+      window.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>

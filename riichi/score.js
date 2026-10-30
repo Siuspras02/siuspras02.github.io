@@ -102,7 +102,7 @@ function parseInput(input) {
   }
 
   // max 4 copies when hand + melds are combined; meld-4th tiles also counted
-  const meldTiles = melds.reduce((acc, m) => acc + m.counts, buildCounts([]));
+  const meldTiles = melds.reduce((acc, m) => mergeCounts(acc, m), buildCounts([]));
   const combined = mergeCounts(hand, meldTiles);
   assertMaxPerTile(combined.counts, 4, "combined hand + melds");
 
@@ -209,9 +209,17 @@ function resolveMeld(m) {
     if (uniq.length !== 1) throw new Error(`${type} meld tiles must be identical`);
   }
   const counts = new Array(34).fill(0);
-  for (const t of tiles) counts[t] += 1;
+  const red = new Array(34).fill(0);
+  for (let i = 0; i < codes.length; i++) {
+    const code = codes[i];
+    const tileIdx = tiles[i];
+    counts[tileIdx] += 1;
+    if (code.startsWith("0")) {
+      red[tileIdx] += 1; // correctly tracks red fives in melds too
+    }
+  }
   return {
-    type, tiles, counts,
+    type, tiles, counts, red,
     isClosedMeld: type === "closed_kan", ankan: type === "closed_kan",
   };
 }

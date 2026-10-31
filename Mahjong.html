@@ -406,12 +406,12 @@
         font-size: 3rem;
       }
       .picker-tile span.text-\[9px\],
-#calc-hand-display span.text-\[9px\],
-#calc-dora-display span.text-\[8px\],
-#meld-selected-tiles span.text-\[9px\],
-#calc-melds-list span.text-\[9px\] {
-  display: none !important;
-}
+      #calc-hand-display span.text-\[9px\],
+      #calc-dora-display span.text-\[8px\],
+      #meld-selected-tiles span.text-\[9px\],
+      #calc-melds-list span.text-\[9px\] {
+        display: none !important;
+      }
 
       @media (prefers-reduced-motion: reduce) {
         *,
@@ -620,20 +620,63 @@
         </div>
 
         <!-- Dora Indicator Picker Modal (Placed right after meld-builder-modal) -->
-        <div id="dora-builder-modal" tabindex="-1" class="fixed inset-0 z-[80] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex">
-          <div class="fade-in w-full max-w-lg rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift space-y-4">
-            <div class="flex items-center justify-between border-b border-ink/10 pb-3">
-              <h3 class="font-display text-lg font-semibold text-ink">Select Dora Indicator</h3>
-              <button type="button" onclick="closeDoraPicker()" class="text-ink-mute hover:text-ink font-bold">✕</button>
+        <div
+          id="dora-builder-modal"
+          tabindex="-1"
+          class="fixed inset-0 z-[80] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
+        >
+          <div
+            class="fade-in w-full max-w-lg rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift space-y-4"
+          >
+            <div
+              class="flex items-center justify-between border-b border-ink/10 pb-3"
+            >
+              <h3 class="font-display text-lg font-semibold text-ink">
+                Select Dora Indicator
+              </h3>
+              <button
+                type="button"
+                onclick="closeDoraPicker()"
+                class="text-ink-mute hover:text-ink font-bold"
+              >
+                ✕
+              </button>
             </div>
-            <div class="rounded-2xl border border-ink/10 bg-slate-900 p-4 text-white max-h-[50vh] overflow-y-auto custom-scrollbar">
-              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Manzu (m)</p>
-              <div id="dora-picker-m" class="flex flex-wrap gap-1.5 mb-2.5"></div>
-              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Pinzu (p)</p>
-              <div id="dora-picker-p" class="flex flex-wrap gap-1.5 mb-2.5"></div>
-              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Souzu (s)</p>
-              <div id="dora-picker-s" class="flex flex-wrap gap-1.5 mb-2.5"></div>
-              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Honors (z)</p>
+            <div
+              class="rounded-2xl border border-ink/10 bg-slate-900 p-4 text-white max-h-[50vh] overflow-y-auto custom-scrollbar"
+            >
+              <p
+                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
+              >
+                Manzu (m)
+              </p>
+              <div
+                id="dora-picker-m"
+                class="flex flex-wrap gap-1.5 mb-2.5"
+              ></div>
+              <p
+                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
+              >
+                Pinzu (p)
+              </p>
+              <div
+                id="dora-picker-p"
+                class="flex flex-wrap gap-1.5 mb-2.5"
+              ></div>
+              <p
+                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
+              >
+                Souzu (s)
+              </p>
+              <div
+                id="dora-picker-s"
+                class="flex flex-wrap gap-1.5 mb-2.5"
+              ></div>
+              <p
+                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
+              >
+                Honors (z)
+              </p>
               <div id="dora-picker-z" class="flex flex-wrap gap-1.5"></div>
             </div>
           </div>
@@ -745,11 +788,11 @@
 
           <div class="flex-col gap-4">
             <label class="label">Win Tile</label>
-            <div class="flex items-center" style="margin-bottom: 20px;">
+            <div class="flex items-center" style="margin-bottom: 20px">
               <!-- Container Display Tile Visual -->
               <div
                 id="calc-wintile-display"
-                class="flex items-center justify-center w-12 h-16 bg-white border border-ink/20 rounded-2xl shadow-xs
+                class="flex items-center justify-center w-12 h-16 bg-white border border-ink/20 rounded-2xl shadow-xs"
               >
                 <span class="text-xs text-ink-mute italic">Auto</span>
               </div>
@@ -786,74 +829,138 @@
             </div>
           </div>
 
-
           <!-- SPECIAL HAND FLAGS & SITUATIONS -->
-<div class="rounded-2xl border border-ink/10 bg-white p-4 space-y-3">
-  <div class="flex items-center justify-between">
-    <p class="text-xs font-extrabold uppercase tracking-wider text-ink-mute">
-      Special Hand Flags &amp; Situations
-    </p>
+          <div class="rounded-2xl border border-ink/10 bg-white p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <p
+                class="text-xs font-extrabold uppercase tracking-wider text-ink-mute"
+              >
+                Special Hand Flags &amp; Situations
+              </p>
 
-    <!-- NEW RECALCULATE BUTTON -->
-    <button
-      type="button"
-      onclick="runCalculation()"
-      class="btn btn-primary px-3 py-1.5 text-xs"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-      </svg>
-      Recalculate Hand
-    </button>
-  </div>
+              <!-- NEW RECALCULATE BUTTON -->
+              <button
+                type="button"
+                onclick="runCalculation()"
+                class="btn btn-primary px-3 py-1.5 text-xs"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"
+                  />
+                </svg>
+                Recalculate Hand
+              </button>
+            </div>
 
-  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm font-semibold text-ink">
-    <label class="flex items-center gap-2">
-      <input type="checkbox" id="calc-riichi" class="rounded accent-jade-600" />
-      Riichi
-    </label>
-    <label class="flex items-center gap-2">
-      <input type="checkbox" id="calc-doubleriichi" class="rounded accent-jade-600" />
-      Double Riichi
-    </label>
-    <label class="flex items-center gap-2">
-      <input type="checkbox" id="calc-ippatsu" class="rounded accent-jade-600" />
-      Ippatsu
-    </label>
-    <label class="flex items-center gap-2">
-      <input type="checkbox" id="calc-afterkan" class="rounded accent-jade-600" />
-      After Kan (Rinshan)
-    </label>
-    <label class="flex items-center gap-2">
-      <input type="checkbox" id="calc-robbingkan" class="rounded accent-jade-600" />
-      Robbing Kan (Chankan)
-    </label>
-    <label class="flex items-center gap-2">
-      <input type="checkbox" id="calc-lasttile" class="rounded accent-jade-600" />
-      Under River (Haitei/Houtei)
-    </label>
-    <label class="flex items-center gap-2">
-      <input type="checkbox" id="calc-tenhou" class="rounded accent-jade-600" />
-      Blessing of Heaven
-    </label>
-    <label class="flex items-center gap-2">
-      <input type="checkbox" id="calc-chiihou" class="rounded accent-jade-600" />
-      Blessing of Earth
-    </label>
-  </div>
-</div>
+            <div
+              class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm font-semibold text-ink"
+            >
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="calc-riichi"
+                  class="rounded accent-jade-600"
+                />
+                Riichi
+              </label>
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="calc-doubleriichi"
+                  class="rounded accent-jade-600"
+                />
+                Double Riichi
+              </label>
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="calc-ippatsu"
+                  class="rounded accent-jade-600"
+                />
+                Ippatsu
+              </label>
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="calc-afterkan"
+                  class="rounded accent-jade-600"
+                />
+                After Kan (Rinshan)
+              </label>
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="calc-robbingkan"
+                  class="rounded accent-jade-600"
+                />
+                Robbing Kan (Chankan)
+              </label>
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="calc-lasttile"
+                  class="rounded accent-jade-600"
+                />
+                Under River (Haitei/Houtei)
+              </label>
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="calc-tenhou"
+                  class="rounded accent-jade-600"
+                />
+                Blessing of Heaven
+              </label>
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="calc-chiihou"
+                  class="rounded accent-jade-600"
+                />
+                Blessing of Earth
+              </label>
+            </div>
+          </div>
 
           <div>
-  <label class="label">Dora Indicators</label>
-  <div class="flex items-center gap-2">
-    <div id="calc-dora-display" class="flex flex-wrap gap-1.5 min-h-[4rem] p-2 rounded-2xl border border-ink/15 bg-white items-center flex-1">
-      <span class="text-xs text-ink-mute italic pl-1">Click + Add Dora to select indicators...</span>
-    </div>
-    <input type="hidden" id="calc-dora" value="" />
-    <button type="button" onclick="openDoraPicker()" class="btn btn-soft px-3 py-2 text-xs">+ Add Dora</button>
-    <button type="button" onclick="clearDoraIndicators()" class="btn btn-soft px-3 py-2 text-xs">Clear</button>
-  </div>
-</div>
+            <label class="label">Dora Indicators</label>
+            <div class="flex items-center gap-2">
+              <div
+                id="calc-dora-display"
+                class="flex flex-wrap gap-1.5 min-h-[4rem] p-2 rounded-2xl border border-ink/15 bg-white items-center flex-1"
+              >
+                <span class="text-xs text-ink-mute italic pl-1"
+                  >Click + Add Dora to select indicators...</span
+                >
+              </div>
+              <input type="hidden" id="calc-dora" value="" />
+              <button
+                type="button"
+                onclick="openDoraPicker()"
+                class="btn btn-soft px-3 py-2 text-xs"
+              >
+                + Add Dora
+              </button>
+              <button
+                type="button"
+                onclick="clearDoraIndicators()"
+                class="btn btn-soft px-3 py-2 text-xs"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
 
           <div
             id="calc-output"
@@ -1635,18 +1742,40 @@
 
       const WINDS = ["East", "South", "West", "North"];
       const WIND_BADGES = {
-        East: { bg: "bg-red-50 border border-red-200", text: "text-red-700", label: "East · Dealer", kanji: "東" },
-        South: { bg: "bg-jade-50 border border-jade-200", text: "text-jade-700", label: "South", kanji: "南" },
-        West: { bg: "bg-indigo-50 border border-indigo-200", text: "text-indigo-700", label: "West", kanji: "西" },
-        North: { bg: "bg-slate-100 border border-slate-200", text: "text-slate-600", label: "North", kanji: "北" },
+        East: {
+          bg: "bg-red-50 border border-red-200",
+          text: "text-red-700",
+          label: "East · Dealer",
+          kanji: "東",
+        },
+        South: {
+          bg: "bg-jade-50 border border-jade-200",
+          text: "text-jade-700",
+          label: "South",
+          kanji: "南",
+        },
+        West: {
+          bg: "bg-indigo-50 border border-indigo-200",
+          text: "text-indigo-700",
+          label: "West",
+          kanji: "西",
+        },
+        North: {
+          bg: "bg-slate-100 border border-slate-200",
+          text: "text-slate-600",
+          label: "North",
+          kanji: "北",
+        },
       };
 
       function getPlayerWind(playerIndex, dealerIndex, totalPlayers) {
-        const relativePos = (playerIndex - dealerIndex + totalPlayers) % totalPlayers;
+        const relativePos =
+          (playerIndex - dealerIndex + totalPlayers) % totalPlayers;
         return WINDS[relativePos];
       }
 
-      const appId = typeof __app_id !== "undefined" ? __app_id : "mahjong-tracker-v1";
+      const appId =
+        typeof __app_id !== "undefined" ? __app_id : "mahjong-tracker-v1";
       let firebaseConfig = {
         apiKey: "AIzaSyD7J9TzZ5vrAD4nr29gX2xk-HwTQPTnYKg",
         authDomain: "mahjong-a5267.firebaseapp.com",
@@ -1692,7 +1821,10 @@
           auth = getAuth(app);
           db = getFirestore(app);
 
-          if (typeof __initial_auth_token !== "undefined" && __initial_auth_token) {
+          if (
+            typeof __initial_auth_token !== "undefined" &&
+            __initial_auth_token
+          ) {
             await signInWithCustomToken(auth, __initial_auth_token);
           } else {
             await signInAnonymously(auth);
@@ -1760,7 +1892,11 @@
           document.getElementById("to-calc-content").classList.remove("hidden");
           updatePayoutCalc();
         } else {
-          showModal("Incorrect PIN", "The code you entered is incorrect.", "error");
+          showModal(
+            "Incorrect PIN",
+            "The code you entered is incorrect.",
+            "error",
+          );
           inputField.value = "";
         }
       }
@@ -1795,8 +1931,10 @@
 
         input.value = players;
 
-        document.getElementById("btn-minus-player").style.visibility = players <= 4 ? "hidden" : "visible";
-        document.getElementById("btn-plus-player").style.visibility = players >= 12 ? "hidden" : "visible";
+        document.getElementById("btn-minus-player").style.visibility =
+          players <= 4 ? "hidden" : "visible";
+        document.getElementById("btn-plus-player").style.visibility =
+          players >= 12 ? "hidden" : "visible";
 
         const totalIn = players * 50000;
         const tableFund = players * 22500;
@@ -1886,7 +2024,8 @@
       function updateStatus(isOnline, text) {
         DOM.statusText.textContent = text;
         if (isOnline) {
-          DOM.statusDot.className = "h-2 w-2 rounded-full bg-jade-500 pulse-dot";
+          DOM.statusDot.className =
+            "h-2 w-2 rounded-full bg-jade-500 pulse-dot";
           DOM.statusText.className = "text-jade-700";
         } else {
           DOM.statusDot.className = "h-2 w-2 rounded-full bg-red-500";
@@ -1903,8 +2042,10 @@
         const cancelBtn = document.getElementById("modal-cancel-btn");
         const confirmBtn = document.getElementById("modal-confirm-btn");
 
-        icon.className = "mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl";
-        confirmBtn.className = "btn flex-1 px-4 py-3 text-sm text-white shadow-md";
+        icon.className =
+          "mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl";
+        confirmBtn.className =
+          "btn flex-1 px-4 py-3 text-sm text-white shadow-md";
         cancelBtn.className = "btn btn-soft flex-1 px-4 py-3 text-sm";
 
         if (type === "error") {
@@ -1934,7 +2075,9 @@
       }
 
       function handleToggleGameMode() {
-        const mode = document.querySelector('input[name="gameMode"]:checked').value;
+        const mode = document.querySelector(
+          'input[name="gameMode"]:checked',
+        ).value;
         const p4Wrap = document.getElementById("setup-p4-wrap");
         const startScoreInput = document.getElementById("setup-start-score");
 
@@ -1957,15 +2100,22 @@
       }
 
       async function handleCreateRoom() {
-        if (!currentUser) return showModal("Error", "Not connected to server.", "error");
+        if (!currentUser)
+          return showModal("Error", "Not connected to server.", "error");
 
-        const mode = document.querySelector('input[name="gameMode"]:checked').value;
+        const mode = document.querySelector(
+          'input[name="gameMode"]:checked',
+        ).value;
         const numPlayers = parseInt(mode);
-        const startScore = parseInt(document.getElementById("setup-start-score").value) || (numPlayers === 3 ? 35000 : 25000);
+        const startScore =
+          parseInt(document.getElementById("setup-start-score").value) ||
+          (numPlayers === 3 ? 35000 : 25000);
 
         const players = [];
         for (let i = 1; i <= numPlayers; i++) {
-          const name = document.getElementById(`setup-p${i}`).value.trim() || `Player ${i}`;
+          const name =
+            document.getElementById(`setup-p${i}`).value.trim() ||
+            `Player ${i}`;
           players.push({ id: `p${i}`, name: name, currentScore: startScore });
         }
 
@@ -1980,7 +2130,15 @@
 
           while (!isUnique) {
             code = generateRoomCode();
-            roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", code);
+            roomRef = doc(
+              db,
+              "artifacts",
+              appId,
+              "public",
+              "data",
+              "rooms",
+              code,
+            );
             const docSnap = await getDoc(roomRef);
             if (!docSnap.exists()) isUnique = true;
           }
@@ -2007,21 +2165,41 @@
       }
 
       async function handleJoinRoom() {
-        if (!currentUser) return showModal("Error", "Not connected to server.", "error");
+        if (!currentUser)
+          return showModal("Error", "Not connected to server.", "error");
 
-        const codeInput = document.getElementById("join-room-code").value.toUpperCase().trim();
+        const codeInput = document
+          .getElementById("join-room-code")
+          .value.toUpperCase()
+          .trim();
         if (codeInput.length !== 4) {
-          return showModal("Invalid Code", "Please enter a 4-letter room code.", "error");
+          return showModal(
+            "Invalid Code",
+            "Please enter a 4-letter room code.",
+            "error",
+          );
         }
 
         try {
-          const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", codeInput);
+          const roomRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "rooms",
+            codeInput,
+          );
           const docSnap = await getDoc(roomRef);
 
           if (docSnap.exists()) {
             enterRoom(codeInput);
           } else {
-            showModal("Not Found", `No active room found with code ${codeInput}.`, "error");
+            showModal(
+              "Not Found",
+              `No active room found with code ${codeInput}.`,
+              "error",
+            );
           }
         } catch (err) {
           console.error("Join room error:", err);
@@ -2035,7 +2213,15 @@
         DOM.game.classList.remove("hidden");
         DOM.displayRoomCode.textContent = code;
 
-        const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", code);
+        const roomRef = doc(
+          db,
+          "artifacts",
+          appId,
+          "public",
+          "data",
+          "rooms",
+          code,
+        );
 
         unsubscribeRoom = onSnapshot(
           roomRef,
@@ -2044,28 +2230,38 @@
               localRoomState = docSnap.data();
               renderGameUI();
             } else {
-              showModal("Room Closed", "This room has been deleted or closed.", "error", handleLeaveRoom);
+              showModal(
+                "Room Closed",
+                "This room has been deleted or closed.",
+                "error",
+                handleLeaveRoom,
+              );
             }
           },
           (error) => {
             console.error("Snapshot error:", error);
             showModal("Sync Error", "Lost connection to the room.", "error");
-          }
+          },
         );
       }
 
       function handleLeaveRoom() {
-        showModal("Leave Room?", "Are you sure you want to exit? You can rejoin later using the code.", "confirm", () => {
-          if (unsubscribeRoom) {
-            unsubscribeRoom();
-            unsubscribeRoom = null;
-          }
-          currentRoomCode = null;
-          localRoomState = null;
-          DOM.game.classList.add("hidden");
-          DOM.lobby.classList.remove("hidden");
-          document.getElementById("join-room-code").value = "";
-        });
+        showModal(
+          "Leave Room?",
+          "Are you sure you want to exit? You can rejoin later using the code.",
+          "confirm",
+          () => {
+            if (unsubscribeRoom) {
+              unsubscribeRoom();
+              unsubscribeRoom = null;
+            }
+            currentRoomCode = null;
+            localRoomState = null;
+            DOM.game.classList.add("hidden");
+            DOM.lobby.classList.remove("hidden");
+            document.getElementById("join-room-code").value = "";
+          },
+        );
       }
 
       async function handleDeclareRiichi(playerId) {
@@ -2073,7 +2269,8 @@
 
         const deltas = { [playerId]: -1000, pot: 1000 };
         const updatedPlayers = localRoomState.players.map((p) => {
-          if (p.id === playerId) return { ...p, currentScore: p.currentScore - 1000 };
+          if (p.id === playerId)
+            return { ...p, currentScore: p.currentScore - 1000 };
           return p;
         });
         const updatedPot = (localRoomState.pot || 0) + 1000;
@@ -2088,7 +2285,15 @@
         const updatedHistory = [...localRoomState.history, newRecord];
 
         try {
-          const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", currentRoomCode);
+          const roomRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "rooms",
+            currentRoomCode,
+          );
           await updateDoc(roomRef, {
             players: updatedPlayers,
             pot: updatedPot,
@@ -2108,32 +2313,46 @@
         const potAmount = localRoomState.pot;
         const player = localRoomState.players.find((p) => p.id === playerId);
 
-        showModal("Claim Pot", `Give ${potAmount.toLocaleString()} points from the Pot to ${player.name}?`, "confirm", async () => {
-          const deltas = { [playerId]: potAmount, pot: -potAmount };
-          const updatedPlayers = localRoomState.players.map((p) => {
-            if (p.id === playerId) return { ...p, currentScore: p.currentScore + potAmount };
-            return p;
-          });
-
-          const newRecord = {
-            timestamp: new Date().toISOString(),
-            deltas: deltas,
-            note: `🏆 ${player.name} claimed Pot`,
-          };
-          const updatedHistory = [...localRoomState.history, newRecord];
-
-          try {
-            const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", currentRoomCode);
-            await updateDoc(roomRef, {
-              players: updatedPlayers,
-              pot: 0,
-              history: updatedHistory,
+        showModal(
+          "Claim Pot",
+          `Give ${potAmount.toLocaleString()} points from the Pot to ${player.name}?`,
+          "confirm",
+          async () => {
+            const deltas = { [playerId]: potAmount, pot: -potAmount };
+            const updatedPlayers = localRoomState.players.map((p) => {
+              if (p.id === playerId)
+                return { ...p, currentScore: p.currentScore + potAmount };
+              return p;
             });
-          } catch (err) {
-            console.error(err);
-            showModal("Error", "Failed to claim pot.", "error");
-          }
-        });
+
+            const newRecord = {
+              timestamp: new Date().toISOString(),
+              deltas: deltas,
+              note: `🏆 ${player.name} claimed Pot`,
+            };
+            const updatedHistory = [...localRoomState.history, newRecord];
+
+            try {
+              const roomRef = doc(
+                db,
+                "artifacts",
+                appId,
+                "public",
+                "data",
+                "rooms",
+                currentRoomCode,
+              );
+              await updateDoc(roomRef, {
+                players: updatedPlayers,
+                pot: 0,
+                history: updatedHistory,
+              });
+            } catch (err) {
+              console.error(err);
+              showModal("Error", "Failed to claim pot.", "error");
+            }
+          },
+        );
       }
 
       function renderGameUI() {
@@ -2142,7 +2361,10 @@
         const history = localRoomState.history;
         const currentPot = localRoomState.pot || 0;
 
-        const gridClass = players.length === 3 ? "player-grid player-grid--three" : "player-grid";
+        const gridClass =
+          players.length === 3
+            ? "player-grid player-grid--three"
+            : "player-grid";
         DOM.scoreDashboard.className = gridClass;
         DOM.inputContainer.className = `${gridClass} mt-6`;
 
@@ -2165,15 +2387,29 @@
         const dealerIndex = localRoomState.dealerIndex || 0;
 
         players.forEach((p, idx) => {
-          const isLeader = p.currentScore === maxScore && p.currentScore > localRoomState.startingScore;
-          const scoreColor = p.currentScore < 0 ? "text-red-700" : isLeader ? "text-gold-600" : "text-ink";
+          const isLeader =
+            p.currentScore === maxScore &&
+            p.currentScore > localRoomState.startingScore;
+          const scoreColor =
+            p.currentScore < 0
+              ? "text-red-700"
+              : isLeader
+                ? "text-gold-600"
+                : "text-ink";
           const diff = p.currentScore - localRoomState.startingScore;
           const diffStr = diff > 0 ? `+${diff}` : diff === 0 ? "0" : `${diff}`;
-          const diffChip = diff > 0 ? "border-jade-200 bg-jade-50 text-jade-700" : diff < 0 ? "border-red-200 bg-red-50 text-red-700" : "border-ink/10 bg-ink/5 text-ink-mute";
+          const diffChip =
+            diff > 0
+              ? "border-jade-200 bg-jade-50 text-jade-700"
+              : diff < 0
+                ? "border-red-200 bg-red-50 text-red-700"
+                : "border-ink/10 bg-ink/5 text-ink-mute";
 
           const wind = getPlayerWind(idx, dealerIndex, players.length);
           const badge = WIND_BADGES[wind];
-          const cardClass = isLeader ? "leader-card relative flex flex-col overflow-hidden rounded-2xl p-4 sm:p-5" : "card-surface relative flex flex-col overflow-hidden rounded-2xl p-4 transition-shadow hover:shadow-lift sm:p-5";
+          const cardClass = isLeader
+            ? "leader-card relative flex flex-col overflow-hidden rounded-2xl p-4 sm:p-5"
+            : "card-surface relative flex flex-col overflow-hidden rounded-2xl p-4 transition-shadow hover:shadow-lift sm:p-5";
 
           dashHTML += `
             <div class="${cardClass}">
@@ -2235,7 +2471,12 @@
             let rowHTML = `<tr><td class="px-4 py-3 text-center"><span class="inline-grid h-7 w-7 place-items-center rounded-lg bg-ink/5 text-[11px] font-extrabold text-ink-mute">${roundNum}</span></td>`;
             players.forEach((p) => {
               const delta = record.deltas[p.id] || 0;
-              const colorClass = delta > 0 ? "bg-jade-50 text-jade-700" : delta < 0 ? "bg-red-50 text-red-700" : "text-ink-mute";
+              const colorClass =
+                delta > 0
+                  ? "bg-jade-50 text-jade-700"
+                  : delta < 0
+                    ? "bg-red-50 text-red-700"
+                    : "text-ink-mute";
               rowHTML += `<td class="px-4 py-3 text-right"><span class="inline-block rounded-lg px-2 py-1 text-sm font-bold tabular-nums ${colorClass}">${delta === 0 ? "–" : (delta > 0 ? "+" : "") + delta.toLocaleString()}</span></td>`;
             });
             rowHTML += `<td class="border-l border-ink/5 px-4 py-3 text-right text-xs text-ink-mute">${record.deltas.pot || "–"}</td><td class="px-6 py-3 text-left text-xs font-medium text-ink-mute">${record.note || "–"}</td></tr>`;
@@ -2260,15 +2501,18 @@
 
         DOM.sumIndicator.textContent = `Sum: ${sum}`;
         if (!hasInput) {
-          DOM.sumIndicator.className = "rounded-xl border-2 border-ink/10 bg-white px-5 py-2.5 text-lg font-extrabold tabular-nums text-ink-mute transition-colors";
+          DOM.sumIndicator.className =
+            "rounded-xl border-2 border-ink/10 bg-white px-5 py-2.5 text-lg font-extrabold tabular-nums text-ink-mute transition-colors";
           DOM.submitBtn.disabled = true;
           DOM.submitBtn.classList.add("opacity-50", "cursor-not-allowed");
         } else if (sum === 0) {
-          DOM.sumIndicator.className = "rounded-xl border-2 border-jade-200 bg-jade-50 px-5 py-2.5 text-lg font-extrabold tabular-nums text-jade-700 transition-colors";
+          DOM.sumIndicator.className =
+            "rounded-xl border-2 border-jade-200 bg-jade-50 px-5 py-2.5 text-lg font-extrabold tabular-nums text-jade-700 transition-colors";
           DOM.submitBtn.disabled = false;
           DOM.submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
         } else {
-          DOM.sumIndicator.className = "rounded-xl border-2 border-red-100 bg-red-50 px-5 py-2.5 text-lg font-extrabold tabular-nums text-red-700 transition-colors";
+          DOM.sumIndicator.className =
+            "rounded-xl border-2 border-red-100 bg-red-50 px-5 py-2.5 text-lg font-extrabold tabular-nums text-red-700 transition-colors";
           DOM.submitBtn.disabled = true;
           DOM.submitBtn.classList.add("opacity-50", "cursor-not-allowed");
         }
@@ -2291,12 +2535,18 @@
         let sum = 0;
 
         localRoomState.players.forEach((p) => {
-          const val = parseInt(document.getElementById(`input-${p.id}`).value) || 0;
+          const val =
+            parseInt(document.getElementById(`input-${p.id}`).value) || 0;
           deltas[p.id] = val;
           sum += val;
         });
 
-        if (sum !== 0) return showModal("Error", "Sum of points must be exactly 0.", "error");
+        if (sum !== 0)
+          return showModal(
+            "Error",
+            "Sum of points must be exactly 0.",
+            "error",
+          );
 
         const currentDealerIdx = localRoomState.dealerIndex || 0;
         const currentDealer = localRoomState.players[currentDealerIdx];
@@ -2304,7 +2554,8 @@
 
         let nextDealerIdx = currentDealerIdx;
         if (dealerDelta <= 0) {
-          nextDealerIdx = (currentDealerIdx + 1) % localRoomState.players.length;
+          nextDealerIdx =
+            (currentDealerIdx + 1) % localRoomState.players.length;
         }
 
         const updatedPlayers = localRoomState.players.map((p) => ({
@@ -2324,7 +2575,15 @@
         DOM.submitBtn.disabled = true;
 
         try {
-          const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", currentRoomCode);
+          const roomRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "rooms",
+            currentRoomCode,
+          );
           await updateDoc(roomRef, {
             players: updatedPlayers,
             dealerIndex: nextDealerIdx,
@@ -2345,32 +2604,50 @@
           return showModal("Notice", "No rounds to undo.");
         }
 
-        showModal("Undo Round", "Are you sure you want to delete the last recorded round?", "confirm", async () => {
-          try {
-            const lastRecord = localRoomState.history[localRoomState.history.length - 1];
-            const deltasToRevert = lastRecord.deltas;
+        showModal(
+          "Undo Round",
+          "Are you sure you want to delete the last recorded round?",
+          "confirm",
+          async () => {
+            try {
+              const lastRecord =
+                localRoomState.history[localRoomState.history.length - 1];
+              const deltasToRevert = lastRecord.deltas;
 
-            const revertedPlayers = localRoomState.players.map((p) => ({
-              ...p,
-              currentScore: p.currentScore - (deltasToRevert[p.id] || 0),
-            }));
+              const revertedPlayers = localRoomState.players.map((p) => ({
+                ...p,
+                currentScore: p.currentScore - (deltasToRevert[p.id] || 0),
+              }));
 
-            const revertedPot = (localRoomState.pot || 0) - (deltasToRevert.pot || 0);
-            const revertedHistory = localRoomState.history.slice(0, -1);
-            const revertedDealerIndex = lastRecord.prevDealerIndex !== undefined ? lastRecord.prevDealerIndex : localRoomState.dealerIndex || 0;
+              const revertedPot =
+                (localRoomState.pot || 0) - (deltasToRevert.pot || 0);
+              const revertedHistory = localRoomState.history.slice(0, -1);
+              const revertedDealerIndex =
+                lastRecord.prevDealerIndex !== undefined
+                  ? lastRecord.prevDealerIndex
+                  : localRoomState.dealerIndex || 0;
 
-            const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", currentRoomCode);
-            await updateDoc(roomRef, {
-              players: revertedPlayers,
-              dealerIndex: revertedDealerIndex,
-              pot: revertedPot,
-              history: revertedHistory,
-            });
-          } catch (err) {
-            console.error("Undo error:", err);
-            showModal("Error", "Failed to undo round.", "error");
-          }
-        });
+              const roomRef = doc(
+                db,
+                "artifacts",
+                appId,
+                "public",
+                "data",
+                "rooms",
+                currentRoomCode,
+              );
+              await updateDoc(roomRef, {
+                players: revertedPlayers,
+                dealerIndex: revertedDealerIndex,
+                pot: revertedPot,
+                history: revertedHistory,
+              });
+            } catch (err) {
+              console.error("Undo error:", err);
+              showModal("Error", "Failed to undo round.", "error");
+            }
+          },
+        );
       }
 
       function handleOpenCalculator() {
@@ -2392,89 +2669,106 @@
 
       // SINGLE UNIFIED score calculation function
       window.runCalculation = () => {
-  const out = document.getElementById("calc-output");
-  if (!out) return;
+        const out = document.getElementById("calc-output");
+        if (!out) return;
 
-  try {
-    const rawHand = document.getElementById("calc-hand").value.split(",").map((s) => s.trim()).filter(Boolean);
-    const winTileRaw = document.getElementById("calc-wintile").value.trim();
-    const winType = document.getElementById("calc-wintype").value;
-    const seatWind = document.getElementById("calc-seatwind").value;
-    const roundWind = document.getElementById("calc-roundwind").value;
+        try {
+          const rawHand = document
+            .getElementById("calc-hand")
+            .value.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+          const winTileRaw = document
+            .getElementById("calc-wintile")
+            .value.trim();
+          const winType = document.getElementById("calc-wintype").value;
+          const seatWind = document.getElementById("calc-seatwind").value;
+          const roundWind = document.getElementById("calc-roundwind").value;
 
-    const meldCount = typeof currentMelds !== "undefined" ? currentMelds.length : 0;
-    const expectedHandSize = 14 - 3 * meldCount;
+          const meldCount =
+            typeof currentMelds !== "undefined" ? currentMelds.length : 0;
+          const expectedHandSize = 14 - 3 * meldCount;
 
-    if (rawHand.length < expectedHandSize) {
-      out.classList.add("hidden");
-      return;
-    }
+          if (rawHand.length < expectedHandSize) {
+            out.classList.add("hidden");
+            return;
+          }
 
-    const normalizeTile = (t) => t.replace(/^0([mps])/, "5$1");
+          const normalizeTile = (t) => t.replace(/^0([mps])/, "5$1");
 
-    const hand = rawHand.map(normalizeTile);
-    const winTile = winTileRaw ? normalizeTile(winTileRaw) : hand[hand.length - 1];
+          const hand = rawHand.map(normalizeTile);
+          const winTile = winTileRaw
+            ? normalizeTile(winTileRaw)
+            : hand[hand.length - 1];
 
-    const melds = (currentMelds || []).map((m) => ({
-      ...m,
-      tiles: m.tiles.map(normalizeTile),
-    }));
+          const melds = (currentMelds || []).map((m) => ({
+            ...m,
+            tiles: m.tiles.map(normalizeTile),
+          }));
 
-    const doubleRiichi = document.getElementById("calc-doubleriichi")?.checked || false;
-    const riichi = doubleRiichi || (document.getElementById("calc-riichi")?.checked || false);
-    const ippatsu = document.getElementById("calc-ippatsu")?.checked || false;
-    const afterKan = document.getElementById("calc-afterkan")?.checked || false;
-    const robbingKan = document.getElementById("calc-robbingkan")?.checked || false;
-    const lastTile = document.getElementById("calc-lasttile")?.checked || false;
+          const doubleRiichi =
+            document.getElementById("calc-doubleriichi")?.checked || false;
+          const riichi =
+            doubleRiichi ||
+            document.getElementById("calc-riichi")?.checked ||
+            false;
+          const ippatsu =
+            document.getElementById("calc-ippatsu")?.checked || false;
+          const afterKan =
+            document.getElementById("calc-afterkan")?.checked || false;
+          const robbingKan =
+            document.getElementById("calc-robbingkan")?.checked || false;
+          const lastTile =
+            document.getElementById("calc-lasttile")?.checked || false;
 
-    const blessing = document.getElementById("calc-tenhou")?.checked
-      ? "tenhou"
-      : document.getElementById("calc-chiihou")?.checked
-        ? "chiihou"
-        : null;
+          const blessing = document.getElementById("calc-tenhou")?.checked
+            ? "tenhou"
+            : document.getElementById("calc-chiihou")?.checked
+              ? "chiihou"
+              : null;
 
-    const doraIndicators = document
-      .getElementById("calc-dora")
-      .value.split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .map(normalizeTile);
+          const doraIndicators = document
+            .getElementById("calc-dora")
+            .value.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .map(normalizeTile);
 
-    const result = RiichiScore.calculateScore({
-      hand,
-      melds,
-      winTile,
-      winType,
-      seatWind,
-      roundWind,
-      riichi,
-      isRiichi: riichi,
-      doubleRiichi,
-      isDoubleRiichi: doubleRiichi,
-      ippatsu,
-      isIppatsu: ippatsu,
-      afterKan,
-      isAfterKan: afterKan,
-      robbingKan,
-      isRobbingKan: robbingKan,
-      lastTile,
-      isLastTile: lastTile,
-      blessing,
-      doraIndicators,
-      config: { kiriageMangan: false },
-    });
+          const result = RiichiScore.calculateScore({
+            hand,
+            melds,
+            winTile,
+            winType,
+            seatWind,
+            roundWind,
+            riichi,
+            isRiichi: riichi,
+            doubleRiichi,
+            isDoubleRiichi: doubleRiichi,
+            ippatsu,
+            isIppatsu: ippatsu,
+            afterKan,
+            isAfterKan: afterKan,
+            robbingKan,
+            isRobbingKan: robbingKan,
+            lastTile,
+            isLastTile: lastTile,
+            blessing,
+            doraIndicators,
+            config: { kiriageMangan: false },
+          });
 
-    out.classList.remove("hidden");
-    out.innerHTML = `
+          out.classList.remove("hidden");
+          out.innerHTML = `
       <p class="font-bold text-jade-700">${result.tier || "Hand Score"} · ${result.han} Han ${result.fu} Fu</p>
       <p class="text-ink">Points to pay: <b>${result.points ? (typeof result.points === "object" ? JSON.stringify(result.points) : result.points.toLocaleString()) : "0"}</b></p>
       <ul class="list-disc pl-4 text-xs text-ink-mute">${result.yaku ? result.yaku.map((y) => `<li>${y.name} (${y.han} han)</li>`).join("") : ""}</ul>
     `;
-  } catch (err) {
-    console.error("Score Calc Error:", err);
-    out.classList.add("hidden");
-  }
-};
+        } catch (err) {
+          console.error("Score Calc Error:", err);
+          out.classList.add("hidden");
+        }
+      };
 
       function initTilePicker() {
         const suits = {
@@ -2489,7 +2783,10 @@
           if (!container) continue;
           container.innerHTML = "";
           codes.forEach((code) => {
-            const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+            const face = TILE_FACES[code] || {
+              sym: code,
+              color: "text-slate-800",
+            };
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "picker-tile";
@@ -2505,7 +2802,9 @@
 
       function addTileToHand(code) {
         const hiddenInput = document.getElementById("calc-hand");
-        let tiles = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+        let tiles = hiddenInput.value
+          ? hiddenInput.value.split(",").filter(Boolean)
+          : [];
         if (tiles.length >= 14) return;
 
         tiles.push(code);
@@ -2529,7 +2828,8 @@
 
         const modal = document.getElementById("meld-builder-modal");
         const title = document.getElementById("meld-modal-title");
-        const requiredCount = pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
+        const requiredCount =
+          pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
         title.textContent = `Select ${requiredCount} tiles for ${pendingMeldType.toUpperCase()}`;
 
         renderMeldPicker();
@@ -2557,7 +2857,7 @@
                   <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border border-jade-300 rounded-md shadow-xs">
                     <span class="text-[3rem] leading-none font-serif font-bold text-jade-800">${(TILE_FACES[code] && TILE_FACES[code].sym) || code}</span>
                     <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
-                  </div>`
+                  </div>`,
               )
               .join("")
           : `<span class="text-ink-mute italic font-normal text-xs">Click tiles below...</span>`;
@@ -2576,7 +2876,10 @@
           if (!container) continue;
           container.innerHTML = "";
           codes.forEach((code) => {
-            const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+            const face = TILE_FACES[code] || {
+              sym: code,
+              color: "text-slate-800",
+            };
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "picker-tile";
@@ -2591,8 +2894,13 @@
       }
 
       function selectTileForMeld(code) {
-        const maxCount = pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
-        if (pendingMeldType === "pon" || pendingMeldType === "kan" || pendingMeldType === "closed_kan") {
+        const maxCount =
+          pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
+        if (
+          pendingMeldType === "pon" ||
+          pendingMeldType === "kan" ||
+          pendingMeldType === "closed_kan"
+        ) {
           pendingMeldTiles = Array(maxCount).fill(code);
         } else if (pendingMeldType === "chii") {
           if (pendingMeldTiles.length < 3) pendingMeldTiles.push(code);
@@ -2601,12 +2909,16 @@
       }
 
       window.confirmMeldSelection = () => {
-        const requiredCount = pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
+        const requiredCount =
+          pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
         if (pendingMeldTiles.length !== requiredCount) {
           alert(`Please select exactly ${requiredCount} tiles for this meld.`);
           return;
         }
-        currentMelds.push({ type: pendingMeldType, tiles: [...pendingMeldTiles] });
+        currentMelds.push({
+          type: pendingMeldType,
+          tiles: [...pendingMeldTiles],
+        });
         renderMelds();
         closeMeldBuilder();
         runCalculation();
@@ -2631,7 +2943,10 @@
           .map((m, idx) => {
             const tilesHTML = m.tiles
               .map((code) => {
-                const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+                const face = TILE_FACES[code] || {
+                  sym: code,
+                  color: "text-slate-800",
+                };
                 return `
                   <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border border-ink/20 rounded-md shadow-xs">
                     <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${face.sym}</span>
@@ -2657,22 +2972,33 @@
         const winTileDisplay = document.getElementById("calc-wintile-display");
         if (!displayContainer) return;
 
-        const tiles = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+        const tiles = hiddenInput.value
+          ? hiddenInput.value.split(",").filter(Boolean)
+          : [];
 
         if (tiles.length === 0) {
           displayContainer.innerHTML = `<span id="calc-hand-placeholder" class="text-xs text-ink-mute italic pl-1">Click tiles below to build hand...</span>`;
           if (winTileHidden) winTileHidden.value = "";
-          if (winTileDisplay) winTileDisplay.innerHTML = `<span class="text-xs text-ink-mute italic">Auto</span>`;
+          if (winTileDisplay)
+            winTileDisplay.innerHTML = `<span class="text-xs text-ink-mute italic">Auto</span>`;
           return;
         }
 
-        const meldCount = typeof currentMelds !== "undefined" ? currentMelds.length : 0;
+        const meldCount =
+          typeof currentMelds !== "undefined" ? currentMelds.length : 0;
         const expectedHandSize = 14 - 3 * meldCount;
         const lastTile = tiles[tiles.length - 1];
 
-        if (winTileHidden && winTileDisplay && tiles.length === expectedHandSize) {
+        if (
+          winTileHidden &&
+          winTileDisplay &&
+          tiles.length === expectedHandSize
+        ) {
           winTileHidden.value = lastTile;
-          const face = TILE_FACES[lastTile] || { sym: lastTile, color: "text-slate-800" };
+          const face = TILE_FACES[lastTile] || {
+            sym: lastTile,
+            color: "text-slate-800",
+          };
           winTileDisplay.innerHTML = `
             <div class="inline-flex flex-col items-center justify-center w-full h-full bg-amber-50 border border-amber-300 rounded-2xl">
               <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${face.sym}</span>
@@ -2682,8 +3008,12 @@
 
         displayContainer.innerHTML = tiles
           .map((code, idx) => {
-            const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
-            const isWinTile = idx === tiles.length - 1 && tiles.length === expectedHandSize;
+            const face = TILE_FACES[code] || {
+              sym: code,
+              color: "text-slate-800",
+            };
+            const isWinTile =
+              idx === tiles.length - 1 && tiles.length === expectedHandSize;
             return `
               <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border ${isWinTile ? "border-amber-400 ring-2 ring-amber-300" : "border-ink/20"} rounded-2xl shadow-xs relative group cursor-pointer" onclick="removeHandTile(${idx})">
                 ${isWinTile ? `<span class="absolute -top-2 -right-1.5 bg-amber-500 text-white text-[8px] font-extrabold px-1 rounded-full uppercase">Win</span>` : ""}
@@ -2696,7 +3026,9 @@
 
       window.removeHandTile = (index) => {
         const hiddenInput = document.getElementById("calc-hand");
-        let tiles = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+        let tiles = hiddenInput.value
+          ? hiddenInput.value.split(",").filter(Boolean)
+          : [];
         tiles.splice(index, 1);
         hiddenInput.value = tiles.join(",");
         renderHandTiles();
@@ -2704,22 +3036,22 @@
       };
 
       window.openDoraPicker = () => {
-  renderDoraPickerBoard();
-  const modal = document.getElementById("dora-builder-modal");
-  if (modal) {
-    modal.classList.remove("hidden");
+        renderDoraPickerBoard();
+        const modal = document.getElementById("dora-builder-modal");
+        if (modal) {
+          modal.classList.remove("hidden");
 
-    // Auto-focus the first tile button once rendered
-    setTimeout(() => {
-      const firstTileBtn = modal.querySelector(".picker-tile");
-      if (firstTileBtn) {
-        firstTileBtn.focus();
-      } else {
-        modal.focus();
-      }
-    }, 50);
-  }
-};
+          // Auto-focus the first tile button once rendered
+          setTimeout(() => {
+            const firstTileBtn = modal.querySelector(".picker-tile");
+            if (firstTileBtn) {
+              firstTileBtn.focus();
+            } else {
+              modal.focus();
+            }
+          }, 50);
+        }
+      };
 
       window.closeDoraPicker = () => {
         const modal = document.getElementById("dora-builder-modal");
@@ -2739,7 +3071,10 @@
           if (!container) continue;
           container.innerHTML = "";
           codes.forEach((code) => {
-            const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+            const face = TILE_FACES[code] || {
+              sym: code,
+              color: "text-slate-800",
+            };
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "picker-tile";
@@ -2755,7 +3090,9 @@
 
       window.selectDoraTile = (code) => {
         const hiddenInput = document.getElementById("calc-dora");
-        let doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+        let doras = hiddenInput.value
+          ? hiddenInput.value.split(",").filter(Boolean)
+          : [];
         doras.push(code);
         hiddenInput.value = doras.join(",");
         renderDoraTiles();
@@ -2768,7 +3105,9 @@
         const displayContainer = document.getElementById("calc-dora-display");
         if (!displayContainer || !hiddenInput) return;
 
-        const doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+        const doras = hiddenInput.value
+          ? hiddenInput.value.split(",").filter(Boolean)
+          : [];
 
         if (doras.length === 0) {
           displayContainer.innerHTML = `<span class="text-xs text-ink-mute italic pl-1">Click + Add Dora to select indicators...</span>`;
@@ -2777,7 +3116,10 @@
 
         displayContainer.innerHTML = doras
           .map((code, idx) => {
-            const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+            const face = TILE_FACES[code] || {
+              sym: code,
+              color: "text-slate-800",
+            };
             return `
               <div class="inline-flex flex-col items-center justify-center w-10 h-14 bg-white border border-ink/20 rounded-xl shadow-xs relative group cursor-pointer" onclick="removeDoraTile(${idx})">
                 <span class="text-[2.5rem] leading-none ${face.color}">${face.sym}</span>
@@ -2789,7 +3131,9 @@
 
       window.removeDoraTile = (index) => {
         const hiddenInput = document.getElementById("calc-dora");
-        let doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+        let doras = hiddenInput.value
+          ? hiddenInput.value.split(",").filter(Boolean)
+          : [];
         doras.splice(index, 1);
         hiddenInput.value = doras.join(",");
         renderDoraTiles();

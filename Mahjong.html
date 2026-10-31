@@ -627,6 +627,43 @@
       </div>
     </div>
 
+    <!-- Payout Calculator Modal -->
+<div id="payout-modal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex">
+  <div class="fade-in w-full max-w-md rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift">
+    
+    <!-- PIN Screen -->
+    <div id="to-pin-screen" class="space-y-4 text-center">
+      <h3 class="font-display text-xl font-semibold text-ink">Store Manager PIN</h3>
+      <p class="text-xs text-ink-mute">Enter 4-digit store code to view venue payout calculations</p>
+      <input type="password" id="to-pin-input" maxlength="4" class="field text-center text-2xl tracking-[0.5em] py-3" placeholder="••••">
+      <div class="flex gap-2">
+        <button onclick="closePayoutCalculator()" class="btn btn-soft flex-1 py-3 text-sm">Cancel</button>
+        <button onclick="verifyToPin()" class="btn btn-primary flex-1 py-3 text-sm">Verify</button>
+      </div>
+    </div>
+
+    <!-- Payout Content -->
+    <div id="to-calc-content" class="hidden space-y-4">
+      <div class="flex items-center justify-between border-b border-ink/10 pb-3">
+        <h3 class="font-display text-xl font-semibold text-ink">Tournament Payouts</h3>
+        <button onclick="closePayoutCalculator()" class="text-ink-mute hover:text-ink font-bold">✕</button>
+      </div>
+
+      <div class="flex items-center justify-between bg-white border border-ink/10 rounded-2xl p-3">
+        <span class="text-xs font-bold text-ink-soft">Players</span>
+        <div class="flex items-center gap-3">
+          <button id="btn-minus-player" onclick="adjustPlayers(-1)" class="btn btn-soft w-8 h-8 p-0 text-sm font-bold">-</button>
+          <input type="number" id="calc-players" value="4" readonly class="w-8 text-center font-bold text-sm bg-transparent">
+          <button id="btn-plus-player" onclick="adjustPlayers(1)" class="btn btn-soft w-8 h-8 p-0 text-sm font-bold">+</button>
+        </div>
+      </div>
+
+      <div id="calc-results"></div>
+    </div>
+
+  </div>
+</div>
+
     <main
       class="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-10 pt-6 sm:px-6 sm:pt-8 lg:px-8"
     >
@@ -642,7 +679,7 @@
                 Riichi Tracker
               </h1>
               <p class="mt-0.5 text-xs font-medium text-ink-mute sm:text-sm">
-                Live scorekeeper for your mahjong table
+                Scorekeeper app
               </p>
             </div>
           </div>
@@ -746,17 +783,17 @@
                   class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/70"
                 >
                   <span class="h-1.5 w-1.5 rounded-full bg-gold-300"></span>
-                  Riichi · Sanma · Live
+                  Mahjong scorekeeper
                 </span>
 
                 <h2
                   class="font-display mt-6 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl"
                 >
-                  Pull up a seat.
+                  Keep score as you play.
                 </h2>
                 <p class="hero-copy mt-3 text-sm leading-relaxed text-white/65">
-                  Keep every hand, riichi stick, and score change in sync — no
-                  paper, no arguments, no lost points.
+                  Track hands, riichi sticks, and scores on your phone.
+                  Everyone at the table sees the same numbers.
                 </p>
 
                 <ul class="mt-8 space-y-4 text-sm">
@@ -782,7 +819,7 @@
                       </svg>
                     </span>
                     <span class="text-white/80"
-                      >Real-time sync across every phone at the table</span
+                      >Scores update on every phone as you play.</span
                     >
                   </li>
                   <li class="flex items-start gap-3">
@@ -805,8 +842,8 @@
                       </svg>
                     </span>
                     <span class="text-white/80"
-                      >Riichi sticks, table pot, and dealer rotation handled for
-                      you</span
+                      >It keeps track of riichi sticks, the pot, and who deals
+                      next.</span
                     >
                   </li>
                   <li class="flex items-start gap-3">
@@ -831,7 +868,8 @@
                       </svg>
                     </span>
                     <span class="text-white/80"
-                      >A full round ledger with one-tap undo</span
+                      >Every round is saved. You can undo the last round with
+                      one tap.</span
                     >
                   </li>
                 </ul>
@@ -840,12 +878,12 @@
 
             <!-- Join panel -->
             <div class="join-panel">
-              <p class="label">Start playing</p>
+              <p class="label">Play</p>
               <h3 class="font-display text-2xl font-semibold text-ink">
-                Join the table
+                Start or join a game
               </h3>
               <p class="mt-1 text-sm text-ink-mute">
-                Create a fresh room or enter a friend's code.
+                Create a room or enter a code from the host.
               </p>
 
               <button
@@ -865,14 +903,14 @@
                 >
                   <path d="M12 5v14M5 12h14" />
                 </svg>
-                Create new room
+                New room
               </button>
 
               <div class="relative my-7 flex items-center">
                 <div class="flex-grow border-t border-ink/10"></div>
                 <span
                   class="mx-4 flex-shrink-0 text-[10px] font-extrabold uppercase tracking-[0.18em] text-ink-mute"
-                  >or join existing</span
+                  >or join a room</span
                 >
                 <div class="flex-grow border-t border-ink/10"></div>
               </div>
@@ -897,7 +935,7 @@
               </div>
 
               <p class="mt-4 text-center text-xs text-ink-mute">
-                Ask the host for the 4-letter room code.
+                Ask the host for the 4-letter code.
               </p>
             </div>
           </div>
@@ -1328,7 +1366,7 @@
     <footer
       class="mx-auto w-full max-w-6xl px-4 pb-8 text-center text-xs text-ink-mute sm:px-6 lg:px-8"
     >
-      Riichi Tracker · scores sync live · play fair, have fun
+      Riichi Tracker by Siuspras
     </footer>
 
     <script type="module" src="app.js"></script>

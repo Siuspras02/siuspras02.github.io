@@ -106,6 +106,13 @@ function parseInput(input) {
   const combined = mergeCounts(hand, meldTiles);
   assertMaxPerTile(combined.counts, 4, "combined hand + melds");
 
+  // only one aka (red five) exists per suit across the whole set
+  if (combined.red[4] > 1 || combined.red[13] > 1 || combined.red[22] > 1) {
+    throw new Error(
+      "There cannot be more than one red five of the same suit (hand + melds)",
+    );
+  }
+
   // flag validation
   const menzen = melds.every((m) => m.type === "closed_kan");
   const riichi = !!input.riichi;

@@ -1017,16 +1017,14 @@
             return;
           }
 
-          const normalizeTile = (t) => t.replace(/^0([mps])/, "5$1");
-
-          const hand = rawHand.map(normalizeTile);
-          const winTile = winTileRaw
-            ? normalizeTile(winTileRaw)
-            : hand[hand.length - 1];
+          // Pass tiles through verbatim (including aka fives "0X") so every
+          // tile keeps its own isAka — the engine validates and counts them.
+          const hand = [...rawHand];
+          const winTile = winTileRaw || hand[hand.length - 1];
 
           const melds = (currentMelds || []).map((m) => ({
             ...m,
-            tiles: m.tiles.map(normalizeTile),
+            tiles: [...m.tiles],
           }));
 
           const doubleRiichi =
@@ -1054,8 +1052,7 @@
             .getElementById("calc-dora")
             .value.split(",")
             .map((s) => s.trim())
-            .filter(Boolean)
-            .map(normalizeTile);
+            .filter(Boolean);
 
           const result = RiichiScore.calculateScore({
             hand,
@@ -1104,7 +1101,11 @@
     `;
         } catch (err) {
           console.error("Score Calc Error:", err);
-          out.classList.add("hidden");
+          out.classList.remove("hidden");
+          out.innerHTML = `
+      <p class="text-xs font-semibold text-red-700">⚠ ${err.message}</p>
+      <p class="text-xs text-ink-mute mt-1">Fix the hand or meld above and recalculate.</p>
+    `;
         }
       };
 
@@ -1239,9 +1240,26 @@
           pendingMeldType === "kan" ||
           pendingMeldType === "closed_kan"
         ) {
-          pendingMeldTiles = Array(maxCount).fill(code);
+          // Only one aka five exists per suit, so the meld can hold at most
+          // one "0X" — prefer normal copies and keep the aka variant only
+          // for the tile that was actually picked (aka shown last).
+          const normal = code.startsWith("0") ? "5" + code.slice(1) : code;
+          pendingMeldTiles = Array.from(
+            { length: maxCount },
+            (_, i) => (i === maxCount - 1 ? code : normal),
+          );
         } else if (pendingMeldType === "chii") {
-          if (pendingMeldTiles.length < 3) pendingMeldTiles.push(code);
+          // A run can't repeat a rank, and an aka five ("0X") is the same
+          // rank as its normal five ("5X") — ignore re-selection instead of
+          // building an impossible meld with two "same-number" copies.
+          const rankOf = (c) => (c.startsWith("0") ? "5" + c.slice(1) : c);
+          const rank = rankOf(code);
+          if (
+            pendingMeldTiles.length < 3 &&
+            !pendingMeldTiles.some((t) => rankOf(t) === rank)
+          ) {
+            pendingMeldTiles.push(code);
+          }
         }
         updateMeldPreview();
       }
@@ -1252,6 +1270,25 @@
         if (pendingMeldTiles.length !== requiredCount) {
           alert(`Please select exactly ${requiredCount} tiles for this meld.`);
           return;
+        }
+        if (pendingMeldType === "chii") {
+          // Defensive check: the run must be one suit, consecutive ranks —
+          // with an aka five ("0X") counting as its normal five ("5X").
+          const norm = (c) => (c.startsWith("0") ? "5" + c.slice(1) : c);
+          const suits = new Set(pendingMeldTiles.map((c) => norm(c).slice(-1)));
+          const digits = pendingMeldTiles
+            .map((c) => parseInt(c.startsWith("0") ? "5" + c.slice(1) : c, 10))
+            .sort((a, b) => a - b);
+          if (
+            suits.size !== 1 ||
+            digits[1] !== digits[0] + 1 ||
+            digits[2] !== digits[0] + 2
+          ) {
+            alert(
+              "That chi is not a valid consecutive run in one suit (an aka five counts as a five).",
+            );
+            return;
+          }
         }
         currentMelds.push({
           type: pendingMeldType,

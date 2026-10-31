@@ -405,6 +405,13 @@
       .picker-tile .text-base {
         font-size: 3rem;
       }
+      .picker-tile span.text-\[9px\],
+#calc-hand-display span.text-\[9px\],
+#calc-dora-display span.text-\[8px\],
+#meld-selected-tiles span.text-\[9px\],
+#calc-melds-list span.text-\[9px\] {
+  display: none !important;
+}
 
       @media (prefers-reduced-motion: reduce) {
         *,
@@ -779,82 +786,62 @@
             </div>
           </div>
 
-          <!-- COMPREHENSIVE OPTIONS CHECKBOXES -->
-          <div class="rounded-2xl border border-ink/10 bg-white p-4 space-y-3">
-            <p
-              class="text-xs font-extrabold uppercase tracking-wider text-ink-mute"
-            >
-              Special Hand Flags &amp; Situations
-            </p>
-            <div
-              class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm font-semibold text-ink"
-            >
-              <label class="flex items-center gap-2"
-                ><input
-                  type="checkbox"
-                  id="calc-riichi"
-                  class="rounded accent-jade-600"
-                />
-                Riichi</label
-              >
-              <label class="flex items-center gap-2"
-                ><input
-                  type="checkbox"
-                  id="calc-doubleriichi"
-                  class="rounded accent-jade-600"
-                />
-                Double Riichi</label
-              >
-              <label class="flex items-center gap-2"
-                ><input
-                  type="checkbox"
-                  id="calc-ippatsu"
-                  class="rounded accent-jade-600"
-                />
-                Ippatsu</label
-              >
-              <label class="flex items-center gap-2"
-                ><input
-                  type="checkbox"
-                  id="calc-afterkan"
-                  class="rounded accent-jade-600"
-                />
-                After Kan (Rinshan)</label
-              >
-              <label class="flex items-center gap-2"
-                ><input
-                  type="checkbox"
-                  id="calc-robbingkan"
-                  class="rounded accent-jade-600"
-                />
-                Robbing Kan (Chankan)</label
-              >
-              <label class="flex items-center gap-2"
-                ><input
-                  type="checkbox"
-                  id="calc-lasttile"
-                  class="rounded accent-jade-600"
-                />
-                Under River (Haitei/Houtei)</label
-              >
-              <label class="flex items-center gap-2"
-                ><input
-                  type="checkbox"
-                  id="calc-tenhou"
-                  class="rounded accent-jade-600"
-                />
-                Blessing of Heaven</label
-              >
-              <label class="flex items-center gap-2"
-                ><input
-                  type="checkbox"
-                  id="calc-chiihou"
-                  class="rounded accent-jade-600"
-                />
-                Blessing of Earth</label
-              >
-            </div>
-          </div>
+
+          <!-- SPECIAL HAND FLAGS & SITUATIONS -->
+<div class="rounded-2xl border border-ink/10 bg-white p-4 space-y-3">
+  <div class="flex items-center justify-between">
+    <p class="text-xs font-extrabold uppercase tracking-wider text-ink-mute">
+      Special Hand Flags &amp; Situations
+    </p>
+
+    <!-- NEW RECALCULATE BUTTON -->
+    <button
+      type="button"
+      onclick="runCalculation()"
+      class="btn btn-primary px-3 py-1.5 text-xs"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+      </svg>
+      Recalculate Hand
+    </button>
+  </div>
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm font-semibold text-ink">
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="calc-riichi" class="rounded accent-jade-600" />
+      Riichi
+    </label>
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="calc-doubleriichi" class="rounded accent-jade-600" />
+      Double Riichi
+    </label>
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="calc-ippatsu" class="rounded accent-jade-600" />
+      Ippatsu
+    </label>
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="calc-afterkan" class="rounded accent-jade-600" />
+      After Kan (Rinshan)
+    </label>
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="calc-robbingkan" class="rounded accent-jade-600" />
+      Robbing Kan (Chankan)
+    </label>
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="calc-lasttile" class="rounded accent-jade-600" />
+      Under River (Haitei/Houtei)
+    </label>
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="calc-tenhou" class="rounded accent-jade-600" />
+      Blessing of Heaven
+    </label>
+    <label class="flex items-center gap-2">
+      <input type="checkbox" id="calc-chiihou" class="rounded accent-jade-600" />
+      Blessing of Earth
+    </label>
+  </div>
+</div>
 
           <div>
   <label class="label">Dora Indicators</label>
@@ -867,13 +854,6 @@
     <button type="button" onclick="clearDoraIndicators()" class="btn btn-soft px-3 py-2 text-xs">Clear</button>
   </div>
 </div>
-
-          <button
-            onclick="runCalculation()"
-            class="btn btn-primary w-full py-3 text-base"
-          >
-            Calculate Score
-          </button>
 
           <div
             id="calc-output"
@@ -1603,26 +1583,26 @@
         "9m": { sym: "🀏", color: "text-amber-800" },
 
         "1p": { sym: "🀙", color: "text-blue-700" },
-  "2p": { sym: "🀚", color: "text-blue-700" },
-  "3p": { sym: "🀛", color: "text-blue-700" },
-  "4p": { sym: "🀜", color: "text-blue-700" },
-  "0p": { sym: "🀝", color: "text-red-600" },
-  "5p": { sym: "🀝", color: "text-blue-700" },
-  "6p": { sym: "🀞", color: "text-blue-700" },
-  "7p": { sym: "🀟", color: "text-blue-700" },
-  "8p": { sym: "🀠", color: "text-blue-700" },
-  "9p": { sym: "🀡", color: "text-blue-700" },
+        "2p": { sym: "🀚", color: "text-blue-700" },
+        "3p": { sym: "🀛", color: "text-blue-700" },
+        "4p": { sym: "🀜", color: "text-blue-700" },
+        "0p": { sym: "🀝", color: "text-red-600" },
+        "5p": { sym: "🀝", color: "text-blue-700" },
+        "6p": { sym: "🀞", color: "text-blue-700" },
+        "7p": { sym: "🀟", color: "text-blue-700" },
+        "8p": { sym: "🀠", color: "text-blue-700" },
+        "9p": { sym: "🀡", color: "text-blue-700" },
 
         "1s": { sym: "🀐", color: "text-emerald-800" },
-  "2s": { sym: "🀑", color: "text-emerald-800" },
-  "3s": { sym: "🀒", color: "text-emerald-800" },
-  "4s": { sym: "🀓", color: "text-emerald-800" },
-  "0s": { sym: "🀔", color: "text-red-600" },
-  "5s": { sym: "🀔", color: "text-emerald-800" },
-  "6s": { sym: "🀕", color: "text-emerald-800" },
-  "7s": { sym: "🀖", color: "text-emerald-800" },
-  "8s": { sym: "🀗", color: "text-emerald-800" },
-  "9s": { sym: "🀘", color: "text-emerald-800" },
+        "2s": { sym: "🀑", color: "text-emerald-800" },
+        "3s": { sym: "🀒", color: "text-emerald-800" },
+        "4s": { sym: "🀓", color: "text-emerald-800" },
+        "0s": { sym: "🀔", color: "text-red-600" },
+        "5s": { sym: "🀔", color: "text-emerald-800" },
+        "6s": { sym: "🀕", color: "text-emerald-800" },
+        "7s": { sym: "🀖", color: "text-emerald-800" },
+        "8s": { sym: "🀗", color: "text-emerald-800" },
+        "9s": { sym: "🀘", color: "text-emerald-800" },
 
         "1z": { sym: "東", color: "text-slate-800" },
         "2z": { sym: "南", color: "text-slate-800" },
@@ -1632,6 +1612,7 @@
         "6z": { sym: "發", color: "text-emerald-600" },
         "7z": { sym: "中", color: "text-red-600" },
       };
+
       import { calculateScore } from "./riichi/score.js";
       window.RiichiScore = { calculateScore };
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1648,48 +1629,24 @@
         setDoc,
         updateDoc,
         onSnapshot,
-        collection,
       } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
       const _p = ["0", "2", "0", "2"];
 
-      // --- WIND SEAT HELPERS ---
       const WINDS = ["East", "South", "West", "North"];
       const WIND_BADGES = {
-        East: {
-          bg: "bg-red-50 border border-red-200",
-          text: "text-red-700",
-          label: "East · Dealer",
-          kanji: "東",
-        },
-        South: {
-          bg: "bg-jade-50 border border-jade-200",
-          text: "text-jade-700",
-          label: "South",
-          kanji: "南",
-        },
-        West: {
-          bg: "bg-indigo-50 border border-indigo-200",
-          text: "text-indigo-700",
-          label: "West",
-          kanji: "西",
-        },
-        North: {
-          bg: "bg-slate-100 border border-slate-200",
-          text: "text-slate-600",
-          label: "North",
-          kanji: "北",
-        },
+        East: { bg: "bg-red-50 border border-red-200", text: "text-red-700", label: "East · Dealer", kanji: "東" },
+        South: { bg: "bg-jade-50 border border-jade-200", text: "text-jade-700", label: "South", kanji: "南" },
+        West: { bg: "bg-indigo-50 border border-indigo-200", text: "text-indigo-700", label: "West", kanji: "西" },
+        North: { bg: "bg-slate-100 border border-slate-200", text: "text-slate-600", label: "North", kanji: "北" },
       };
 
       function getPlayerWind(playerIndex, dealerIndex, totalPlayers) {
-        const relativePos =
-          (playerIndex - dealerIndex + totalPlayers) % totalPlayers;
+        const relativePos = (playerIndex - dealerIndex + totalPlayers) % totalPlayers;
         return WINDS[relativePos];
       }
 
-      // Environment Setup
-      const appId =
-        typeof __app_id !== "undefined" ? __app_id : "mahjong-tracker-v1";
+      const appId = typeof __app_id !== "undefined" ? __app_id : "mahjong-tracker-v1";
       let firebaseConfig = {
         apiKey: "AIzaSyD7J9TzZ5vrAD4nr29gX2xk-HwTQPTnYKg",
         authDomain: "mahjong-a5267.firebaseapp.com",
@@ -1701,11 +1658,12 @@
       };
 
       let app, auth, db, currentUser;
-
-      // Application State
       let currentRoomCode = null;
       let unsubscribeRoom = null;
       let localRoomState = null;
+      let currentMelds = [];
+      let pendingMeldType = null;
+      let pendingMeldTiles = [];
 
       const DOM = {
         lobby: document.getElementById("lobby-section"),
@@ -1726,9 +1684,6 @@
       async function init() {
         try {
           if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
-            console.warn(
-              "No Firebase config found. App requires Firebase to function.",
-            );
             updateStatus(false, "Config Missing");
             return;
           }
@@ -1737,10 +1692,7 @@
           auth = getAuth(app);
           db = getFirestore(app);
 
-          if (
-            typeof __initial_auth_token !== "undefined" &&
-            __initial_auth_token
-          ) {
+          if (typeof __initial_auth_token !== "undefined" && __initial_auth_token) {
             await signInWithCustomToken(auth, __initial_auth_token);
           } else {
             await signInAnonymously(auth);
@@ -1755,7 +1707,6 @@
             }
           });
 
-          // Window Functions Attach
           window.showSetup = () => {
             DOM.lobby.classList.add("hidden");
             DOM.setup.classList.remove("hidden");
@@ -1777,15 +1728,14 @@
           window.validateSum = validateSum;
           window.copyRoomCode = copyRoomCode;
 
-          // NEW: TO Payout Calculator
           window.openPayoutCalculator = openPayoutCalculator;
           window.closePayoutCalculator = closePayoutCalculator;
           window.verifyToPin = verifyToPin;
           window.updatePayoutCalc = updatePayoutCalc;
           window.adjustPlayers = adjustPlayers;
 
-          // Init Calculator UI
           updatePayoutCalc();
+          initAutoCalculation();
         } catch (err) {
           console.error("Init Error:", err);
           updateStatus(false, "Connection Error");
@@ -1802,22 +1752,15 @@
       function verifyToPin() {
         const inputField = document.getElementById("to-pin-input");
         const enteredPin = inputField.value.trim();
-
         if (!enteredPin) return;
 
-        // Reconstructs "0202" on the fly when you submit
         const correctPin = _p.join("");
-
         if (enteredPin === correctPin) {
           document.getElementById("to-pin-screen").classList.add("hidden");
           document.getElementById("to-calc-content").classList.remove("hidden");
           updatePayoutCalc();
         } else {
-          showModal(
-            "Incorrect PIN",
-            "The code you entered is incorrect.",
-            "error",
-          );
+          showModal("Incorrect PIN", "The code you entered is incorrect.", "error");
           inputField.value = "";
         }
       }
@@ -1852,10 +1795,8 @@
 
         input.value = players;
 
-        document.getElementById("btn-minus-player").style.visibility =
-          players <= 4 ? "hidden" : "visible";
-        document.getElementById("btn-plus-player").style.visibility =
-          players >= 12 ? "hidden" : "visible";
+        document.getElementById("btn-minus-player").style.visibility = players <= 4 ? "hidden" : "visible";
+        document.getElementById("btn-plus-player").style.visibility = players >= 12 ? "hidden" : "visible";
 
         const totalIn = players * 50000;
         const tableFund = players * 22500;
@@ -1879,45 +1820,46 @@
         if (payouts) {
           payouts.forEach((amount, index) => {
             payoutHTML += `
-                        <div class="flex items-center justify-between rounded-xl border border-ink/10 bg-white px-4 py-2.5">
-                            <span class="flex items-center gap-2 text-sm font-bold text-ink-soft">
-                                <span class="grid h-6 w-6 place-items-center rounded-md bg-jade-50 text-[11px] font-extrabold text-jade-700">${index + 1}</span>
-                                Place ${index + 1}
-                            </span>
-                            <span class="font-extrabold tabular-nums text-jade-700">${amount.toLocaleString()} SC</span>
-                        </div>
-                    `;
+              <div class="flex items-center justify-between rounded-xl border border-ink/10 bg-white px-4 py-2.5">
+                <span class="flex items-center gap-2 text-sm font-bold text-ink-soft">
+                  <span class="grid h-6 w-6 place-items-center rounded-md bg-jade-50 text-[11px] font-extrabold text-jade-700">${index + 1}</span>
+                  Place ${index + 1}
+                </span>
+                <span class="font-extrabold tabular-nums text-jade-700">${amount.toLocaleString()} SC</span>
+              </div>
+            `;
           });
         }
 
         const resultsDiv = document.getElementById("calc-results");
-        resultsDiv.innerHTML = `
-                <div class="mb-6 space-y-3 rounded-2xl border border-ink/10 bg-white p-5">
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="font-semibold text-ink-mute">Total event cash</span>
-                        <span class="text-lg font-extrabold tabular-nums text-ink">Rp ${totalIn.toLocaleString()}</span>
-                    </div>
-                    <hr class="border-ink/10">
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="font-semibold text-ink-mute">Table fund <span class="text-ink-mute">45%</span></span>
-                        <span class="font-extrabold tabular-nums text-jade-700">Rp ${tableFund.toLocaleString()}</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="font-semibold text-ink-mute">LGS cut <span class="text-ink-mute">15%</span></span>
-                        <span class="font-extrabold tabular-nums text-gold-600">Rp ${storeCut.toLocaleString()}</span>
-                    </div>
-                </div>
+        if (resultsDiv) {
+          resultsDiv.innerHTML = `
+            <div class="mb-6 space-y-3 rounded-2xl border border-ink/10 bg-white p-5">
+              <div class="flex items-center justify-between text-sm">
+                <span class="font-semibold text-ink-mute">Total event cash</span>
+                <span class="text-lg font-extrabold tabular-nums text-ink">Rp ${totalIn.toLocaleString()}</span>
+              </div>
+              <hr class="border-ink/10">
+              <div class="flex items-center justify-between text-sm">
+                <span class="font-semibold text-ink-mute">Table fund <span class="text-ink-mute">45%</span></span>
+                <span class="font-extrabold tabular-nums text-jade-700">Rp ${tableFund.toLocaleString()}</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="font-semibold text-ink-mute">LGS cut <span class="text-ink-mute">15%</span></span>
+                <span class="font-extrabold tabular-nums text-gold-600">Rp ${storeCut.toLocaleString()}</span>
+              </div>
+            </div>
 
-                <div class="mb-3 flex items-center justify-between">
-                    <h4 class="font-display text-lg font-semibold text-ink">Prize pool</h4>
-                    <span class="font-extrabold tabular-nums text-jade-700">${prizePool.toLocaleString()} SC</span>
-                </div>
-                <div class="space-y-2">
-                    ${payoutHTML}
-                </div>
-            `;
+            <div class="mb-3 flex items-center justify-between">
+              <h4 class="font-display text-lg font-semibold text-ink">Prize pool</h4>
+              <span class="font-extrabold tabular-nums text-jade-700">${prizePool.toLocaleString()} SC</span>
+            </div>
+            <div class="space-y-2">
+              ${payoutHTML}
+            </div>
+          `;
+        }
       }
-      // --- END TO PAYOUT CALCULATOR ---
 
       function copyRoomCode() {
         if (!currentRoomCode) return;
@@ -1936,37 +1878,15 @@
           }, 1500);
         };
 
-        const fallbackCopy = () => {
-          const area = document.createElement("textarea");
-          area.value = currentRoomCode;
-          area.setAttribute("readonly", "");
-          area.style.position = "absolute";
-          area.style.left = "-9999px";
-          document.body.appendChild(area);
-          area.select();
-          try {
-            document.execCommand("copy");
-            showCopied();
-          } catch (err) {
-            console.error("Copy failed:", err);
-          }
-          document.body.removeChild(area);
-        };
-
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard
-            .writeText(currentRoomCode)
-            .then(showCopied, fallbackCopy);
-        } else {
-          fallbackCopy();
+          navigator.clipboard.writeText(currentRoomCode).then(showCopied);
         }
       }
 
       function updateStatus(isOnline, text) {
         DOM.statusText.textContent = text;
         if (isOnline) {
-          DOM.statusDot.className =
-            "h-2 w-2 rounded-full bg-jade-500 pulse-dot";
+          DOM.statusDot.className = "h-2 w-2 rounded-full bg-jade-500 pulse-dot";
           DOM.statusText.className = "text-jade-700";
         } else {
           DOM.statusDot.className = "h-2 w-2 rounded-full bg-red-500";
@@ -1983,10 +1903,8 @@
         const cancelBtn = document.getElementById("modal-cancel-btn");
         const confirmBtn = document.getElementById("modal-confirm-btn");
 
-        icon.className =
-          "mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl";
-        confirmBtn.className =
-          "btn flex-1 px-4 py-3 text-sm text-white shadow-md";
+        icon.className = "mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl";
+        confirmBtn.className = "btn flex-1 px-4 py-3 text-sm text-white shadow-md";
         cancelBtn.className = "btn btn-soft flex-1 px-4 py-3 text-sm";
 
         if (type === "error") {
@@ -2016,9 +1934,7 @@
       }
 
       function handleToggleGameMode() {
-        const mode = document.querySelector(
-          'input[name="gameMode"]:checked',
-        ).value;
+        const mode = document.querySelector('input[name="gameMode"]:checked').value;
         const p4Wrap = document.getElementById("setup-p4-wrap");
         const startScoreInput = document.getElementById("setup-start-score");
 
@@ -2041,28 +1957,16 @@
       }
 
       async function handleCreateRoom() {
-        if (!currentUser)
-          return showModal("Error", "Not connected to server.", "error");
+        if (!currentUser) return showModal("Error", "Not connected to server.", "error");
 
-        const mode = document.querySelector(
-          'input[name="gameMode"]:checked',
-        ).value;
+        const mode = document.querySelector('input[name="gameMode"]:checked').value;
         const numPlayers = parseInt(mode);
-        const startScore =
-          parseInt(document.getElementById("setup-start-score").value) ||
-          (numPlayers === 3 ? 35000 : 25000);
+        const startScore = parseInt(document.getElementById("setup-start-score").value) || (numPlayers === 3 ? 35000 : 25000);
 
         const players = [];
-
         for (let i = 1; i <= numPlayers; i++) {
-          const name =
-            document.getElementById(`setup-p${i}`).value.trim() ||
-            `Player ${i}`;
-          players.push({
-            id: `p${i}`,
-            name: name,
-            currentScore: startScore,
-          });
+          const name = document.getElementById(`setup-p${i}`).value.trim() || `Player ${i}`;
+          players.push({ id: `p${i}`, name: name, currentScore: startScore });
         }
 
         const btn = document.getElementById("create-btn");
@@ -2076,19 +1980,9 @@
 
           while (!isUnique) {
             code = generateRoomCode();
-            roomRef = doc(
-              db,
-              "artifacts",
-              appId,
-              "public",
-              "data",
-              "rooms",
-              code,
-            );
+            roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", code);
             const docSnap = await getDoc(roomRef);
-            if (!docSnap.exists()) {
-              isUnique = true;
-            }
+            if (!docSnap.exists()) isUnique = true;
           }
 
           const initialData = {
@@ -2101,7 +1995,6 @@
           };
 
           await setDoc(roomRef, initialData);
-
           DOM.setup.classList.add("hidden");
           enterRoom(code);
         } catch (err) {
@@ -2114,41 +2007,21 @@
       }
 
       async function handleJoinRoom() {
-        if (!currentUser)
-          return showModal("Error", "Not connected to server.", "error");
+        if (!currentUser) return showModal("Error", "Not connected to server.", "error");
 
-        const codeInput = document
-          .getElementById("join-room-code")
-          .value.toUpperCase()
-          .trim();
+        const codeInput = document.getElementById("join-room-code").value.toUpperCase().trim();
         if (codeInput.length !== 4) {
-          return showModal(
-            "Invalid Code",
-            "Please enter a 4-letter room code.",
-            "error",
-          );
+          return showModal("Invalid Code", "Please enter a 4-letter room code.", "error");
         }
 
         try {
-          const roomRef = doc(
-            db,
-            "artifacts",
-            appId,
-            "public",
-            "data",
-            "rooms",
-            codeInput,
-          );
+          const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", codeInput);
           const docSnap = await getDoc(roomRef);
 
           if (docSnap.exists()) {
             enterRoom(codeInput);
           } else {
-            showModal(
-              "Not Found",
-              `No active room found with code ${codeInput}.`,
-              "error",
-            );
+            showModal("Not Found", `No active room found with code ${codeInput}.`, "error");
           }
         } catch (err) {
           console.error("Join room error:", err);
@@ -2162,15 +2035,7 @@
         DOM.game.classList.remove("hidden");
         DOM.displayRoomCode.textContent = code;
 
-        const roomRef = doc(
-          db,
-          "artifacts",
-          appId,
-          "public",
-          "data",
-          "rooms",
-          code,
-        );
+        const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", code);
 
         unsubscribeRoom = onSnapshot(
           roomRef,
@@ -2179,48 +2044,36 @@
               localRoomState = docSnap.data();
               renderGameUI();
             } else {
-              showModal(
-                "Room Closed",
-                "This room has been deleted or closed.",
-                "error",
-                handleLeaveRoom,
-              );
+              showModal("Room Closed", "This room has been deleted or closed.", "error", handleLeaveRoom);
             }
           },
           (error) => {
             console.error("Snapshot error:", error);
             showModal("Sync Error", "Lost connection to the room.", "error");
-          },
+          }
         );
       }
 
       function handleLeaveRoom() {
-        showModal(
-          "Leave Room?",
-          "Are you sure you want to exit? You can rejoin later using the code.",
-          "confirm",
-          () => {
-            if (unsubscribeRoom) {
-              unsubscribeRoom();
-              unsubscribeRoom = null;
-            }
-            currentRoomCode = null;
-            localRoomState = null;
-            DOM.game.classList.add("hidden");
-            DOM.lobby.classList.remove("hidden");
-            document.getElementById("join-room-code").value = "";
-          },
-        );
+        showModal("Leave Room?", "Are you sure you want to exit? You can rejoin later using the code.", "confirm", () => {
+          if (unsubscribeRoom) {
+            unsubscribeRoom();
+            unsubscribeRoom = null;
+          }
+          currentRoomCode = null;
+          localRoomState = null;
+          DOM.game.classList.add("hidden");
+          DOM.lobby.classList.remove("hidden");
+          document.getElementById("join-room-code").value = "";
+        });
       }
 
       async function handleDeclareRiichi(playerId) {
         if (!currentUser || !currentRoomCode || !localRoomState) return;
 
         const deltas = { [playerId]: -1000, pot: 1000 };
-
         const updatedPlayers = localRoomState.players.map((p) => {
-          if (p.id === playerId)
-            return { ...p, currentScore: p.currentScore - 1000 };
+          if (p.id === playerId) return { ...p, currentScore: p.currentScore - 1000 };
           return p;
         });
         const updatedPot = (localRoomState.pot || 0) + 1000;
@@ -2235,15 +2088,7 @@
         const updatedHistory = [...localRoomState.history, newRecord];
 
         try {
-          const roomRef = doc(
-            db,
-            "artifacts",
-            appId,
-            "public",
-            "data",
-            "rooms",
-            currentRoomCode,
-          );
+          const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", currentRoomCode);
           await updateDoc(roomRef, {
             players: updatedPlayers,
             pot: updatedPot,
@@ -2263,48 +2108,32 @@
         const potAmount = localRoomState.pot;
         const player = localRoomState.players.find((p) => p.id === playerId);
 
-        showModal(
-          "Claim Pot",
-          `Give ${potAmount.toLocaleString()} points from the Pot to ${player.name}?`,
-          "confirm",
-          async () => {
-            const deltas = { [playerId]: potAmount, pot: -potAmount };
+        showModal("Claim Pot", `Give ${potAmount.toLocaleString()} points from the Pot to ${player.name}?`, "confirm", async () => {
+          const deltas = { [playerId]: potAmount, pot: -potAmount };
+          const updatedPlayers = localRoomState.players.map((p) => {
+            if (p.id === playerId) return { ...p, currentScore: p.currentScore + potAmount };
+            return p;
+          });
 
-            const updatedPlayers = localRoomState.players.map((p) => {
-              if (p.id === playerId)
-                return { ...p, currentScore: p.currentScore + potAmount };
-              return p;
+          const newRecord = {
+            timestamp: new Date().toISOString(),
+            deltas: deltas,
+            note: `🏆 ${player.name} claimed Pot`,
+          };
+          const updatedHistory = [...localRoomState.history, newRecord];
+
+          try {
+            const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", currentRoomCode);
+            await updateDoc(roomRef, {
+              players: updatedPlayers,
+              pot: 0,
+              history: updatedHistory,
             });
-            const updatedPot = 0;
-
-            const newRecord = {
-              timestamp: new Date().toISOString(),
-              deltas: deltas,
-              note: `🏆 ${player.name} claimed Pot`,
-            };
-            const updatedHistory = [...localRoomState.history, newRecord];
-
-            try {
-              const roomRef = doc(
-                db,
-                "artifacts",
-                appId,
-                "public",
-                "data",
-                "rooms",
-                currentRoomCode,
-              );
-              await updateDoc(roomRef, {
-                players: updatedPlayers,
-                pot: updatedPot,
-                history: updatedHistory,
-              });
-            } catch (err) {
-              console.error(err);
-              showModal("Error", "Failed to claim pot.", "error");
-            }
-          },
-        );
+          } catch (err) {
+            console.error(err);
+            showModal("Error", "Failed to claim pot.", "error");
+          }
+        });
       }
 
       function renderGameUI() {
@@ -2313,205 +2142,103 @@
         const history = localRoomState.history;
         const currentPot = localRoomState.pot || 0;
 
-        const gridClass =
-          players.length === 3
-            ? "player-grid player-grid--three"
-            : "player-grid";
+        const gridClass = players.length === 3 ? "player-grid player-grid--three" : "player-grid";
         DOM.scoreDashboard.className = gridClass;
-
         DOM.inputContainer.className = `${gridClass} mt-6`;
 
         let dashHTML = `
-                <div class="relative col-span-full mb-2 overflow-hidden rounded-2xl bg-felt p-5 text-white shadow-lift sm:p-6">
-                    <div aria-hidden="true" class="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-jade-400/15 blur-2xl"></div>
-                    <div aria-hidden="true" class="pointer-events-none absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-gold-300/10 blur-2xl"></div>
-                    <div class="relative flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 sm:gap-4">
-                            <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/15 bg-white/10 text-gold-200 sm:h-12 sm:w-12">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="10" width="20" height="4" rx="2"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/></svg>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/70 sm:text-[11px]">Table pot</p>
-                                <p class="text-xs text-white/65">Riichi sticks in play</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="font-display text-3xl font-semibold tabular-nums text-gold-200 sm:text-4xl">${currentPot.toLocaleString()}</span>
-                            <span class="block text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">points</span>
-                        </div>
-                    </div>
-                </div>
-            `;
+          <div class="relative col-span-full mb-2 overflow-hidden rounded-2xl bg-felt p-5 text-white shadow-lift sm:p-6">
+            <div class="relative flex items-center justify-between gap-4">
+              <div>
+                <p class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/70">Table pot</p>
+                <p class="text-xs text-white/65">Riichi sticks in play</p>
+              </div>
+              <div class="text-right">
+                <span class="font-display text-3xl font-semibold tabular-nums text-gold-200">${currentPot.toLocaleString()}</span>
+                <span class="block text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">points</span>
+              </div>
+            </div>
+          </div>
+        `;
 
         const maxScore = Math.max(...players.map((p) => p.currentScore));
-
         const dealerIndex = localRoomState.dealerIndex || 0;
 
         players.forEach((p, idx) => {
-          const isLeader =
-            p.currentScore === maxScore &&
-            p.currentScore > localRoomState.startingScore;
-
-          // Leader gets the gold treatment
-          const scoreColor =
-            p.currentScore < 0
-              ? "text-red-700"
-              : isLeader
-                ? "text-gold-600"
-                : "text-ink";
-
+          const isLeader = p.currentScore === maxScore && p.currentScore > localRoomState.startingScore;
+          const scoreColor = p.currentScore < 0 ? "text-red-700" : isLeader ? "text-gold-600" : "text-ink";
           const diff = p.currentScore - localRoomState.startingScore;
           const diffStr = diff > 0 ? `+${diff}` : diff === 0 ? "0" : `${diff}`;
-          const diffChip =
-            diff > 0
-              ? "border-jade-200 bg-jade-50 text-jade-700"
-              : diff < 0
-                ? "border-red-200 bg-red-50 text-red-700"
-                : "border-ink/10 bg-ink/5 text-ink-mute";
+          const diffChip = diff > 0 ? "border-jade-200 bg-jade-50 text-jade-700" : diff < 0 ? "border-red-200 bg-red-50 text-red-700" : "border-ink/10 bg-ink/5 text-ink-mute";
 
-          // Calculate wind badge
           const wind = getPlayerWind(idx, dealerIndex, players.length);
           const badge = WIND_BADGES[wind];
-
-          const cardClass = isLeader
-            ? "leader-card relative flex flex-col overflow-hidden rounded-2xl p-4 sm:p-5"
-            : "card-surface relative flex flex-col overflow-hidden rounded-2xl p-4 transition-shadow hover:shadow-lift sm:p-5";
-
-          const leaderBadgeHTML = isLeader
-            ? `
-                <span class="z-10 flex items-center gap-1 rounded-full border border-gold-300 bg-gradient-to-r from-gold-200 to-gold-300 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-ink shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><path d="M2 22h20v2H2v-2zm2-2l2-10 4 5 2-9 2 9 4-5 2 10H4z"/></svg>
-                    Leader
-                </span>`
-            : "";
+          const cardClass = isLeader ? "leader-card relative flex flex-col overflow-hidden rounded-2xl p-4 sm:p-5" : "card-surface relative flex flex-col overflow-hidden rounded-2xl p-4 transition-shadow hover:shadow-lift sm:p-5";
 
           dashHTML += `
-        <div class="${cardClass}">
-            <div class="relative z-10 flex items-center justify-between gap-2">
+            <div class="${cardClass}">
+              <div class="relative z-10 flex items-center justify-between gap-2">
                 <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider ${badge.bg} ${badge.text}">
-                    <span class="font-display text-[13px] leading-none">${badge.kanji}</span>
-                    ${badge.label}
+                  <span class="font-display text-[13px] leading-none">${badge.kanji}</span>
+                  ${badge.label}
                 </span>
-                ${leaderBadgeHTML}
-            </div>
-
-            <p class="relative z-10 mt-3 truncate text-sm font-bold text-ink-soft">${p.name}</p>
-            <p class="font-display relative z-10 mt-0.5 text-3xl font-semibold tabular-nums tracking-tight ${scoreColor}">${p.currentScore.toLocaleString()}</p>
-            <span class="relative z-10 mt-2 inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[10px] font-extrabold tabular-nums ${diffChip}">
+              </div>
+              <p class="relative z-10 mt-3 truncate text-sm font-bold text-ink-soft">${p.name}</p>
+              <p class="font-display relative z-10 mt-0.5 text-3xl font-semibold tabular-nums tracking-tight ${scoreColor}">${p.currentScore.toLocaleString()}</p>
+              <span class="relative z-10 mt-2 inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[10px] font-extrabold tabular-nums ${diffChip}">
                 Net ${diffStr}
-            </span>
-
-            <div class="relative z-10 mt-4 flex gap-2">
-                <button onclick="declareRiichi('${p.id}')" class="flex flex-1 items-center justify-center gap-1 rounded-xl border border-red-200 bg-red-50 px-2 py-2 text-xs font-bold text-red-700 transition-colors hover:bg-red-100 active:scale-95">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Riichi
-                </button>
-                <button onclick="claimPot('${p.id}')" class="flex flex-1 items-center justify-center gap-1 rounded-xl border border-jade-200 bg-jade-50 px-2 py-2 text-xs font-bold text-jade-700 transition-colors hover:bg-jade-100 active:scale-95">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
-                    Win pot
-                </button>
+              </span>
+              <div class="relative z-10 mt-4 flex gap-2">
+                <button onclick="declareRiichi('${p.id}')" class="flex flex-1 items-center justify-center gap-1 rounded-xl border border-red-200 bg-red-50 px-2 py-2 text-xs font-bold text-red-700 transition-colors hover:bg-red-100">Riichi</button>
+                <button onclick="claimPot('${p.id}')" class="flex flex-1 items-center justify-center gap-1 rounded-xl border border-jade-200 bg-jade-50 px-2 py-2 text-xs font-bold text-jade-700 transition-colors hover:bg-jade-100">Win pot</button>
+              </div>
             </div>
-        </div>
-    `;
+          `;
         });
         DOM.scoreDashboard.innerHTML = dashHTML;
         if (DOM.roundCount) DOM.roundCount.textContent = history.length;
 
-        // Update Round Input Labels to show Wind
         if (DOM.inputContainer.children.length !== players.length) {
           let inputHTML = "";
           players.forEach((p, idx) => {
             const wind = getPlayerWind(idx, dealerIndex, players.length);
             const badge = WIND_BADGES[wind];
             inputHTML += `
-            <div>
+              <div>
                 <label data-input-label="${p.id}" for="input-${p.id}" class="mb-2 flex items-center gap-2 text-sm font-bold text-ink-soft">
-                    <span class="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-jade-50 text-[11px] font-extrabold text-jade-700">${badge.kanji}</span>
-                    <span class="truncate">${p.name}</span>
+                  <span class="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-jade-50 text-[11px] font-extrabold text-jade-700">${badge.kanji}</span>
+                  <span class="truncate">${p.name}</span>
                 </label>
                 <div class="relative">
-                    <input type="number" id="input-${p.id}" oninput="window.validateSum()" placeholder="0" class="field score-input py-3 pr-12 text-center text-lg font-bold tabular-nums">
-                    <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-extrabold uppercase text-ink-mute">pts</span>
+                  <input type="number" id="input-${p.id}" oninput="window.validateSum()" placeholder="0" class="field score-input py-3 pr-12 text-center text-lg font-bold tabular-nums">
+                  <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-extrabold uppercase text-ink-mute">pts</span>
                 </div>
-            </div>
-        `;
+              </div>
+            `;
           });
           DOM.inputContainer.innerHTML = inputHTML;
-        } else {
-          players.forEach((p, idx) => {
-            const wind = getPlayerWind(idx, dealerIndex, players.length);
-            const label = DOM.inputContainer.querySelector(
-              `[data-input-label="${p.id}"]`,
-            );
-            if (label) {
-              const nameSpan = label.querySelector("span:last-child");
-              const windSpan = label.querySelector("span:first-child");
-              if (nameSpan) nameSpan.textContent = p.name;
-              if (windSpan) windSpan.textContent = WIND_BADGES[wind].kanji;
-            }
-          });
         }
 
         let headerHTML = `<th class="w-14 px-4 py-4 text-center font-extrabold">#</th>`;
         players.forEach((p) => {
           headerHTML += `<th class="px-4 py-4 text-right font-extrabold">${p.name}</th>`;
         });
-        headerHTML += `<th class="px-4 py-4 text-right font-extrabold text-jade-700">Pot</th>`;
-        headerHTML += `<th class="px-6 py-4 text-left font-extrabold">Note</th>`;
+        headerHTML += `<th class="px-4 py-4 text-right font-extrabold text-jade-700">Pot</th><th class="px-6 py-4 text-left font-extrabold">Note</th>`;
         DOM.historyHeader.innerHTML = headerHTML;
 
         let bodyHTML = "";
         if (history.length === 0) {
-          bodyHTML = `<tr><td colspan="7" class="px-6 py-14 text-center">
-            <div class="mx-auto flex max-w-xs flex-col items-center gap-1.5 text-ink-mute">
-              <span class="mb-1 grid h-11 w-11 place-items-center rounded-2xl bg-jade-50 text-jade-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-              </span>
-              <p class="text-sm font-bold text-ink-soft">No rounds yet</p>
-              <p class="text-xs">Record the first hand to start the ledger.</p>
-            </div>
-          </td></tr>`;
+          bodyHTML = `<tr><td colspan="7" class="px-6 py-14 text-center text-ink-mute">No rounds recorded yet</td></tr>`;
         } else {
           [...history].reverse().forEach((record, index) => {
             const roundNum = history.length - index;
-            let rowHTML = `<tr><td class="px-4 py-3 text-center">
-              <span class="inline-grid h-7 w-7 place-items-center rounded-lg bg-ink/5 text-[11px] font-extrabold text-ink-mute">${roundNum}</span>
-            </td>`;
-
+            let rowHTML = `<tr><td class="px-4 py-3 text-center"><span class="inline-grid h-7 w-7 place-items-center rounded-lg bg-ink/5 text-[11px] font-extrabold text-ink-mute">${roundNum}</span></td>`;
             players.forEach((p) => {
               const delta = record.deltas[p.id] || 0;
-              const colorClass =
-                delta > 0
-                  ? "bg-jade-50 text-jade-700"
-                  : delta < 0
-                    ? "bg-red-50 text-red-700"
-                    : "text-ink-mute";
-              const prefix = delta > 0 ? "+" : "";
-              rowHTML += `<td class="px-4 py-3 text-right">
-                <span class="inline-block rounded-lg px-2 py-1 text-sm font-bold tabular-nums ${colorClass}">${delta === 0 ? "–" : prefix + delta.toLocaleString()}</span>
-              </td>`;
+              const colorClass = delta > 0 ? "bg-jade-50 text-jade-700" : delta < 0 ? "bg-red-50 text-red-700" : "text-ink-mute";
+              rowHTML += `<td class="px-4 py-3 text-right"><span class="inline-block rounded-lg px-2 py-1 text-sm font-bold tabular-nums ${colorClass}">${delta === 0 ? "–" : (delta > 0 ? "+" : "") + delta.toLocaleString()}</span></td>`;
             });
-
-            const potDelta = record.deltas.pot || 0;
-            const potColor =
-              potDelta > 0
-                ? "bg-gold-50 text-gold-600"
-                : potDelta < 0
-                  ? "bg-red-50 text-red-700"
-                  : "text-ink-mute";
-            const potPrefix = potDelta > 0 ? "+" : "";
-            rowHTML += `<td class="border-l border-ink/5 px-4 py-3 text-right">
-              <span class="inline-block rounded-lg px-2 py-1 text-sm font-bold tabular-nums ${potColor}">${potDelta === 0 ? "–" : potPrefix + potDelta.toLocaleString()}</span>
-            </td>`;
-
-            const noteText = record.note ? record.note : "";
-            rowHTML += `<td class="px-6 py-3 text-left text-xs font-medium text-ink-mute">${
-              noteText
-                ? `<span class="inline-flex max-w-[16rem] items-center truncate rounded-full bg-ink/5 px-2.5 py-1">${noteText}</span>`
-                : `<span class="text-ink-mute">–</span>`
-            }</td>`;
-
-            rowHTML += `</tr>`;
+            rowHTML += `<td class="border-l border-ink/5 px-4 py-3 text-right text-xs text-ink-mute">${record.deltas.pot || "–"}</td><td class="px-6 py-3 text-left text-xs font-medium text-ink-mute">${record.note || "–"}</td></tr>`;
             bodyHTML += rowHTML;
           });
         }
@@ -2520,33 +2247,28 @@
 
       function validateSum() {
         if (!localRoomState) return;
-
         let sum = 0;
         let hasInput = false;
 
         localRoomState.players.forEach((p) => {
-          const val = document.getElementById(`input-${p.id}`).value;
-          if (val !== "") {
+          const val = document.getElementById(`input-${p.id}`)?.value;
+          if (val !== undefined && val !== "") {
             sum += parseInt(val) || 0;
             hasInput = true;
           }
         });
 
         DOM.sumIndicator.textContent = `Sum: ${sum}`;
-
         if (!hasInput) {
-          DOM.sumIndicator.className =
-            "rounded-xl border-2 border-ink/10 bg-white px-5 py-2.5 text-lg font-extrabold tabular-nums text-ink-mute transition-colors";
+          DOM.sumIndicator.className = "rounded-xl border-2 border-ink/10 bg-white px-5 py-2.5 text-lg font-extrabold tabular-nums text-ink-mute transition-colors";
           DOM.submitBtn.disabled = true;
           DOM.submitBtn.classList.add("opacity-50", "cursor-not-allowed");
         } else if (sum === 0) {
-          DOM.sumIndicator.className =
-            "rounded-xl border-2 border-jade-200 bg-jade-50 px-5 py-2.5 text-lg font-extrabold tabular-nums text-jade-700 transition-colors";
+          DOM.sumIndicator.className = "rounded-xl border-2 border-jade-200 bg-jade-50 px-5 py-2.5 text-lg font-extrabold tabular-nums text-jade-700 transition-colors";
           DOM.submitBtn.disabled = false;
           DOM.submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
         } else {
-          DOM.sumIndicator.className =
-            "rounded-xl border-2 border-red-100 bg-red-50 px-5 py-2.5 text-lg font-extrabold tabular-nums text-red-700 transition-colors";
+          DOM.sumIndicator.className = "rounded-xl border-2 border-red-100 bg-red-50 px-5 py-2.5 text-lg font-extrabold tabular-nums text-red-700 transition-colors";
           DOM.submitBtn.disabled = true;
           DOM.submitBtn.classList.add("opacity-50", "cursor-not-allowed");
         }
@@ -2555,47 +2277,34 @@
       function clearInputs() {
         if (!localRoomState) return;
         localRoomState.players.forEach((p) => {
-          document.getElementById(`input-${p.id}`).value = "";
+          const el = document.getElementById(`input-${p.id}`);
+          if (el) el.value = "";
         });
-
         const noteInput = document.getElementById("input-note");
         if (noteInput) noteInput.value = "";
-
         validateSum();
       }
 
       async function handleSubmitRound() {
         if (!currentUser || !currentRoomCode || !localRoomState) return;
-
         const deltas = {};
         let sum = 0;
 
         localRoomState.players.forEach((p) => {
-          const val =
-            parseInt(document.getElementById(`input-${p.id}`).value) || 0;
+          const val = parseInt(document.getElementById(`input-${p.id}`).value) || 0;
           deltas[p.id] = val;
           sum += val;
         });
 
-        if (sum !== 0) {
-          return showModal(
-            "Error",
-            "Sum of points must be exactly 0.",
-            "error",
-          );
-        }
+        if (sum !== 0) return showModal("Error", "Sum of points must be exactly 0.", "error");
 
-        // --- DEALER ROTATION RULE ---
         const currentDealerIdx = localRoomState.dealerIndex || 0;
         const currentDealer = localRoomState.players[currentDealerIdx];
         const dealerDelta = deltas[currentDealer.id] || 0;
 
-        // If East (dealer) scored <= 0, dealer moves to the next player.
-        // If East scored > 0, East stays (Renchan).
         let nextDealerIdx = currentDealerIdx;
         if (dealerDelta <= 0) {
-          nextDealerIdx =
-            (currentDealerIdx + 1) % localRoomState.players.length;
+          nextDealerIdx = (currentDealerIdx + 1) % localRoomState.players.length;
         }
 
         const updatedPlayers = localRoomState.players.map((p) => ({
@@ -2604,41 +2313,29 @@
         }));
 
         const noteVal = document.getElementById("input-note").value.trim();
-
         const newHistoryRecord = {
           timestamp: new Date().toISOString(),
           deltas: deltas,
-          prevDealerIndex: currentDealerIdx, // saved to restore wind on undo
+          prevDealerIndex: currentDealerIdx,
           note: noteVal,
         };
 
         const updatedHistory = [...localRoomState.history, newHistoryRecord];
-
         DOM.submitBtn.disabled = true;
-        DOM.submitBtn.innerHTML = "Saving...";
 
         try {
-          const roomRef = doc(
-            db,
-            "artifacts",
-            appId,
-            "public",
-            "data",
-            "rooms",
-            currentRoomCode,
-          );
+          const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", currentRoomCode);
           await updateDoc(roomRef, {
             players: updatedPlayers,
-            dealerIndex: nextDealerIdx, // <--- update dealer index in Firestore
+            dealerIndex: nextDealerIdx,
             history: updatedHistory,
           });
-
           clearInputs();
         } catch (err) {
           console.error("Submit error:", err);
           showModal("Error", "Failed to submit round.", "error");
         } finally {
-          DOM.submitBtn.innerHTML = "Submit Round";
+          DOM.submitBtn.disabled = false;
           validateSum();
         }
       }
@@ -2648,52 +2345,32 @@
           return showModal("Notice", "No rounds to undo.");
         }
 
-        showModal(
-          "Undo Round",
-          "Are you sure you want to delete the last recorded round? This will affect all players and the Table Pot.",
-          "confirm",
-          async () => {
-            try {
-              const lastRecord =
-                localRoomState.history[localRoomState.history.length - 1];
-              const deltasToRevert = lastRecord.deltas;
+        showModal("Undo Round", "Are you sure you want to delete the last recorded round?", "confirm", async () => {
+          try {
+            const lastRecord = localRoomState.history[localRoomState.history.length - 1];
+            const deltasToRevert = lastRecord.deltas;
 
-              const revertedPlayers = localRoomState.players.map((p) => ({
-                ...p,
-                currentScore: p.currentScore - (deltasToRevert[p.id] || 0),
-              }));
+            const revertedPlayers = localRoomState.players.map((p) => ({
+              ...p,
+              currentScore: p.currentScore - (deltasToRevert[p.id] || 0),
+            }));
 
-              const revertedPot =
-                (localRoomState.pot || 0) - (deltasToRevert.pot || 0);
-              const revertedHistory = localRoomState.history.slice(0, -1);
+            const revertedPot = (localRoomState.pot || 0) - (deltasToRevert.pot || 0);
+            const revertedHistory = localRoomState.history.slice(0, -1);
+            const revertedDealerIndex = lastRecord.prevDealerIndex !== undefined ? lastRecord.prevDealerIndex : localRoomState.dealerIndex || 0;
 
-              // Revert dealer index to previous state
-              const revertedDealerIndex =
-                lastRecord.prevDealerIndex !== undefined
-                  ? lastRecord.prevDealerIndex
-                  : localRoomState.dealerIndex || 0;
-
-              const roomRef = doc(
-                db,
-                "artifacts",
-                appId,
-                "public",
-                "data",
-                "rooms",
-                currentRoomCode,
-              );
-              await updateDoc(roomRef, {
-                players: revertedPlayers,
-                dealerIndex: revertedDealerIndex, // <--- restore dealer index
-                pot: revertedPot,
-                history: revertedHistory,
-              });
-            } catch (err) {
-              console.error("Undo error:", err);
-              showModal("Error", "Failed to undo round.", "error");
-            }
-          },
-        );
+            const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", currentRoomCode);
+            await updateDoc(roomRef, {
+              players: revertedPlayers,
+              dealerIndex: revertedDealerIndex,
+              pot: revertedPot,
+              history: revertedHistory,
+            });
+          } catch (err) {
+            console.error("Undo error:", err);
+            showModal("Error", "Failed to undo round.", "error");
+          }
+        });
       }
 
       function handleOpenCalculator() {
@@ -2701,79 +2378,104 @@
       }
 
       window.openCalculatorModal = () => {
-  document.getElementById("calculator-modal").classList.remove("hidden");
-  initTilePicker();
-  renderHandTiles();
-  renderMelds();
-  renderDoraTiles();
-};
+        document.getElementById("calculator-modal").classList.remove("hidden");
+        initTilePicker();
+        renderHandTiles();
+        renderMelds();
+        renderDoraTiles();
+        runCalculation();
+      };
 
       window.closeCalculatorModal = () => {
         document.getElementById("calculator-modal").classList.add("hidden");
       };
 
+      // SINGLE UNIFIED score calculation function
       window.runCalculation = () => {
-        try {
-          const hand = document
-            .getElementById("calc-hand")
-            .value.split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-          const winTile = document.getElementById("calc-wintile").value.trim();
-          const winType = document.getElementById("calc-wintype").value;
-          const seatWind = document.getElementById("calc-seatwind").value;
-          const roundWind = document.getElementById("calc-roundwind").value;
+  const out = document.getElementById("calc-output");
+  if (!out) return;
 
-          const doubleRiichi = document.getElementById("calc-doubleriichi").checked;
-          const riichi = doubleRiichi || document.getElementById("calc-riichi").checked;
-          const ippatsu = document.getElementById("calc-ippatsu").checked;
-          const afterKan = document.getElementById("calc-afterkan").checked;
-          const robbingKan = document.getElementById("calc-robbingkan").checked;
-          const lastTile = document.getElementById("calc-lasttile").checked;
+  try {
+    const rawHand = document.getElementById("calc-hand").value.split(",").map((s) => s.trim()).filter(Boolean);
+    const winTileRaw = document.getElementById("calc-wintile").value.trim();
+    const winType = document.getElementById("calc-wintype").value;
+    const seatWind = document.getElementById("calc-seatwind").value;
+    const roundWind = document.getElementById("calc-roundwind").value;
 
-          const blessing = document.getElementById("calc-tenhou").checked
-            ? "tenhou"
-            : document.getElementById("calc-chiihou").checked
-              ? "chiihou"
-              : null;
+    const meldCount = typeof currentMelds !== "undefined" ? currentMelds.length : 0;
+    const expectedHandSize = 14 - 3 * meldCount;
 
-          const doraIndicators = document
-            .getElementById("calc-dora")
-            .value.split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
+    if (rawHand.length < expectedHandSize) {
+      out.classList.add("hidden");
+      return;
+    }
 
-          // Full argument set matching your score.js engine capabilities
-          const result = RiichiScore.calculateScore({
-            hand,
-            melds: currentMelds,
-            winTile,
-            winType,
-            seatWind,
-            roundWind,
-            riichi,
-            doubleRiichi,
-            ippatsu,
-            afterKan,
-            robbingKan,
-            lastTile,
-            blessing,
-            doraIndicators,
-            config: { kiriageMangan: false },
-          });
+    const normalizeTile = (t) => t.replace(/^0([mps])/, "5$1");
 
-          const out = document.getElementById("calc-output");
-          out.classList.remove("hidden");
-          out.innerHTML = `
-            <p class="font-bold text-jade-700">${result.tier || "Hand Score"} · ${result.han} Han ${result.fu} Fu</p>
-            <p class="text-ink">Points to pay: <b>${result.points ? result.points.toLocaleString() : "0"}</b></p>
-            <ul class="list-disc pl-4 text-xs text-ink-mute">${result.yaku ? result.yaku.map((y) => `<li>${y.name} (${y.han} han)</li>`).join("") : ""}</ul>
-          `;
-        } catch (err) {
-          alert("Error calculating score: " + err.message);
-        }
-      };
-      // Render the visual tile picker buttons when the modal opens
+    const hand = rawHand.map(normalizeTile);
+    const winTile = winTileRaw ? normalizeTile(winTileRaw) : hand[hand.length - 1];
+
+    const melds = (currentMelds || []).map((m) => ({
+      ...m,
+      tiles: m.tiles.map(normalizeTile),
+    }));
+
+    const doubleRiichi = document.getElementById("calc-doubleriichi")?.checked || false;
+    const riichi = doubleRiichi || (document.getElementById("calc-riichi")?.checked || false);
+    const ippatsu = document.getElementById("calc-ippatsu")?.checked || false;
+    const afterKan = document.getElementById("calc-afterkan")?.checked || false;
+    const robbingKan = document.getElementById("calc-robbingkan")?.checked || false;
+    const lastTile = document.getElementById("calc-lasttile")?.checked || false;
+
+    const blessing = document.getElementById("calc-tenhou")?.checked
+      ? "tenhou"
+      : document.getElementById("calc-chiihou")?.checked
+        ? "chiihou"
+        : null;
+
+    const doraIndicators = document
+      .getElementById("calc-dora")
+      .value.split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map(normalizeTile);
+
+    const result = RiichiScore.calculateScore({
+      hand,
+      melds,
+      winTile,
+      winType,
+      seatWind,
+      roundWind,
+      riichi,
+      isRiichi: riichi,
+      doubleRiichi,
+      isDoubleRiichi: doubleRiichi,
+      ippatsu,
+      isIppatsu: ippatsu,
+      afterKan,
+      isAfterKan: afterKan,
+      robbingKan,
+      isRobbingKan: robbingKan,
+      lastTile,
+      isLastTile: lastTile,
+      blessing,
+      doraIndicators,
+      config: { kiriageMangan: false },
+    });
+
+    out.classList.remove("hidden");
+    out.innerHTML = `
+      <p class="font-bold text-jade-700">${result.tier || "Hand Score"} · ${result.han} Han ${result.fu} Fu</p>
+      <p class="text-ink">Points to pay: <b>${result.points ? (typeof result.points === "object" ? JSON.stringify(result.points) : result.points.toLocaleString()) : "0"}</b></p>
+      <ul class="list-disc pl-4 text-xs text-ink-mute">${result.yaku ? result.yaku.map((y) => `<li>${y.name} (${y.han} han)</li>`).join("") : ""}</ul>
+    `;
+  } catch (err) {
+    console.error("Score Calc Error:", err);
+    out.classList.add("hidden");
+  }
+};
+
       function initTilePicker() {
         const suits = {
           m: ["1m", "2m", "3m", "4m", "0m", "5m", "6m", "7m", "8m", "9m"],
@@ -2782,66 +2484,19 @@
           z: ["1z", "2z", "3z", "4z", "5z", "6z", "7z"],
         };
 
-        // Traditional kanji/symbols and color styling matching Riichi tiles
-        const tileFaces = {
-          "1m": { sym: "🀇", color: "text-amber-800" },
-          "2m": { sym: "🀈", color: "text-amber-800" },
-          "3m": { sym: "🀉", color: "text-amber-800" },
-          "4m": { sym: "🀊", color: "text-amber-800" },
-          "0m": { sym: "🀋", color: "text-red-600" },
-          "5m": { sym: "🀋", color: "text-amber-800" },
-          "6m": { sym: "🀌", color: "text-amber-800" },
-          "7m": { sym: "🀍", color: "text-amber-800" },
-          "8m": { sym: "🀎", color: "text-amber-800" },
-          "9m": { sym: "🀏", color: "text-amber-800" },
-
-          "1p": { sym: "🀙", color: "text-blue-700" },
-  "2p": { sym: "🀚", color: "text-blue-700" },
-  "3p": { sym: "🀛", color: "text-blue-700" },
-  "4p": { sym: "🀜", color: "text-blue-700" },
-  "0p": { sym: "🀝", color: "text-red-600" },
-  "5p": { sym: "🀝", color: "text-blue-700" },
-  "6p": { sym: "🀞", color: "text-blue-700" },
-  "7p": { sym: "🀟", color: "text-blue-700" },
-  "8p": { sym: "🀠", color: "text-blue-700" },
-  "9p": { sym: "🀡", color: "text-blue-700" },
-
-          "1s": { sym: "🀐", color: "text-emerald-800" },
-  "2s": { sym: "🀑", color: "text-emerald-800" },
-  "3s": { sym: "🀒", color: "text-emerald-800" },
-  "4s": { sym: "🀓", color: "text-emerald-800" },
-  "0s": { sym: "🀔", color: "text-red-600" },
-  "5s": { sym: "🀔", color: "text-emerald-800" },
-  "6s": { sym: "🀕", color: "text-emerald-800" },
-  "7s": { sym: "🀖", color: "text-emerald-800" },
-  "8s": { sym: "🀗", color: "text-emerald-800" },
-  "9s": { sym: "🀘", color: "text-emerald-800" },
-
-          "1z": { sym: "東", color: "text-slate-800" },
-          "2z": { sym: "南", color: "text-slate-800" },
-          "3z": { sym: "西", color: "text-slate-800" },
-          "4z": { sym: "北", color: "text-slate-800" },
-          "5z": { sym: "白", color: "text-blue-700" },
-          "6z": { sym: "發", color: "text-emerald-600" },
-          "7z": { sym: "中", color: "text-red-600" },
-        };
-
         for (const [suit, codes] of Object.entries(suits)) {
           const container = document.getElementById(`picker-${suit}`);
           if (!container) continue;
           container.innerHTML = "";
           codes.forEach((code) => {
-            const face = tileFaces[code] || {
-              sym: code,
-              color: "text-slate-800",
-            };
+            const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "picker-tile";
             btn.innerHTML = `
-        <span class="text-base leading-tight ${face.color}">${face.sym}</span>
-        <span class="text-[9px] font-bold text-slate-500 leading-none mt-0.5">${code}</span>
-      `;
+              <span class="text-base leading-tight ${face.color}">${face.sym}</span>
+              <span class="text-[9px] font-bold text-slate-500 leading-none mt-0.5">${code}</span>
+            `;
             btn.onclick = () => addTileToHand(code);
             container.appendChild(btn);
           });
@@ -2850,36 +2505,23 @@
 
       function addTileToHand(code) {
         const hiddenInput = document.getElementById("calc-hand");
-        let tiles = hiddenInput.value
-          ? hiddenInput.value.split(",").filter(Boolean)
-          : [];
-
+        let tiles = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
         if (tiles.length >= 14) return;
 
         tiles.push(code);
         hiddenInput.value = tiles.join(",");
         renderHandTiles();
+        runCalculation();
       }
 
       window.clearCalcHand = () => {
-  document.getElementById("calc-hand").value = "";
-  currentMelds = [];
-  renderMelds();
-  renderHandTiles();
-  renderDoraTiles();
-};
-
-      // Hook into your existing modal open function to initialize tiles
-      const originalOpenCalc = window.openCalculatorModal;
-      window.openCalculatorModal = () => {
-        if (originalOpenCalc) originalOpenCalc();
-        document.getElementById("calculator-modal").classList.remove("hidden");
-        initTilePicker();
+        document.getElementById("calc-hand").value = "";
+        currentMelds = [];
+        renderMelds();
+        renderHandTiles();
+        renderDoraTiles();
+        runCalculation();
       };
-      // State array to store current hand's melds
-      let currentMelds = [];
-      let pendingMeldType = null;
-      let pendingMeldTiles = [];
 
       window.addMeldPrompt = (type) => {
         pendingMeldType = type === "chi" || type === "chii" ? "chii" : type;
@@ -2887,9 +2529,7 @@
 
         const modal = document.getElementById("meld-builder-modal");
         const title = document.getElementById("meld-modal-title");
-
-        const requiredCount =
-          pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
+        const requiredCount = pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
         title.textContent = `Select ${requiredCount} tiles for ${pendingMeldType.toUpperCase()}`;
 
         renderMeldPicker();
@@ -2910,22 +2550,14 @@
         const container = document.getElementById("meld-selected-tiles");
         if (!container) return;
 
-        const tileFaces = {
-  "1m": "🀇", "2m": "🀈", "3m": "🀉", "4m": "🀊", "0m": "🀋", "5m": "🀋", "6m": "🀌", "7m": "🀍", "8m": "🀎", "9m": "🀏",
-  "1p": "🀙", "2p": "🀚", "3p": "🀛", "4p": "🀜", "0p": "🀝", "5p": "🀝", "6p": "🀞", "7p": "🀟", "8p": "🀠", "9p": "🀡",
-  "1s": "🀐", "2s": "🀑", "3s": "🀒", "4s": "🀓", "0s": "🀔", "5s": "🀔", "6s": "🀕", "7s": "🀖", "8s": "🀗", "9s": "🀘",
-  "1z": "東", "2z": "南", "3z": "西", "4z": "北", "5z": "白", "6z": "發", "7z": "中",
-};
-
         container.innerHTML = pendingMeldTiles.length
           ? pendingMeldTiles
               .map(
                 (code) => `
-        <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border border-jade-300 rounded-md shadow-xs">
-          <span class="text-[3rem] leading-none font-serif font-bold text-jade-800">${tileFaces[code] || code}</span>
-          <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
-        </div>
-      `,
+                  <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border border-jade-300 rounded-md shadow-xs">
+                    <span class="text-[3rem] leading-none font-serif font-bold text-jade-800">${(TILE_FACES[code] && TILE_FACES[code].sym) || code}</span>
+                    <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
+                  </div>`
               )
               .join("")
           : `<span class="text-ink-mute italic font-normal text-xs">Click tiles below...</span>`;
@@ -2939,65 +2571,19 @@
           z: ["1z", "2z", "3z", "4z", "5z", "6z", "7z"],
         };
 
-        const tileFaces = {
-  "1m": { sym: "🀇", color: "text-amber-800" },
-  "2m": { sym: "🀈", color: "text-amber-800" },
-  "3m": { sym: "🀉", color: "text-amber-800" },
-  "4m": { sym: "🀊", color: "text-amber-800" },
-  "0m": { sym: "🀋", color: "text-red-600" },
-  "5m": { sym: "🀋", color: "text-amber-800" },
-  "6m": { sym: "🀌", color: "text-amber-800" },
-  "7m": { sym: "🀍", color: "text-amber-800" },
-  "8m": { sym: "🀎", color: "text-amber-800" },
-  "9m": { sym: "🀏", color: "text-amber-800" },
-
-  "1p": { sym: "🀙", color: "text-blue-700" },
-  "2p": { sym: "🀚", color: "text-blue-700" },
-  "3p": { sym: "🀛", color: "text-blue-700" },
-  "4p": { sym: "🀜", color: "text-blue-700" },
-  "0p": { sym: "🀝", color: "text-red-600" },
-  "5p": { sym: "🀝", color: "text-blue-700" },
-  "6p": { sym: "🀞", color: "text-blue-700" },
-  "7p": { sym: "🀟", color: "text-blue-700" },
-  "8p": { sym: "🀠", color: "text-blue-700" },
-  "9p": { sym: "🀡", color: "text-blue-700" },
-
-  "1s": { sym: "🀐", color: "text-emerald-800" },
-  "2s": { sym: "🀑", color: "text-emerald-800" },
-  "3s": { sym: "🀒", color: "text-emerald-800" },
-  "4s": { sym: "🀓", color: "text-emerald-800" },
-  "0s": { sym: "🀔", color: "text-red-600" },
-  "5s": { sym: "🀔", color: "text-emerald-800" },
-  "6s": { sym: "🀕", color: "text-emerald-800" },
-  "7s": { sym: "🀖", color: "text-emerald-800" },
-  "8s": { sym: "🀗", color: "text-emerald-800" },
-  "9s": { sym: "🀘", color: "text-emerald-800" },
-
-  "1z": { sym: "東", color: "text-slate-800" },
-  "2z": { sym: "南", color: "text-slate-800" },
-  "3z": { sym: "西", color: "text-slate-800" },
-  "4z": { sym: "北", color: "text-slate-800" },
-  "5z": { sym: "白", color: "text-blue-700" },
-  "6z": { sym: "發", color: "text-emerald-600" },
-  "7z": { sym: "中", color: "text-red-600" },
-};
-
         for (const [suit, codes] of Object.entries(suits)) {
           const container = document.getElementById(`meld-picker-${suit}`);
           if (!container) continue;
           container.innerHTML = "";
           codes.forEach((code) => {
-            const face = tileFaces[code] || {
-              sym: code,
-              color: "text-slate-800",
-            };
+            const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "picker-tile";
             btn.innerHTML = `
-        <span class="text-[3rem] leading-none ${face.color}">${face.sym}</span>
-        <span class="text-[9px] font-bold text-slate-500 leading-none mt-0.5">${code}</span>
-      `;
+              <span class="text-[3rem] leading-none ${face.color}">${face.sym}</span>
+              <span class="text-[9px] font-bold text-slate-500 leading-none mt-0.5">${code}</span>
+            `;
             btn.onclick = () => selectTileForMeld(code);
             container.appendChild(btn);
           });
@@ -3005,45 +2591,31 @@
       }
 
       function selectTileForMeld(code) {
-        const maxCount =
-          pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
-
-        if (
-          pendingMeldType === "pon" ||
-          pendingMeldType === "kan" ||
-          pendingMeldType === "closed_kan"
-        ) {
-          // Single click populates all identical tiles automatically
+        const maxCount = pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
+        if (pendingMeldType === "pon" || pendingMeldType === "kan" || pendingMeldType === "closed_kan") {
           pendingMeldTiles = Array(maxCount).fill(code);
         } else if (pendingMeldType === "chii") {
-          // Sequential tile selection for Chi
-          if (pendingMeldTiles.length < 3) {
-            pendingMeldTiles.push(code);
-          }
+          if (pendingMeldTiles.length < 3) pendingMeldTiles.push(code);
         }
         updateMeldPreview();
       }
 
       window.confirmMeldSelection = () => {
-        const requiredCount =
-          pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
-
+        const requiredCount = pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
         if (pendingMeldTiles.length !== requiredCount) {
           alert(`Please select exactly ${requiredCount} tiles for this meld.`);
           return;
         }
-
-        currentMelds.push({
-          type: pendingMeldType,
-          tiles: [...pendingMeldTiles],
-        });
+        currentMelds.push({ type: pendingMeldType, tiles: [...pendingMeldTiles] });
         renderMelds();
         closeMeldBuilder();
+        runCalculation();
       };
 
       window.removeMeld = (index) => {
         currentMelds.splice(index, 1);
         renderMelds();
+        runCalculation();
       };
 
       function renderMelds() {
@@ -3055,84 +2627,29 @@
           return;
         }
 
-        // Symbol mapping for visual Mahjong tile icons
-        const tileFaces = {
-          "1m": { sym: "🀇", color: "text-amber-800" },
-          "2m": { sym: "🀈", color: "text-amber-800" },
-          "3m": { sym: "🀉", color: "text-amber-800" },
-          "4m": { sym: "🀊", color: "text-amber-800" },
-          "0m": { sym: "🀋", color: "text-red-600" },
-          "5m": { sym: "🀋", color: "text-amber-800" },
-          "6m": { sym: "🀌", color: "text-amber-800" },
-          "7m": { sym: "🀍", color: "text-amber-800" },
-          "8m": { sym: "🀎", color: "text-amber-800" },
-          "9m": { sym: "🀏", color: "text-amber-800" },
-
-          "1p": { sym: "🀐", color: "text-slate-700" },
-          "2p": { sym: "🀑", color: "text-emerald-700" },
-          "3p": { sym: "🀒", color: "text-emerald-700" },
-          "4p": { sym: "🀓", color: "text-emerald-700" },
-          "0p": { sym: "🀔", color: "text-red-600" },
-          "5p": { sym: "🀔", color: "text-emerald-700" },
-          "6p": { sym: "🀕", color: "text-emerald-700" },
-          "7p": { sym: "🀖", color: "text-emerald-700" },
-          "8p": { sym: "🀗", color: "text-emerald-700" },
-          "9p": { sym: "🀘", color: "text-emerald-700" },
-
-          "1s": { sym: "🀙", color: "text-emerald-800" },
-          "2s": { sym: "🀚", color: "text-emerald-800" },
-          "3s": { sym: "🀛", color: "text-emerald-800" },
-          "4s": { sym: "🀜", color: "text-emerald-800" },
-          "0s": { sym: "🀝", color: "text-red-600" },
-          "5s": { sym: "🀝", color: "text-emerald-800" },
-          "6s": { sym: "🀞", color: "text-emerald-800" },
-          "7s": { sym: "🀟", color: "text-emerald-800" },
-          "8s": { sym: "🀠", color: "text-emerald-800" },
-          "9s": { sym: "🀡", color: "text-emerald-800" },
-
-          "1z": { sym: "東", color: "text-slate-800" },
-          "2z": { sym: "南", color: "text-slate-800" },
-          "3z": { sym: "西", color: "text-slate-800" },
-          "4z": { sym: "北", color: "text-slate-800" },
-          "5z": { sym: "白", color: "text-blue-700" },
-          "6z": { sym: "發", color: "text-emerald-600" },
-          "7z": { sym: "中", color: "text-red-600" },
-        };
-
         container.innerHTML = currentMelds
           .map((m, idx) => {
             const tilesHTML = m.tiles
               .map((code) => {
-                const face = tileFaces[code] || {
-                  sym: code,
-                  color: "text-slate-800",
-                };
+                const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
                 return `
-        <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border border-ink/20 rounded-md shadow-xs">
-          <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${face.sym}</span>
-          <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
-        </div>`;
+                  <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border border-ink/20 rounded-md shadow-xs">
+                    <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${face.sym}</span>
+                    <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
+                  </div>`;
               })
               .join("");
 
             return `
-      <span class="inline-flex items-center gap-2 rounded-xl border border-ink/15 bg-slate-100/80 p-2 shadow-sm">
-        <span class="uppercase text-[11px] text-jade-700 font-extrabold tracking-wider">[${m.type}]</span>
-        <div class="flex gap-1">${tilesHTML}</div>
-        <button type="button" onclick="removeMeld(${idx})" class="text-red-600 hover:text-red-800 font-bold text-base leading-none p-1">✕</button>
-      </span>
-    `;
+              <span class="inline-flex items-center gap-2 rounded-xl border border-ink/15 bg-slate-100/80 p-2 shadow-sm">
+                <span class="uppercase text-[11px] text-jade-700 font-extrabold tracking-wider">[${m.type}]</span>
+                <div class="flex gap-1">${tilesHTML}</div>
+                <button type="button" onclick="removeMeld(${idx})" class="text-red-600 hover:text-red-800 font-bold text-base leading-none p-1">✕</button>
+              </span>`;
           })
           .join("");
       }
 
-      // Clear melds when clearing hand
-      const originalClear = window.clearCalcHand;
-      window.clearCalcHand = () => {
-        if (originalClear) originalClear();
-        currentMelds = [];
-        renderMelds();
-      };
       function renderHandTiles() {
         const hiddenInput = document.getElementById("calc-hand");
         const displayContainer = document.getElementById("calc-hand-display");
@@ -3140,92 +2657,59 @@
         const winTileDisplay = document.getElementById("calc-wintile-display");
         if (!displayContainer) return;
 
-        const tiles = hiddenInput.value
-          ? hiddenInput.value.split(",").filter(Boolean)
-          : [];
+        const tiles = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
 
         if (tiles.length === 0) {
           displayContainer.innerHTML = `<span id="calc-hand-placeholder" class="text-xs text-ink-mute italic pl-1">Click tiles below to build hand...</span>`;
           if (winTileHidden) winTileHidden.value = "";
-          if (winTileDisplay)
-            winTileDisplay.innerHTML = `<span class="text-xs text-ink-mute italic">Auto</span>`;
+          if (winTileDisplay) winTileDisplay.innerHTML = `<span class="text-xs text-ink-mute italic">Auto</span>`;
           return;
         }
 
-        // Hitung jumlah tile tangan tertutup yang dibutuhkan (14 - 3 * melds)
-        const meldCount =
-          typeof currentMelds !== "undefined" ? currentMelds.length : 0;
+        const meldCount = typeof currentMelds !== "undefined" ? currentMelds.length : 0;
         const expectedHandSize = 14 - 3 * meldCount;
-
-        // Otomatis tentukan tile terakhir sebagai Win Tile jika jumlah tile sudah lengkap
         const lastTile = tiles[tiles.length - 1];
-        if (
-          winTileHidden &&
-          winTileDisplay &&
-          tiles.length === expectedHandSize
-        ) {
-          winTileHidden.value = lastTile;
-          const face = TILE_FACES[lastTile] || {
-            sym: lastTile,
-            color: "text-slate-800",
-          };
 
-          // Render tampilan tile 3rem di slot Win Tile
+        if (winTileHidden && winTileDisplay && tiles.length === expectedHandSize) {
+          winTileHidden.value = lastTile;
+          const face = TILE_FACES[lastTile] || { sym: lastTile, color: "text-slate-800" };
           winTileDisplay.innerHTML = `
-      <div class="inline-flex flex-col items-center justify-center w-full h-full bg-amber-50 border border-amber-300 rounded-2xl">
-        <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${face.sym}</span>
-        <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${lastTile}</span>
-      </div>
-    `;
+            <div class="inline-flex flex-col items-center justify-center w-full h-full bg-amber-50 border border-amber-300 rounded-2xl">
+              <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${face.sym}</span>
+              <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${lastTile}</span>
+            </div>`;
         }
 
         displayContainer.innerHTML = tiles
           .map((code, idx) => {
-            const face = TILE_FACES[code] || {
-              sym: code,
-              color: "text-slate-800",
-            };
-            const isWinTile =
-              idx === tiles.length - 1 && tiles.length === expectedHandSize;
-
+            const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+            const isWinTile = idx === tiles.length - 1 && tiles.length === expectedHandSize;
             return `
-      <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border ${isWinTile ? "border-amber-400 ring-2 ring-amber-300" : "border-ink/20"} rounded-2xl shadow-xs relative group cursor-pointer" onclick="removeHandTile(${idx})">
-        ${isWinTile ? `<span class="absolute -top-2 -right-1.5 bg-amber-500 text-white text-[8px] font-extrabold px-1 rounded-full uppercase">Win</span>` : ""}
-        <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${face.sym}</span>
-        <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
-      </div>
-    `;
+              <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border ${isWinTile ? "border-amber-400 ring-2 ring-amber-300" : "border-ink/20"} rounded-2xl shadow-xs relative group cursor-pointer" onclick="removeHandTile(${idx})">
+                ${isWinTile ? `<span class="absolute -top-2 -right-1.5 bg-amber-500 text-white text-[8px] font-extrabold px-1 rounded-full uppercase">Win</span>` : ""}
+                <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${face.sym}</span>
+                <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
+              </div>`;
           })
           .join("");
       }
 
       window.removeHandTile = (index) => {
         const hiddenInput = document.getElementById("calc-hand");
-        let tiles = hiddenInput.value
-          ? hiddenInput.value.split(",").filter(Boolean)
-          : [];
+        let tiles = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
         tiles.splice(index, 1);
         hiddenInput.value = tiles.join(",");
         renderHandTiles();
+        runCalculation();
       };
 
-      window.clearCalcHand = () => {
-        document.getElementById("calc-hand").value = "";
-        renderHandTiles();
-      };
-
-      document.getElementById("calc-doubleriichi").addEventListener("change", (e) => {
-        if (e.target.checked) {
-          document.getElementById("calc-riichi").checked = true;
-        }
-      });
       window.openDoraPicker = () => {
   renderDoraPickerBoard();
   const modal = document.getElementById("dora-builder-modal");
   if (modal) {
     modal.classList.remove("hidden");
-    
-    // Auto-focus the first tile button or the modal content box
+
+    // Auto-focus the first tile button once rendered
     setTimeout(() => {
       const firstTileBtn = modal.querySelector(".picker-tile");
       if (firstTileBtn) {
@@ -3237,82 +2721,122 @@
   }
 };
 
-window.closeDoraPicker = () => {
-  const modal = document.getElementById("dora-builder-modal");
-  if (modal) modal.classList.add("hidden");
-};
+      window.closeDoraPicker = () => {
+        const modal = document.getElementById("dora-builder-modal");
+        if (modal) modal.classList.add("hidden");
+      };
 
-function renderDoraPickerBoard() {
-  const suits = {
-    m: ["1m", "2m", "3m", "4m", "0m", "5m", "6m", "7m", "8m", "9m"],
-    p: ["1p", "2p", "3p", "4p", "0p", "5p", "6p", "7p", "8p", "9p"],
-    s: ["1s", "2s", "3s", "4s", "0s", "5s", "6s", "7s", "8s", "9s"],
-    z: ["1z", "2z", "3z", "4z", "5z", "6z", "7z"],
-  };
+      function renderDoraPickerBoard() {
+        const suits = {
+          m: ["1m", "2m", "3m", "4m", "0m", "5m", "6m", "7m", "8m", "9m"],
+          p: ["1p", "2p", "3p", "4p", "0p", "5p", "6p", "7p", "8p", "9p"],
+          s: ["1s", "2s", "3s", "4s", "0s", "5s", "6s", "7s", "8s", "9s"],
+          z: ["1z", "2z", "3z", "4z", "5z", "6z", "7z"],
+        };
 
-  for (const [suit, codes] of Object.entries(suits)) {
-    const container = document.getElementById(`dora-picker-${suit}`);
-    if (!container) continue;
-    container.innerHTML = "";
-    codes.forEach((code) => {
-      const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "picker-tile";
-      btn.innerHTML = `
-        <span class="text-[3rem] leading-none ${face.color}">${face.sym}</span>
-        <span class="text-[9px] font-bold text-slate-500 leading-none mt-0.5">${code}</span>
-      `;
-      btn.onclick = () => window.selectDoraTile(code);
-      container.appendChild(btn);
-    });
-  }
-}
+        for (const [suit, codes] of Object.entries(suits)) {
+          const container = document.getElementById(`dora-picker-${suit}`);
+          if (!container) continue;
+          container.innerHTML = "";
+          codes.forEach((code) => {
+            const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "picker-tile";
+            btn.innerHTML = `
+              <span class="text-[3rem] leading-none ${face.color}">${face.sym}</span>
+              <span class="text-[9px] font-bold text-slate-500 leading-none mt-0.5">${code}</span>
+            `;
+            btn.onclick = () => window.selectDoraTile(code);
+            container.appendChild(btn);
+          });
+        }
+      }
 
-window.selectDoraTile = (code) => {
-  const hiddenInput = document.getElementById("calc-dora");
-  let doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
-  doras.push(code);
-  hiddenInput.value = doras.join(",");
-  renderDoraTiles();
-  closeDoraPicker();
-};
+      window.selectDoraTile = (code) => {
+        const hiddenInput = document.getElementById("calc-dora");
+        let doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+        doras.push(code);
+        hiddenInput.value = doras.join(",");
+        renderDoraTiles();
+        closeDoraPicker();
+        runCalculation();
+      };
 
-function renderDoraTiles() {
-  const hiddenInput = document.getElementById("calc-dora");
-  const displayContainer = document.getElementById("calc-dora-display");
-  if (!displayContainer || !hiddenInput) return;
+      function renderDoraTiles() {
+        const hiddenInput = document.getElementById("calc-dora");
+        const displayContainer = document.getElementById("calc-dora-display");
+        if (!displayContainer || !hiddenInput) return;
 
-  const doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+        const doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
 
-  if (doras.length === 0) {
-    displayContainer.innerHTML = `<span class="text-xs text-ink-mute italic pl-1">Click + Add Dora to select indicators...</span>`;
-    return;
-  }
+        if (doras.length === 0) {
+          displayContainer.innerHTML = `<span class="text-xs text-ink-mute italic pl-1">Click + Add Dora to select indicators...</span>`;
+          return;
+        }
 
-  displayContainer.innerHTML = doras.map((code, idx) => {
-    const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
-    return `
-      <div class="inline-flex flex-col items-center justify-center w-10 h-14 bg-white border border-ink/20 rounded-xl shadow-xs relative group cursor-pointer" onclick="removeDoraTile(${idx})">
-        <span class="text-[2.5rem] leading-none ${face.color}">${face.sym}</span>
-        <span class="text-[8px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
-      </div>
-    `;
-  }).join("");
-}
+        displayContainer.innerHTML = doras
+          .map((code, idx) => {
+            const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+            return `
+              <div class="inline-flex flex-col items-center justify-center w-10 h-14 bg-white border border-ink/20 rounded-xl shadow-xs relative group cursor-pointer" onclick="removeDoraTile(${idx})">
+                <span class="text-[2.5rem] leading-none ${face.color}">${face.sym}</span>
+                <span class="text-[8px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
+              </div>`;
+          })
+          .join("");
+      }
 
-window.removeDoraTile = (index) => {
-  const hiddenInput = document.getElementById("calc-dora");
-  let doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
-  doras.splice(index, 1);
-  hiddenInput.value = doras.join(",");
-  renderDoraTiles();
-};
+      window.removeDoraTile = (index) => {
+        const hiddenInput = document.getElementById("calc-dora");
+        let doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+        doras.splice(index, 1);
+        hiddenInput.value = doras.join(",");
+        renderDoraTiles();
+        runCalculation();
+      };
 
-window.clearDoraIndicators = () => {
-  document.getElementById("calc-dora").value = "";
-  renderDoraTiles();
-};
+      window.clearDoraIndicators = () => {
+        document.getElementById("calc-dora").value = "";
+        renderDoraTiles();
+        runCalculation();
+      };
+
+      function initAutoCalculation() {
+        const triggers = [
+          "calc-wintype",
+          "calc-seatwind",
+          "calc-roundwind",
+          "calc-riichi",
+          "calc-doubleriichi",
+          "calc-ippatsu",
+          "calc-afterkan",
+          "calc-robbingkan",
+          "calc-lasttile",
+          "calc-tenhou",
+          "calc-chiihou",
+        ];
+
+        triggers.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.addEventListener("change", () => runCalculation());
+            el.addEventListener("click", () => runCalculation());
+          }
+        });
+
+        const doubleRiichiEl = document.getElementById("calc-doubleriichi");
+        if (doubleRiichiEl) {
+          doubleRiichiEl.addEventListener("change", (e) => {
+            if (e.target.checked) {
+              const riichiEl = document.getElementById("calc-riichi");
+              if (riichiEl) riichiEl.checked = true;
+            }
+            runCalculation();
+          });
+        }
+      }
+
       window.addEventListener("DOMContentLoaded", init);
     </script>
   </body>

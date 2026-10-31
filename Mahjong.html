@@ -127,11 +127,13 @@
         --ds-radius-2xl: 1.85rem;
 
         /* Shadows */
-        --ds-shadow-sm: 0 1px 2px rgba(20, 35, 30, 0.05),
-          0 1px 3px rgba(20, 35, 30, 0.04);
-        --ds-shadow-md: 0 2px 4px rgba(20, 35, 30, 0.04),
+        --ds-shadow-sm:
+          0 1px 2px rgba(20, 35, 30, 0.05), 0 1px 3px rgba(20, 35, 30, 0.04);
+        --ds-shadow-md:
+          0 2px 4px rgba(20, 35, 30, 0.04),
           0 12px 28px -16px rgba(20, 35, 30, 0.22);
-        --ds-shadow-lg: 0 4px 8px rgba(20, 35, 30, 0.04),
+        --ds-shadow-lg:
+          0 4px 8px rgba(20, 35, 30, 0.04),
           0 24px 48px -24px rgba(20, 35, 30, 0.3);
         --ds-ring: 0 0 0 4px rgba(47, 143, 107, 0.18);
 
@@ -1091,7 +1093,9 @@
         </div>
 
         <div class="space-y-4 pr-1">
-          <div class="calc-panel rounded-2xl border border-ink/10 bg-white p-4 space-y-3">
+          <div
+            class="calc-panel rounded-2xl border border-ink/10 bg-white p-4 space-y-3"
+          >
             <div class="flex items-center justify-between">
               <label class="label mb-0">Open Melds / Calls</label>
               <div class="flex gap-1.5">
@@ -1238,7 +1242,9 @@
           </div>
 
           <!-- SPECIAL HAND FLAGS & SITUATIONS -->
-          <div class="calc-panel rounded-2xl border border-ink/10 bg-white p-4 space-y-3">
+          <div
+            class="calc-panel rounded-2xl border border-ink/10 bg-white p-4 space-y-3"
+          >
             <div class="flex items-center justify-between">
               <p
                 class="text-xs font-extrabold uppercase tracking-wider text-ink-mute"
@@ -2199,6 +2205,7 @@
       let currentMelds = [];
       let pendingMeldType = null;
       let pendingMeldTiles = [];
+      let lastCalcResult = null;
 
       const DOM = {
         lobby: document.getElementById("lobby-section"),
@@ -3163,12 +3170,27 @@
             doraIndicators,
             config: { kiriageMangan: false },
           });
+          lastCalcResult = result;
 
           out.classList.remove("hidden");
           out.innerHTML = `
-      <p class="font-bold text-jade-700">${result.tier || "Hand Score"} · ${result.han} Han ${result.fu} Fu</p>
-      <p class="text-ink">Points to pay: <b>${result.points ? (typeof result.points === "object" ? JSON.stringify(result.points) : result.points.toLocaleString()) : "0"}</b></p>
-      <ul class="list-disc pl-4 text-xs text-ink-mute">${result.yaku ? result.yaku.map((y) => `<li>${y.name} (${y.han} han)</li>`).join("") : ""}</ul>
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div class="min-w-0">
+          <p class="font-bold text-jade-700">${result.tier || "Hand Score"} · ${result.han} Han ${result.fu} Fu</p>
+          <p class="text-ink text-xs mt-0.5">Points to pay: <b>${result.points ? (typeof result.points === "object" ? JSON.stringify(result.points) : result.points.toLocaleString()) : "0"}</b></p>
+        </div>
+        <button
+          type="button"
+          onclick="applyCalcToNote()"
+          class="btn btn-primary shrink-0 px-3 py-1.5 text-xs shadow-sm"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Apply to Note
+        </button>
+      </div>
+      <ul class="list-disc pl-4 text-xs text-ink-mute mt-2">${result.yaku ? result.yaku.map((y) => `<li>${y.name} (${y.han} han)</li>`).join("") : ""}</ul>
     `;
         } catch (err) {
           console.error("Score Calc Error:", err);
@@ -3586,6 +3608,32 @@
           });
         }
       }
+      window.applyCalcToNote = () => {
+        const noteInput = document.getElementById("input-note");
+        if (!noteInput || !lastCalcResult) return;
+
+        const winType = (
+          document.getElementById("calc-wintype")?.value || "ron"
+        ).toUpperCase();
+        const summary = `${lastCalcResult.tier || "Hand Score"} · ${lastCalcResult.han} Han ${lastCalcResult.fu} Fu`;
+        const yakuList = (lastCalcResult.yaku || [])
+          .map((y) => y.name)
+          .join(", ");
+
+        // Format into a clean round note string
+        let noteString = `${winType}: ${summary}`;
+        if (yakuList) {
+          noteString += ` (${yakuList})`;
+        }
+
+        // Keep anything the player already typed instead of replacing it
+        const existing = noteInput.value.trim();
+        noteInput.value = existing ? `${existing} · ${noteString}` : noteString;
+
+        // Close calculator modal and focus the note input field
+        window.closeCalculatorModal();
+        noteInput.focus();
+      };
 
       window.addEventListener("DOMContentLoaded", init);
     </script>

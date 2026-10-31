@@ -612,6 +612,26 @@
           </div>
         </div>
 
+        <!-- Dora Indicator Picker Modal (Placed right after meld-builder-modal) -->
+        <div id="dora-builder-modal" tabindex="-1" class="fixed inset-0 z-[80] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex">
+          <div class="fade-in w-full max-w-lg rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift space-y-4">
+            <div class="flex items-center justify-between border-b border-ink/10 pb-3">
+              <h3 class="font-display text-lg font-semibold text-ink">Select Dora Indicator</h3>
+              <button type="button" onclick="closeDoraPicker()" class="text-ink-mute hover:text-ink font-bold">✕</button>
+            </div>
+            <div class="rounded-2xl border border-ink/10 bg-slate-900 p-4 text-white max-h-[50vh] overflow-y-auto custom-scrollbar">
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Manzu (m)</p>
+              <div id="dora-picker-m" class="flex flex-wrap gap-1.5 mb-2.5"></div>
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Pinzu (p)</p>
+              <div id="dora-picker-p" class="flex flex-wrap gap-1.5 mb-2.5"></div>
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Souzu (s)</p>
+              <div id="dora-picker-s" class="flex flex-wrap gap-1.5 mb-2.5"></div>
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Honors (z)</p>
+              <div id="dora-picker-z" class="flex flex-wrap gap-1.5"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="space-y-4 pr-1">
           <div class="rounded-2xl border border-ink/10 bg-white p-4 space-y-3">
             <div class="flex items-center justify-between">
@@ -837,15 +857,16 @@
           </div>
 
           <div>
-            <label class="label">Dora Indicators (comma separated)</label>
-            <input
-              type="text"
-              id="calc-dora"
-              value=""
-              class="field px-4 py-2.5 font-mono text-sm"
-              placeholder="e.g. 1z, 5p"
-            />
-          </div>
+  <label class="label">Dora Indicators</label>
+  <div class="flex items-center gap-2">
+    <div id="calc-dora-display" class="flex flex-wrap gap-1.5 min-h-[4rem] p-2 rounded-2xl border border-ink/15 bg-white items-center flex-1">
+      <span class="text-xs text-ink-mute italic pl-1">Click + Add Dora to select indicators...</span>
+    </div>
+    <input type="hidden" id="calc-dora" value="" />
+    <button type="button" onclick="openDoraPicker()" class="btn btn-soft px-3 py-2 text-xs">+ Add Dora</button>
+    <button type="button" onclick="clearDoraIndicators()" class="btn btn-soft px-3 py-2 text-xs">Clear</button>
+  </div>
+</div>
 
           <button
             onclick="runCalculation()"
@@ -1581,27 +1602,27 @@
         "8m": { sym: "🀎", color: "text-amber-800" },
         "9m": { sym: "🀏", color: "text-amber-800" },
 
-        "1p": { sym: "🀐", color: "text-slate-700" },
-        "2p": { sym: "🀑", color: "text-emerald-700" },
-        "3p": { sym: "🀒", color: "text-emerald-700" },
-        "4p": { sym: "🀓", color: "text-emerald-700" },
-        "0p": { sym: "🀔", color: "text-red-600" },
-        "5p": { sym: "🀔", color: "text-emerald-700" },
-        "6p": { sym: "🀕", color: "text-emerald-700" },
-        "7p": { sym: "🀖", color: "text-emerald-700" },
-        "8p": { sym: "🀗", color: "text-emerald-700" },
-        "9p": { sym: "🀘", color: "text-emerald-700" },
+        "1p": { sym: "🀙", color: "text-blue-700" },
+  "2p": { sym: "🀚", color: "text-blue-700" },
+  "3p": { sym: "🀛", color: "text-blue-700" },
+  "4p": { sym: "🀜", color: "text-blue-700" },
+  "0p": { sym: "🀝", color: "text-red-600" },
+  "5p": { sym: "🀝", color: "text-blue-700" },
+  "6p": { sym: "🀞", color: "text-blue-700" },
+  "7p": { sym: "🀟", color: "text-blue-700" },
+  "8p": { sym: "🀠", color: "text-blue-700" },
+  "9p": { sym: "🀡", color: "text-blue-700" },
 
-        "1s": { sym: "🀙", color: "text-emerald-800" },
-        "2s": { sym: "🀚", color: "text-emerald-800" },
-        "3s": { sym: "🀛", color: "text-emerald-800" },
-        "4s": { sym: "🀜", color: "text-emerald-800" },
-        "0s": { sym: "🀝", color: "text-red-600" },
-        "5s": { sym: "🀝", color: "text-emerald-800" },
-        "6s": { sym: "🀞", color: "text-emerald-800" },
-        "7s": { sym: "🀟", color: "text-emerald-800" },
-        "8s": { sym: "🀠", color: "text-emerald-800" },
-        "9s": { sym: "🀡", color: "text-emerald-800" },
+        "1s": { sym: "🀐", color: "text-emerald-800" },
+  "2s": { sym: "🀑", color: "text-emerald-800" },
+  "3s": { sym: "🀒", color: "text-emerald-800" },
+  "4s": { sym: "🀓", color: "text-emerald-800" },
+  "0s": { sym: "🀔", color: "text-red-600" },
+  "5s": { sym: "🀔", color: "text-emerald-800" },
+  "6s": { sym: "🀕", color: "text-emerald-800" },
+  "7s": { sym: "🀖", color: "text-emerald-800" },
+  "8s": { sym: "🀗", color: "text-emerald-800" },
+  "9s": { sym: "🀘", color: "text-emerald-800" },
 
         "1z": { sym: "東", color: "text-slate-800" },
         "2z": { sym: "南", color: "text-slate-800" },
@@ -2680,11 +2701,12 @@
       }
 
       window.openCalculatorModal = () => {
-        document.getElementById("calculator-modal").classList.remove("hidden");
-        initTilePicker();
-        renderHandTiles();
-        renderMelds();
-      };
+  document.getElementById("calculator-modal").classList.remove("hidden");
+  initTilePicker();
+  renderHandTiles();
+  renderMelds();
+  renderDoraTiles();
+};
 
       window.closeCalculatorModal = () => {
         document.getElementById("calculator-modal").classList.add("hidden");
@@ -2702,9 +2724,8 @@
           const seatWind = document.getElementById("calc-seatwind").value;
           const roundWind = document.getElementById("calc-roundwind").value;
 
-          const riichi = document.getElementById("calc-riichi").checked;
-          const doubleRiichi =
-            document.getElementById("calc-doubleriichi").checked;
+          const doubleRiichi = document.getElementById("calc-doubleriichi").checked;
+          const riichi = doubleRiichi || document.getElementById("calc-riichi").checked;
           const ippatsu = document.getElementById("calc-ippatsu").checked;
           const afterKan = document.getElementById("calc-afterkan").checked;
           const robbingKan = document.getElementById("calc-robbingkan").checked;
@@ -2774,27 +2795,27 @@
           "8m": { sym: "🀎", color: "text-amber-800" },
           "9m": { sym: "🀏", color: "text-amber-800" },
 
-          "1p": { sym: "🀐", color: "text-slate-700" },
-          "2p": { sym: "🀑", color: "text-emerald-700" },
-          "3p": { sym: "🀒", color: "text-emerald-700" },
-          "4p": { sym: "🀓", color: "text-emerald-700" },
-          "0p": { sym: "🀔", color: "text-red-600" },
-          "5p": { sym: "🀔", color: "text-emerald-700" },
-          "6p": { sym: "🀕", color: "text-emerald-700" },
-          "7p": { sym: "🀖", color: "text-emerald-700" },
-          "8p": { sym: "🀗", color: "text-emerald-700" },
-          "9p": { sym: "🀘", color: "text-emerald-700" },
+          "1p": { sym: "🀙", color: "text-blue-700" },
+  "2p": { sym: "🀚", color: "text-blue-700" },
+  "3p": { sym: "🀛", color: "text-blue-700" },
+  "4p": { sym: "🀜", color: "text-blue-700" },
+  "0p": { sym: "🀝", color: "text-red-600" },
+  "5p": { sym: "🀝", color: "text-blue-700" },
+  "6p": { sym: "🀞", color: "text-blue-700" },
+  "7p": { sym: "🀟", color: "text-blue-700" },
+  "8p": { sym: "🀠", color: "text-blue-700" },
+  "9p": { sym: "🀡", color: "text-blue-700" },
 
-          "1s": { sym: "🀙", color: "text-emerald-800" },
-          "2s": { sym: "🀚", color: "text-emerald-800" },
-          "3s": { sym: "🀛", color: "text-emerald-800" },
-          "4s": { sym: "🀜", color: "text-emerald-800" },
-          "0s": { sym: "🀝", color: "text-red-600" },
-          "5s": { sym: "🀝", color: "text-emerald-800" },
-          "6s": { sym: "🀞", color: "text-emerald-800" },
-          "7s": { sym: "🀟", color: "text-emerald-800" },
-          "8s": { sym: "🀠", color: "text-emerald-800" },
-          "9s": { sym: "🀡", color: "text-emerald-800" },
+          "1s": { sym: "🀐", color: "text-emerald-800" },
+  "2s": { sym: "🀑", color: "text-emerald-800" },
+  "3s": { sym: "🀒", color: "text-emerald-800" },
+  "4s": { sym: "🀓", color: "text-emerald-800" },
+  "0s": { sym: "🀔", color: "text-red-600" },
+  "5s": { sym: "🀔", color: "text-emerald-800" },
+  "6s": { sym: "🀕", color: "text-emerald-800" },
+  "7s": { sym: "🀖", color: "text-emerald-800" },
+  "8s": { sym: "🀗", color: "text-emerald-800" },
+  "9s": { sym: "🀘", color: "text-emerald-800" },
 
           "1z": { sym: "東", color: "text-slate-800" },
           "2z": { sym: "南", color: "text-slate-800" },
@@ -2845,6 +2866,7 @@
   currentMelds = [];
   renderMelds();
   renderHandTiles();
+  renderDoraTiles();
 };
 
       // Hook into your existing modal open function to initialize tiles
@@ -2889,44 +2911,11 @@
         if (!container) return;
 
         const tileFaces = {
-          "1m": "🀇",
-          "2m": "🀈",
-          "3m": "🀉",
-          "4m": "🀊",
-          "0m": "🀋",
-          "5m": "🀋",
-          "6m": "🀌",
-          "7m": "🀍",
-          "8m": "🀎",
-          "9m": "🀏",
-          "1p": "🀐",
-          "2p": "🀑",
-          "3p": "🀒",
-          "4p": "🀓",
-          "0p": "🀔",
-          "5p": "🀔",
-          "6p": "🀕",
-          "7p": "🀖",
-          "8p": "🀗",
-          "9p": "🀘",
-          "1s": "🀙",
-          "2s": "🀚",
-          "3s": "🀛",
-          "4s": "🀜",
-          "0s": "🀝",
-          "5s": "🀝",
-          "6s": "🀞",
-          "7s": "🀟",
-          "8s": "🀠",
-          "9s": "🀡",
-          "1z": "東",
-          "2z": "南",
-          "3z": "西",
-          "4z": "北",
-          "5z": "白",
-          "6z": "發",
-          "7z": "中",
-        };
+  "1m": "🀇", "2m": "🀈", "3m": "🀉", "4m": "🀊", "0m": "🀋", "5m": "🀋", "6m": "🀌", "7m": "🀍", "8m": "🀎", "9m": "🀏",
+  "1p": "🀙", "2p": "🀚", "3p": "🀛", "4p": "🀜", "0p": "🀝", "5p": "🀝", "6p": "🀞", "7p": "🀟", "8p": "🀠", "9p": "🀡",
+  "1s": "🀐", "2s": "🀑", "3s": "🀒", "4s": "🀓", "0s": "🀔", "5s": "🀔", "6s": "🀕", "7s": "🀖", "8s": "🀗", "9s": "🀘",
+  "1z": "東", "2z": "南", "3z": "西", "4z": "北", "5z": "白", "6z": "發", "7z": "中",
+};
 
         container.innerHTML = pendingMeldTiles.length
           ? pendingMeldTiles
@@ -2951,47 +2940,47 @@
         };
 
         const tileFaces = {
-          "1m": { sym: "🀇", color: "text-amber-800" },
-          "2m": { sym: "🀈", color: "text-amber-800" },
-          "3m": { sym: "🀉", color: "text-amber-800" },
-          "4m": { sym: "🀊", color: "text-amber-800" },
-          "0m": { sym: "🀋", color: "text-red-600" },
-          "5m": { sym: "🀋", color: "text-amber-800" },
-          "6m": { sym: "🀌", color: "text-amber-800" },
-          "7m": { sym: "🀍", color: "text-amber-800" },
-          "8m": { sym: "🀎", color: "text-amber-800" },
-          "9m": { sym: "🀏", color: "text-amber-800" },
+  "1m": { sym: "🀇", color: "text-amber-800" },
+  "2m": { sym: "🀈", color: "text-amber-800" },
+  "3m": { sym: "🀉", color: "text-amber-800" },
+  "4m": { sym: "🀊", color: "text-amber-800" },
+  "0m": { sym: "🀋", color: "text-red-600" },
+  "5m": { sym: "🀋", color: "text-amber-800" },
+  "6m": { sym: "🀌", color: "text-amber-800" },
+  "7m": { sym: "🀍", color: "text-amber-800" },
+  "8m": { sym: "🀎", color: "text-amber-800" },
+  "9m": { sym: "🀏", color: "text-amber-800" },
 
-          "1p": { sym: "🀐", color: "text-slate-700" },
-          "2p": { sym: "🀑", color: "text-emerald-700" },
-          "3p": { sym: "🀒", color: "text-emerald-700" },
-          "4p": { sym: "🀓", color: "text-emerald-700" },
-          "0p": { sym: "🀔", color: "text-red-600" },
-          "5p": { sym: "🀔", color: "text-emerald-700" },
-          "6p": { sym: "🀕", color: "text-emerald-700" },
-          "7p": { sym: "🀖", color: "text-emerald-700" },
-          "8p": { sym: "🀗", color: "text-emerald-700" },
-          "9p": { sym: "🀘", color: "text-emerald-700" },
+  "1p": { sym: "🀙", color: "text-blue-700" },
+  "2p": { sym: "🀚", color: "text-blue-700" },
+  "3p": { sym: "🀛", color: "text-blue-700" },
+  "4p": { sym: "🀜", color: "text-blue-700" },
+  "0p": { sym: "🀝", color: "text-red-600" },
+  "5p": { sym: "🀝", color: "text-blue-700" },
+  "6p": { sym: "🀞", color: "text-blue-700" },
+  "7p": { sym: "🀟", color: "text-blue-700" },
+  "8p": { sym: "🀠", color: "text-blue-700" },
+  "9p": { sym: "🀡", color: "text-blue-700" },
 
-          "1s": { sym: "🀙", color: "text-emerald-800" },
-          "2s": { sym: "🀚", color: "text-emerald-800" },
-          "3s": { sym: "🀛", color: "text-emerald-800" },
-          "4s": { sym: "🀜", color: "text-emerald-800" },
-          "0s": { sym: "🀝", color: "text-red-600" },
-          "5s": { sym: "🀝", color: "text-emerald-800" },
-          "6s": { sym: "🀞", color: "text-emerald-800" },
-          "7s": { sym: "🀟", color: "text-emerald-800" },
-          "8s": { sym: "🀠", color: "text-emerald-800" },
-          "9s": { sym: "🀡", color: "text-emerald-800" },
+  "1s": { sym: "🀐", color: "text-emerald-800" },
+  "2s": { sym: "🀑", color: "text-emerald-800" },
+  "3s": { sym: "🀒", color: "text-emerald-800" },
+  "4s": { sym: "🀓", color: "text-emerald-800" },
+  "0s": { sym: "🀔", color: "text-red-600" },
+  "5s": { sym: "🀔", color: "text-emerald-800" },
+  "6s": { sym: "🀕", color: "text-emerald-800" },
+  "7s": { sym: "🀖", color: "text-emerald-800" },
+  "8s": { sym: "🀗", color: "text-emerald-800" },
+  "9s": { sym: "🀘", color: "text-emerald-800" },
 
-          "1z": { sym: "東", color: "text-slate-800" },
-          "2z": { sym: "南", color: "text-slate-800" },
-          "3z": { sym: "西", color: "text-slate-800" },
-          "4z": { sym: "北", color: "text-slate-800" },
-          "5z": { sym: "白", color: "text-blue-700" },
-          "6z": { sym: "發", color: "text-emerald-600" },
-          "7z": { sym: "中", color: "text-red-600" },
-        };
+  "1z": { sym: "東", color: "text-slate-800" },
+  "2z": { sym: "南", color: "text-slate-800" },
+  "3z": { sym: "西", color: "text-slate-800" },
+  "4z": { sym: "北", color: "text-slate-800" },
+  "5z": { sym: "白", color: "text-blue-700" },
+  "6z": { sym: "發", color: "text-emerald-600" },
+  "7z": { sym: "中", color: "text-red-600" },
+};
 
         for (const [suit, codes] of Object.entries(suits)) {
           const container = document.getElementById(`meld-picker-${suit}`);
@@ -3224,6 +3213,106 @@
         document.getElementById("calc-hand").value = "";
         renderHandTiles();
       };
+
+      document.getElementById("calc-doubleriichi").addEventListener("change", (e) => {
+        if (e.target.checked) {
+          document.getElementById("calc-riichi").checked = true;
+        }
+      });
+      window.openDoraPicker = () => {
+  renderDoraPickerBoard();
+  const modal = document.getElementById("dora-builder-modal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    
+    // Auto-focus the first tile button or the modal content box
+    setTimeout(() => {
+      const firstTileBtn = modal.querySelector(".picker-tile");
+      if (firstTileBtn) {
+        firstTileBtn.focus();
+      } else {
+        modal.focus();
+      }
+    }, 50);
+  }
+};
+
+window.closeDoraPicker = () => {
+  const modal = document.getElementById("dora-builder-modal");
+  if (modal) modal.classList.add("hidden");
+};
+
+function renderDoraPickerBoard() {
+  const suits = {
+    m: ["1m", "2m", "3m", "4m", "0m", "5m", "6m", "7m", "8m", "9m"],
+    p: ["1p", "2p", "3p", "4p", "0p", "5p", "6p", "7p", "8p", "9p"],
+    s: ["1s", "2s", "3s", "4s", "0s", "5s", "6s", "7s", "8s", "9s"],
+    z: ["1z", "2z", "3z", "4z", "5z", "6z", "7z"],
+  };
+
+  for (const [suit, codes] of Object.entries(suits)) {
+    const container = document.getElementById(`dora-picker-${suit}`);
+    if (!container) continue;
+    container.innerHTML = "";
+    codes.forEach((code) => {
+      const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "picker-tile";
+      btn.innerHTML = `
+        <span class="text-[3rem] leading-none ${face.color}">${face.sym}</span>
+        <span class="text-[9px] font-bold text-slate-500 leading-none mt-0.5">${code}</span>
+      `;
+      btn.onclick = () => window.selectDoraTile(code);
+      container.appendChild(btn);
+    });
+  }
+}
+
+window.selectDoraTile = (code) => {
+  const hiddenInput = document.getElementById("calc-dora");
+  let doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+  doras.push(code);
+  hiddenInput.value = doras.join(",");
+  renderDoraTiles();
+  closeDoraPicker();
+};
+
+function renderDoraTiles() {
+  const hiddenInput = document.getElementById("calc-dora");
+  const displayContainer = document.getElementById("calc-dora-display");
+  if (!displayContainer || !hiddenInput) return;
+
+  const doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+
+  if (doras.length === 0) {
+    displayContainer.innerHTML = `<span class="text-xs text-ink-mute italic pl-1">Click + Add Dora to select indicators...</span>`;
+    return;
+  }
+
+  displayContainer.innerHTML = doras.map((code, idx) => {
+    const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+    return `
+      <div class="inline-flex flex-col items-center justify-center w-10 h-14 bg-white border border-ink/20 rounded-xl shadow-xs relative group cursor-pointer" onclick="removeDoraTile(${idx})">
+        <span class="text-[2.5rem] leading-none ${face.color}">${face.sym}</span>
+        <span class="text-[8px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+window.removeDoraTile = (index) => {
+  const hiddenInput = document.getElementById("calc-dora");
+  let doras = hiddenInput.value ? hiddenInput.value.split(",").filter(Boolean) : [];
+  doras.splice(index, 1);
+  hiddenInput.value = doras.join(",");
+  renderDoraTiles();
+};
+
+window.clearDoraIndicators = () => {
+  document.getElementById("calc-dora").value = "";
+  renderDoraTiles();
+};
       window.addEventListener("DOMContentLoaded", init);
     </script>
   </body>

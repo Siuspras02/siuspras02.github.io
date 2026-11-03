@@ -166,14 +166,16 @@ async function init() {
       DOM.setup.classList.remove("hidden");
     };
     window.cancelSetup = () => {
-      DOM.setup.classList.add("hidden");
+      DOM.setup.classList.remove("hidden");
       DOM.lobby.classList.remove("hidden");
     };
+
     window.createRoom = handleCreateRoom;
     window.joinRoom = handleJoinRoom;
     window.submitRound = handleSubmitRound;
     window.clearInputs = clearInputs;
     window.leaveRoomPrompt = handleLeaveRoom;
+    window.finishMatchPrompt = handleFinishMatch;
     window.undoPrompt = handleUndo;
     window.openCalculator = handleOpenCalculator;
     window.toggleGameMode = handleToggleGameMode;
@@ -182,11 +184,17 @@ async function init() {
     window.validateSum = validateSum;
     window.copyRoomCode = copyRoomCode;
 
+    // Modals & Calculators
     window.openPayoutCalculator = openPayoutCalculator;
     window.closePayoutCalculator = closePayoutCalculator;
     window.verifyToPin = verifyToPin;
     window.updatePayoutCalc = updatePayoutCalc;
     window.adjustPlayers = adjustPlayers;
+
+    // Combine Rounds Tool
+    window.openCombineModal = openCombineModal;
+    window.closeCombineModal = closeCombineModal;
+    window.calculateCombinedScores = calculateCombinedScores;
 
     updatePayoutCalc();
     initAutoCalculation();
@@ -263,8 +271,8 @@ function updatePayoutCalc() {
   const storeCut = players * 7500;
   const prizePool = players * 20000;
 
-const predefined = {
-    3: [30000, 20000, 10000], 
+  const predefined = {
+    3: [30000, 20000, 10000],
     4: [35000, 25000, 15000, 5000],
     6: [50000, 35000, 20000, 15000],
     7: [60000, 40000, 25000, 15000],
@@ -417,6 +425,7 @@ function generateRoomCode() {
   }
   return result;
 }
+const SEVENTY_TWO_HOURS_MS = 72 * 60 * 60 * 1000;
 
 async function handleCreateRoom() {
   if (!currentUser)
@@ -448,11 +457,27 @@ async function handleCreateRoom() {
       code = generateRoomCode();
       roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", code);
       const docSnap = await getDoc(roomRef);
-      if (!docSnap.exists()) isUnique = true;
+
+      if (!docSnap.exists()) {
+        isUnique = true;
+      } else {
+        const existingData = docSnap.data();
+        const lastActive = existingData.lastActiveAt
+          ? new Date(existingData.lastActiveAt).getTime()
+          : new Date(existingData.createdAt || 0).getTime();
+        const isExpired = Date.now() - lastActive > SEVENTY_TWO_HOURS_MS;
+
+        // Reuse the code if the previous match is finished or abandoned for over 24h
+        if (existingData.status === "completed" || isExpired) {
+          isUnique = true;
+        }
+      }
     }
 
     const initialData = {
       createdAt: new Date().toISOString(),
+      lastActiveAt: new Date().toISOString(),
+      status: "active",
       startingScore: startScore,
       players: players,
       dealerIndex: 0,
@@ -659,11 +684,21 @@ function renderGameUI() {
   const players = localRoomState.players;
   const history = localRoomState.history;
   const currentPot = localRoomState.pot || 0;
+  const dealerIndex = localRoomState.dealerIndex || 0;
 
   const gridClass =
     players.length === 3 ? "player-grid player-grid--three" : "player-grid";
   DOM.scoreDashboard.className = gridClass;
   DOM.inputContainer.className = `${gridClass} mt-6`;
+
+  // Sort players in East -> South -> West -> North sequence relative to current dealerIndex
+  const sortedPlayers = [...players].sort((a, b) => {
+    const idxA = players.findIndex((p) => p.id === a.id);
+    const idxB = players.findIndex((p) => p.id === b.id);
+    const posA = (idxA - dealerIndex + players.length) % players.length;
+    const posB = (idxB - dealerIndex + players.length) % players.length;
+    return posA - posB;
+  });
 
   let dashHTML = `
           <div class="relative col-span-full mb-2 overflow-hidden rounded-2xl bg-felt p-5 text-white shadow-lift sm:p-6">
@@ -681,9 +716,10 @@ function renderGameUI() {
         `;
 
   const maxScore = Math.max(...players.map((p) => p.currentScore));
-  const dealerIndex = localRoomState.dealerIndex || 0;
 
-  players.forEach((p, idx) => {
+  // Render top player cards in seat order
+  sortedPlayers.forEach((p) => {
+    const origIndex = players.findIndex((pl) => pl.id === p.id);
     const isLeader =
       p.currentScore === maxScore &&
       p.currentScore > localRoomState.startingScore;
@@ -702,7 +738,7 @@ function renderGameUI() {
           ? "border-red-200 bg-red-50 text-red-700"
           : "border-ink/10 bg-ink/5 text-ink-mute";
 
-    const wind = getPlayerWind(idx, dealerIndex, players.length);
+    const wind = getPlayerWind(origIndex, dealerIndex, players.length);
     const badge = WIND_BADGES[wind];
     const cardClass = isLeader
       ? "leader-card relative flex flex-col overflow-hidden rounded-2xl p-4 sm:p-5"
@@ -731,27 +767,32 @@ function renderGameUI() {
   DOM.scoreDashboard.innerHTML = dashHTML;
   if (DOM.roundCount) DOM.roundCount.textContent = history.length;
 
-  if (DOM.inputContainer.children.length !== players.length) {
-    let inputHTML = "";
-    players.forEach((p, idx) => {
-      const wind = getPlayerWind(idx, dealerIndex, players.length);
-      const badge = WIND_BADGES[wind];
-      inputHTML += `
-              <div>
-                <label data-input-label="${p.id}" for="input-${p.id}" class="mb-2 flex items-center gap-2 text-sm font-bold text-ink-soft">
-                  <span class="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-jade-50 text-[11px] font-extrabold text-jade-700">${badge.kanji}</span>
-                  <span class="truncate">${p.name}</span>
-                </label>
-                <div class="relative">
-                  <input type="number" id="input-${p.id}" oninput="window.validateSum()" placeholder="0" class="field score-input py-3 pr-12 text-center text-lg font-bold tabular-nums">
-                  <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-extrabold uppercase text-ink-mute">pts</span>
-                </div>
-              </div>
-            `;
-    });
-    DOM.inputContainer.innerHTML = inputHTML;
-  }
+  // Always force render of inputContainer to avoid stale DOM labels
+  let inputHTML = "";
+  sortedPlayers.forEach((p) => {
+    const origIndex = players.findIndex((pl) => pl.id === p.id);
+    const wind = getPlayerWind(origIndex, dealerIndex, players.length);
+    const badge = WIND_BADGES[wind];
 
+    // Preserve existing typed values if present during a sync re-render
+    const existingVal = document.getElementById(`input-${p.id}`)?.value || "";
+
+    inputHTML += `
+            <div>
+              <label data-input-label="${p.id}" for="input-${p.id}" class="mb-2 flex items-center gap-2 text-sm font-bold text-ink-soft">
+                <span class="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-jade-50 text-[11px] font-extrabold text-jade-700">${badge.kanji}</span>
+                <span class="truncate">${p.name}</span>
+              </label>
+              <div class="relative">
+                <input type="number" id="input-${p.id}" value="${existingVal}" oninput="window.validateSum()" placeholder="0" class="field score-input py-3 pr-12 text-center text-lg font-bold tabular-nums">
+                <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-extrabold uppercase text-ink-mute">pts</span>
+              </div>
+            </div>
+          `;
+  });
+  DOM.inputContainer.innerHTML = inputHTML;
+
+  // Render match history header and ledger rows...
   let headerHTML = `<th class="w-14 px-4 py-4 text-center font-extrabold">#</th>`;
   players.forEach((p) => {
     headerHTML += `<th class="px-4 py-4 text-right font-extrabold">${p.name}</th>`;
@@ -879,6 +920,7 @@ async function handleSubmitRound() {
       players: updatedPlayers,
       dealerIndex: nextDealerIdx,
       history: updatedHistory,
+      lastActiveAt: new Date().toISOString(),
     });
     clearInputs();
   } catch (err) {
@@ -959,7 +1001,6 @@ window.closeCalculatorModal = () => {
 };
 
 // SINGLE UNIFIED score calculation function
-// SINGLE UNIFIED score calculation function
 window.runCalculation = () => {
   const out = document.getElementById("calc-output");
   if (!out) return;
@@ -970,9 +1011,7 @@ window.runCalculation = () => {
       .value.split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-    const winTileRaw = document
-      .getElementById("calc-wintile")
-      .value.trim();
+    const winTileRaw = document.getElementById("calc-wintile").value.trim();
     const winType = document.getElementById("calc-wintype").value;
     const seatWind = document.getElementById("calc-seatwind").value;
     const roundWind = document.getElementById("calc-roundwind").value;
@@ -997,17 +1036,12 @@ window.runCalculation = () => {
     const doubleRiichi =
       document.getElementById("calc-doubleriichi")?.checked || false;
     const riichi =
-      doubleRiichi ||
-      document.getElementById("calc-riichi")?.checked ||
-      false;
-    const ippatsu =
-      document.getElementById("calc-ippatsu")?.checked || false;
-    const afterKan =
-      document.getElementById("calc-afterkan")?.checked || false;
+      doubleRiichi || document.getElementById("calc-riichi")?.checked || false;
+    const ippatsu = document.getElementById("calc-ippatsu")?.checked || false;
+    const afterKan = document.getElementById("calc-afterkan")?.checked || false;
     const robbingKan =
       document.getElementById("calc-robbingkan")?.checked || false;
-    const lastTile =
-      document.getElementById("calc-lasttile")?.checked || false;
+    const lastTile = document.getElementById("calc-lasttile")?.checked || false;
 
     const blessing = document.getElementById("calc-tenhou")?.checked
       ? "tenhou"
@@ -1046,7 +1080,8 @@ window.runCalculation = () => {
     });
     lastCalcResult = result;
 
-    const players = (localRoomState && localRoomState.players) ? localRoomState.players : [];
+    const players =
+      localRoomState && localRoomState.players ? localRoomState.players : [];
     const is3Player = players.length === 3;
     const isDealer = result.seatIsDealer;
     const payments = result.payments || {};
@@ -1056,13 +1091,19 @@ window.runCalculation = () => {
 
     if (result.winType === "tsumo") {
       if (isDealer) {
-        const nonDealerPay = payments.nonDealer ? payments.nonDealer.toLocaleString() : "0";
+        const nonDealerPay = payments.nonDealer
+          ? payments.nonDealer.toLocaleString()
+          : "0";
         paymentDetail = is3Player
           ? `<b>${nonDealerPay}</b> each from 2 players (Dealer Tsumo)`
           : `<b>${nonDealerPay}</b> from all (Dealer Tsumo)`;
       } else {
-        const dealerPay = payments.dealer ? payments.dealer.toLocaleString() : "0";
-        const nonDealerPay = payments.nonDealer ? payments.nonDealer.toLocaleString() : "0";
+        const dealerPay = payments.dealer
+          ? payments.dealer.toLocaleString()
+          : "0";
+        const nonDealerPay = payments.nonDealer
+          ? payments.nonDealer.toLocaleString()
+          : "0";
         paymentDetail = is3Player
           ? `Dealer: <b>${dealerPay}</b> · Other Player: <b>${nonDealerPay}</b>`
           : `Dealer: <b>${dealerPay}</b> · Others: <b>${nonDealerPay}</b> each`;
@@ -1074,24 +1115,39 @@ window.runCalculation = () => {
         : `Ron: <b>${ronPay}</b> from target player`;
     }
 
-    const totalPointsFormatted = result.points ? result.points.toLocaleString() : "0";
+    const totalPointsFormatted = result.points
+      ? result.points.toLocaleString()
+      : "0";
 
     // Auto-detect winner based on Seat Wind matching active room seats
-    const dealerIdx = (localRoomState && localRoomState.dealerIndex !== undefined) ? localRoomState.dealerIndex : 0;
-    const seatMap = { "1z": "East", "2z": "South", "3z": "West", "4z": "North" };
+    const dealerIdx =
+      localRoomState && localRoomState.dealerIndex !== undefined
+        ? localRoomState.dealerIndex
+        : 0;
+    const seatMap = {
+      "1z": "East",
+      "2z": "South",
+      "3z": "West",
+      "4z": "North",
+    };
     const targetSeatName = seatMap[seatWind] || "East";
 
-    const inferredWinner = players.find((p, idx) => {
-      const wind = getPlayerWind(idx, dealerIdx, players.length);
-      return wind === targetSeatName;
-    }) || players[0];
+    const inferredWinner =
+      players.find((p, idx) => {
+        const wind = getPlayerWind(idx, dealerIdx, players.length);
+        return wind === targetSeatName;
+      }) || players[0];
 
     // Render Loser/Target picker ONLY if winType === "ron"
     let targetSectionHTML = "";
     if (winType === "ron" && players.length > 0) {
-      const otherPlayers = players.filter((p) => p.id !== (inferredWinner ? inferredWinner.id : ""));
-      const targetOptions = otherPlayers.map((p) => `<option value="${p.id}">${p.name}</option>`).join("");
-      
+      const otherPlayers = players.filter(
+        (p) => p.id !== (inferredWinner ? inferredWinner.id : ""),
+      );
+      const targetOptions = otherPlayers
+        .map((p) => `<option value="${p.id}">${p.name}</option>`)
+        .join("");
+
       targetSectionHTML = `
         <div class="mt-3 pt-2 border-t border-ink/10 flex items-center justify-between gap-3">
           <label for="calc-target-player" class="text-xs font-bold text-ink-soft shrink-0">
@@ -1591,20 +1647,24 @@ window.applyCalcToNote = () => {
   const players = localRoomState.players;
   const dealerIdx = localRoomState.dealerIndex || 0;
   const seatWind = document.getElementById("calc-seatwind")?.value || "1z";
-  
+
   const seatMap = { "1z": "East", "2z": "South", "3z": "West", "4z": "North" };
   const targetSeatName = seatMap[seatWind] || "East";
 
   // Resolve winner matching seat wind
-  const winnerPlayer = players.find((p, idx) => {
-    const wind = getPlayerWind(idx, dealerIdx, players.length);
-    return wind === targetSeatName;
-  }) || players[0];
+  const winnerPlayer =
+    players.find((p, idx) => {
+      const wind = getPlayerWind(idx, dealerIdx, players.length);
+      return wind === targetSeatName;
+    }) || players[0];
 
   const winnerId = winnerPlayer.id;
   const targetId = document.getElementById("calc-target-player")?.value;
 
-  if (lastCalcResult.winType === "ron" && (!targetId || winnerId === targetId)) {
+  if (
+    lastCalcResult.winType === "ron" &&
+    (!targetId || winnerId === targetId)
+  ) {
     alert("Please select a valid target player who dealt in!");
     return;
   }
@@ -1677,6 +1737,162 @@ window.applyCalcToNote = () => {
   window.closeCalculatorModal();
   if (typeof window.validateSum === "function") {
     window.validateSum();
+  }
+};
+
+async function handleFinishMatch() {
+  if (!currentRoomCode) return;
+  showModal(
+    "End Match?",
+    "This will archive the match and free up the room code.",
+    "confirm",
+    async () => {
+      try {
+        const roomRef = doc(
+          db,
+          "artifacts",
+          appId,
+          "public",
+          "data",
+          "rooms",
+          currentRoomCode,
+        );
+        await updateDoc(roomRef, {
+          status: "completed",
+          completedAt: new Date().toISOString(),
+        });
+        handleLeaveRoom();
+      } catch (err) {
+        console.error("Error finishing match:", err);
+      }
+    },
+  );
+}
+
+// Expose combine functions globally
+window.openCombineModal = () => {
+  document.getElementById("combine-modal").classList.remove("hidden");
+  document.getElementById("combine-results").classList.add("hidden");
+  document.getElementById("combine-code-1").value = "";
+  document.getElementById("combine-code-2").value = "";
+};
+
+window.closeCombineModal = () => {
+  document.getElementById("combine-modal").classList.add("hidden");
+};
+
+window.calculateCombinedScores = async () => {
+  // Collect all filled room code inputs
+  const codeInputs = [
+    document.getElementById("combine-code-1")?.value.trim().toUpperCase(),
+    document.getElementById("combine-code-2")?.value.trim().toUpperCase(),
+    document.getElementById("combine-code-3")?.value.trim().toUpperCase(),
+    document.getElementById("combine-code-4")?.value.trim().toUpperCase(),
+  ].filter((code) => code && code.length === 4);
+
+  if (codeInputs.length === 0) {
+    showModal(
+      "Invalid Input",
+      "Please enter at least one valid 4-letter room code.",
+      "error",
+    );
+    return;
+  }
+
+  const resultsDiv = document.getElementById("combine-results");
+  resultsDiv.classList.remove("hidden");
+  resultsDiv.innerHTML = `<p class="text-xs text-center text-ink-mute py-4">Fetching and calculating scores across ${codeInputs.length} room(s)...</p>`;
+
+  try {
+    const playerTotals = {};
+    let roomsProcessed = 0;
+
+    for (const code of codeInputs) {
+      const docSnap = await getDoc(
+        doc(db, "artifacts", appId, "public", "data", "rooms", code),
+      );
+      if (!docSnap.exists()) continue;
+
+      const roomData = docSnap.data();
+      const starting = roomData.startingScore || 25000;
+      roomsProcessed++;
+
+      (roomData.players || []).forEach((p) => {
+        const nameKey = p.name.trim().toLowerCase();
+        if (!playerTotals[nameKey]) {
+          playerTotals[nameKey] = {
+            displayName: p.name.trim(),
+            totalScore: 0,
+            totalNet: 0,
+            gamesPlayed: 0,
+            scores: [],
+          };
+        }
+        const net = p.currentScore - starting;
+        playerTotals[nameKey].totalScore += p.currentScore;
+        playerTotals[nameKey].totalNet += net;
+        playerTotals[nameKey].gamesPlayed += 1;
+        playerTotals[nameKey].scores.push(p.currentScore);
+      });
+    }
+
+    if (roomsProcessed === 0) {
+      resultsDiv.innerHTML = `<p class="text-xs font-bold text-red-700 text-center py-2">No matching room data found for the codes entered.</p>`;
+      return;
+    }
+
+    // Sort leaderboard by Total Score (Highest to Lowest)
+    const sortedSummary = Object.values(playerTotals).sort(
+      (a, b) => b.totalScore - a.totalScore,
+    );
+
+    let listHTML = `
+      <div class="border-t border-ink/10 pt-3">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-ink-mute">Event Standings (${sortedSummary.length} Players)</h4>
+          <span class="text-[10px] font-bold text-jade-700 bg-jade-50 px-2 py-0.5 rounded-full">${roomsProcessed} Rooms Combined</span>
+        </div>
+        <div class="space-y-2">
+    `;
+
+    sortedSummary.forEach((p, idx) => {
+      const netStr =
+        p.totalNet > 0
+          ? `+${p.totalNet.toLocaleString()}`
+          : p.totalNet.toLocaleString();
+      const netBadgeClass =
+        p.totalNet > 0
+          ? "bg-jade-50 text-jade-700 border-jade-200"
+          : p.totalNet < 0
+            ? "bg-red-50 text-red-700 border-red-200"
+            : "bg-ink/5 text-ink-mute border-ink/10";
+
+      const scoreBreakdown = p.scores
+        .map((s) => s.toLocaleString())
+        .join(" + ");
+
+      listHTML += `
+        <div class="rounded-2xl border border-ink/10 bg-white p-3 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-2 font-bold text-sm text-ink">
+              <span class="grid h-6 w-6 place-items-center rounded-md ${idx === 0 ? "bg-gold-100 text-gold-700" : "bg-ink/5 text-ink-soft"} text-xs font-extrabold">${idx + 1}</span>
+              ${p.displayName}
+            </span>
+            <span class="font-display text-lg font-bold text-ink">${p.totalScore.toLocaleString()} pts</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-ink-mute pt-1 border-t border-ink/5">
+            <span>Scores: <b>${scoreBreakdown}</b></span>
+            <span class="inline-block px-2 py-0.5 rounded-full border text-[10px] font-extrabold ${netBadgeClass}">Net ${netStr}</span>
+          </div>
+        </div>
+      `;
+    });
+
+    listHTML += `</div></div>`;
+    resultsDiv.innerHTML = listHTML;
+  } catch (err) {
+    console.error("Combine Error:", err);
+    resultsDiv.innerHTML = `<p class="text-xs font-semibold text-red-700 text-center py-2">Error loading room data.</p>`;
   }
 };
 

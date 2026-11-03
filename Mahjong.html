@@ -76,7 +76,6 @@
     </script>
 
     <link rel="stylesheet" href="styles.css" />
-
   </head>
   <body
     class="flex min-h-screen flex-col bg-ivory font-sans text-ink antialiased"
@@ -628,41 +627,93 @@
     </div>
 
     <!-- Payout Calculator Modal -->
-<div id="payout-modal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex">
-  <div class="fade-in w-full max-w-md rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift">
-    
-    <!-- PIN Screen -->
-    <div id="to-pin-screen" class="space-y-4 text-center">
-      <h3 class="font-display text-xl font-semibold text-ink">Store Manager PIN</h3>
-      <p class="text-xs text-ink-mute">Enter 4-digit store code to view venue payout calculations</p>
-      <input type="password" id="to-pin-input" maxlength="4" class="field text-center text-2xl tracking-[0.5em] py-3" placeholder="••••">
-      <div class="flex gap-2">
-        <button onclick="closePayoutCalculator()" class="btn btn-soft flex-1 py-3 text-sm">Cancel</button>
-        <button onclick="verifyToPin()" class="btn btn-primary flex-1 py-3 text-sm">Verify</button>
-      </div>
-    </div>
+    <div
+      id="payout-modal"
+      class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
+    >
+      <div
+        class="fade-in w-full max-w-md rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift"
+      >
+        <!-- PIN Screen -->
+        <div id="to-pin-screen" class="space-y-4 text-center">
+          <h3 class="font-display text-xl font-semibold text-ink">
+            Store Manager PIN
+          </h3>
+          <p class="text-xs text-ink-mute">
+            Enter 4-digit store code to view venue payout calculations
+          </p>
+          <input
+            type="password"
+            id="to-pin-input"
+            maxlength="4"
+            class="field text-center text-2xl tracking-[0.5em] py-3"
+            placeholder="••••"
+          />
+          <div class="flex gap-2">
+            <button
+              onclick="closePayoutCalculator()"
+              class="btn btn-soft flex-1 py-3 text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              onclick="verifyToPin()"
+              class="btn btn-primary flex-1 py-3 text-sm"
+            >
+              Verify
+            </button>
+          </div>
+        </div>
 
-    <!-- Payout Content -->
-    <div id="to-calc-content" class="hidden space-y-4">
-      <div class="flex items-center justify-between border-b border-ink/10 pb-3">
-        <h3 class="font-display text-xl font-semibold text-ink">Tournament Payouts</h3>
-        <button onclick="closePayoutCalculator()" class="text-ink-mute hover:text-ink font-bold">✕</button>
-      </div>
+        <!-- Payout Content -->
+        <div id="to-calc-content" class="hidden space-y-4">
+          <div
+            class="flex items-center justify-between border-b border-ink/10 pb-3"
+          >
+            <h3 class="font-display text-xl font-semibold text-ink">
+              Tournament Payouts
+            </h3>
+            <button
+              onclick="closePayoutCalculator()"
+              class="text-ink-mute hover:text-ink font-bold"
+            >
+              ✕
+            </button>
+          </div>
 
-      <div class="flex items-center justify-between bg-white border border-ink/10 rounded-2xl p-3">
-        <span class="text-xs font-bold text-ink-soft">Players</span>
-        <div class="flex items-center gap-3">
-          <button id="btn-minus-player" onclick="adjustPlayers(-1)" class="btn btn-soft w-8 h-8 p-0 text-sm font-bold">-</button>
-          <input type="number" id="calc-players" value="4" readonly class="w-8 text-center font-bold text-sm bg-transparent">
-          <button id="btn-plus-player" onclick="adjustPlayers(1)" class="btn btn-soft w-8 h-8 p-0 text-sm font-bold">+</button>
+          <div
+            class="flex items-center justify-between bg-white border border-ink/10 rounded-2xl p-3"
+          >
+            <span class="text-xs font-bold text-ink-soft">Players</span>
+            <div class="flex items-center gap-3">
+              <button
+                id="btn-minus-player"
+                onclick="adjustPlayers(-1)"
+                class="btn btn-soft w-8 h-8 p-0 text-sm font-bold"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                id="calc-players"
+                value="4"
+                readonly
+                class="w-8 text-center font-bold text-sm bg-transparent"
+              />
+              <button
+                id="btn-plus-player"
+                onclick="adjustPlayers(1)"
+                class="btn btn-soft w-8 h-8 p-0 text-sm font-bold"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div id="calc-results"></div>
         </div>
       </div>
-
-      <div id="calc-results"></div>
     </div>
-
-  </div>
-</div>
 
     <main
       class="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-10 pt-6 sm:px-6 sm:pt-8 lg:px-8"
@@ -696,6 +747,116 @@
               ></span>
               <span id="status-text">Connecting…</span>
             </div>
+            <!-- Combine Rooms Modal -->
+            <div
+              id="combine-modal"
+              class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
+            >
+              <div
+                class="fade-in w-full max-w-lg rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar"
+              >
+                <div
+                  class="flex items-center justify-between border-b border-ink/10 pb-3"
+                >
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="grid h-8 w-8 place-items-center rounded-xl bg-jade-50 text-jade-700 font-extrabold text-sm"
+                      >∑</span
+                    >
+                    <h3 class="font-display text-xl font-semibold text-ink">
+                      Combine Match Scores
+                    </h3>
+                  </div>
+                  <button
+                    onclick="closeCombineModal()"
+                    class="text-ink-mute hover:text-ink font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <p class="text-xs text-ink-mute">
+                  Enter the 4-letter codes of the 2 rounds played by the same
+                  table to calculate total scores and final standings.
+                </p>
+
+                <!-- Inputs for Room Codes -->
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="label mb-1">Table A — Round 1</label>
+                    <input
+                      type="text"
+                      id="combine-code-1"
+                      placeholder="e.g. YWRJ"
+                      maxlength="4"
+                      class="field text-center font-mono font-bold uppercase py-2 text-base"
+                    />
+                  </div>
+                  <div>
+                    <label class="label mb-1">Table A — Round 2</label>
+                    <input
+                      type="text"
+                      id="combine-code-2"
+                      placeholder="e.g. XKZP"
+                      maxlength="4"
+                      class="field text-center font-mono font-bold uppercase py-2 text-base"
+                    />
+                  </div>
+                  <div>
+                    <label class="label mb-1">Table B — Round 1</label>
+                    <input
+                      type="text"
+                      id="combine-code-3"
+                      placeholder="e.g. TRWQ"
+                      maxlength="4"
+                      class="field text-center font-mono font-bold uppercase py-2 text-base"
+                    />
+                  </div>
+                  <div>
+                    <label class="label mb-1">Table B — Round 2</label>
+                    <input
+                      type="text"
+                      id="combine-code-4"
+                      placeholder="e.g. PLMN"
+                      maxlength="4"
+                      class="field text-center font-mono font-bold uppercase py-2 text-base"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onclick="calculateCombinedScores()"
+                  class="btn btn-primary w-full py-3 text-sm"
+                >
+                  Calculate Combined Results
+                </button>
+
+                <!-- Combined Results Output Container -->
+                <div id="combine-results" class="hidden space-y-3 pt-2"></div>
+              </div>
+            </div>
+
+            <button
+              onclick="openCombineModal()"
+              class="btn btn-ghost px-3.5 py-2 text-xs"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+              Combine Rounds
+            </button>
 
             <button
               onclick="openPayoutCalculator()"
@@ -792,8 +953,8 @@
                   Keep score as you play.
                 </h2>
                 <p class="hero-copy mt-3 text-sm leading-relaxed text-white/65">
-                  Track hands, riichi sticks, and scores on your phone.
-                  Everyone at the table sees the same numbers.
+                  Track hands, riichi sticks, and scores on your phone. Everyone
+                  at the table sees the same numbers.
                 </p>
 
                 <ul class="mt-8 space-y-4 text-sm">
@@ -1192,6 +1353,12 @@
             </svg>
             Leave room
           </button>
+          <button
+            onclick="finishMatchPrompt()"
+            class="btn btn-soft w-full px-4 py-2.5 text-sm sm:w-auto"
+          >
+            Finish & Archive Match
+          </button>
         </div>
 
         <!-- Current Scores Dashboard -->
@@ -1370,6 +1537,5 @@
     </footer>
 
     <script type="module" src="app.js"></script>
-
   </body>
 </html>

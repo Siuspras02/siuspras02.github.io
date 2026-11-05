@@ -94,6 +94,63 @@ function getPlayerWind(playerIndex, dealerIndex, totalPlayers) {
   return WINDS[relativePos];
 }
 
+/* ------------------------------------------------------------------ *
+ * Live score animation helpers
+ * ------------------------------------------------------------------ */
+let previousScores = null;
+let previousDealerIndex = null;
+let previousPot = null;
+let previousHistoryLength = 0;
+let previousLeaderId = null;
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    (ch) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[ch],
+  );
+}
+
+function animateNumber(el, from, to, duration = 800) {
+  if (!el) return;
+  if (from === to || reducedMotionQuery.matches) {
+    el.textContent = Number(to).toLocaleString();
+    return;
+  }
+  const start = performance.now();
+  const delta = to - from;
+  const tick = (now) => {
+    if (!el.isConnected) return;
+    const progress = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(from + delta * eased).toLocaleString();
+    if (progress < 1) {
+      requestAnimationFrame(tick);
+    } else {
+      el.textContent = Number(to).toLocaleString();
+    }
+  };
+  requestAnimationFrame(tick);
+}
+
+function pulseHaptic(pattern = 10) {
+  if (typeof navigator.vibrate !== "function") return;
+  try {
+    navigator.vibrate(pattern);
+  } catch {
+    /* haptics are a progressive enhancement */
+  }
+}
+
+const CROWN_SVG = `<svg class="crown-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8l4.2 3.2L12 4.5l3.8 6.7L20 8l-1.9 9.4H5.9L4 8z"/></svg>`;
+
 const appId = typeof __app_id !== "undefined" ? __app_id : "mahjong-tracker-v1";
 let firebaseConfig = {
   apiKey: "AIzaSyD7J9TzZ5vrAD4nr29gX2xk-HwTQPTnYKg",
@@ -198,6 +255,17 @@ async function init() {
 
     updatePayoutCalc();
     initAutoCalculation();
+
+    // Small mobile/desktop conveniences
+    const joinInput = document.getElementById("join-room-code");
+    if (joinInput) {
+      joinInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          handleJoinRoom();
+        }
+      });
+    }
   } catch (err) {
     console.error("Init Error:", err);
     updateStatus(false, "Connection Error");
@@ -542,6 +610,11 @@ async function handleJoinRoom() {
 
 function enterRoom(code) {
   currentRoomCode = code;
+  previousScores = null;
+  previousDealerIndex = null;
+  previousPot = null;
+  previousHistoryLength = 0;
+  previousLeaderId = null;
   DOM.lobby.classList.add("hidden");
   DOM.game.classList.remove("hidden");
   DOM.displayRoomCode.textContent = code;
@@ -582,6 +655,11 @@ function handleLeaveRoom() {
       }
       currentRoomCode = null;
       localRoomState = null;
+      previousScores = null;
+      previousDealerIndex = null;
+      previousPot = null;
+      previousHistoryLength = 0;
+      previousLeaderId = null;
       DOM.game.classList.add("hidden");
       DOM.lobby.classList.remove("hidden");
       document.getElementById("join-room-code").value = "";
@@ -623,6 +701,7 @@ async function handleDeclareRiichi(playerId) {
       pot: updatedPot,
       history: updatedHistory,
     });
+    pulseHaptic([10, 28, 10]);
   } catch (err) {
     console.error(err);
     showModal("Error", "Failed to declare Riichi.", "error");
@@ -671,6 +750,7 @@ function handleClaimPot(playerId) {
           pot: 0,
           history: updatedHistory,
         });
+        pulseHaptic(18);
       } catch (err) {
         console.error(err);
         showModal("Error", "Failed to claim pot.", "error");
@@ -681,15 +761,17 @@ function handleClaimPot(playerId) {
 
 function renderGameUI() {
   if (!localRoomState) return;
-  const players = localRoomState.players;
-  const history = localRoomState.history;
+  const players = localRoomState.players || [];
+  const history = localRoomState.history || [];
+  const startingScore = Number.isFinite(+localRoomState.startingScore)
+    ? +localRoomState.startingScore
+    : 25000;
   const currentPot = localRoomState.pot || 0;
   const dealerIndex = localRoomState.dealerIndex || 0;
+  const isFirstRender = previousScores === null;
+  const isThreePlayer = players.length === 3;
 
-  const gridClass =
-    players.length === 3 ? "player-grid player-grid--three" : "player-grid";
-  DOM.scoreDashboard.className = gridClass;
-  DOM.inputContainer.className = `${gridClass} mt-6`;
+  DOM.inputContainer.className = `player-grid${isThreePlayer ? " player-grid--three" : ""} mt-6`;
 
   // Sort players in East -> South -> West -> North sequence relative to current dealerIndex
   const sortedPlayers = [...players].sort((a, b) => {
@@ -700,72 +782,169 @@ function renderGameUI() {
     return posA - posB;
   });
 
+  const sortedByScore = [...players].sort(
+    (a, b) => b.currentScore - a.currentScore,
+  );
+  const ranks = {};
+  sortedByScore.forEach((p, index) => {
+    const previous = sortedByScore[index - 1];
+    ranks[p.id] =
+      previous && p.currentScore === previous.currentScore
+        ? ranks[previous.id]
+        : index + 1;
+  });
+  const hasResults = history.length > 0;
+  const allTied =
+    players.length > 0 &&
+    players.every((p) => p.currentScore === players[0].currentScore);
+  const leader = hasResults && !allTied ? sortedByScore[0] : null;
+  const leaderId = leader ? leader.id : null;
+  const maxScore = sortedByScore.length
+    ? sortedByScore[0].currentScore
+    : startingScore;
+  const dealer = players[dealerIndex] || players[0] || null;
+
+  const newRows = !isFirstRender
+    ? Math.max(0, history.length - previousHistoryLength)
+    : 0;
+  const potChanged = !isFirstRender && currentPot !== previousPot;
+  const dealerChanged = !isFirstRender && dealerIndex !== previousDealerIndex;
+  const leaderChanged =
+    !isFirstRender && leaderId && leaderId !== previousLeaderId;
+
+  const potUnits = Math.floor(currentPot / 1000);
+  const shownSticks = Math.min(potUnits, 5);
+  const extraSticks = Math.max(0, potUnits - shownSticks);
+  let sticksHTML = "";
+  for (let i = 0; i < shownSticks; i++) {
+    sticksHTML += `<span class="pot-stick" style="--i:${i}"></span>`;
+  }
+  if (extraSticks) {
+    sticksHTML += `<span class="pot-more">+${extraSticks}</span>`;
+  }
+  if (!shownSticks && !extraSticks) {
+    sticksHTML = `<span class="pot-empty">—</span>`;
+  }
+
+  DOM.scoreDashboard.className = `match-arena${newRows > 0 ? " round-flash" : ""}`;
+
   let dashHTML = `
-          <div class="relative col-span-full mb-2 overflow-hidden rounded-2xl bg-felt p-5 text-white shadow-lift sm:p-6">
-            <div class="relative flex items-center justify-between gap-4">
-              <div>
-                <p class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/70">Table pot</p>
-                <p class="text-xs text-white/65">Riichi sticks in play</p>
+          <div class="arena-bar">
+            <div class="arena-meta">
+              <span class="live-pill"><span class="live-dot"></span>Live</span>
+              <div class="arena-round">
+                <span class="arena-round-label">Hand</span>
+                <span class="arena-round-value">${history.length + 1}</span>
+                <span class="arena-round-sub">${dealer ? `Dealer ${escapeHtml(dealer.name)}` : ""}</span>
               </div>
-              <div class="text-right">
-                <span class="font-display text-3xl font-semibold tabular-nums text-gold-200">${currentPot.toLocaleString()}</span>
-                <span class="block text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">points</span>
+            </div>
+            <div class="pot-tank${potChanged ? " pot-bump" : ""}" role="status" aria-label="Riichi pot ${currentPot} points">
+              <div class="pot-sticks" aria-hidden="true">${sticksHTML}</div>
+              <div class="pot-copy">
+                <span class="pot-label">Riichi pot</span>
+                <span class="pot-value">
+                  <span data-pot-from="${isFirstRender ? currentPot : previousPot ?? currentPot}" data-pot-to="${currentPot}">${currentPot.toLocaleString()}</span>
+                  <span class="pot-unit">pts</span>
+                </span>
               </div>
             </div>
           </div>
+          <div class="score-grid${isThreePlayer ? " score-grid--three" : ""}" aria-live="polite">
         `;
 
-  const maxScore = Math.max(...players.map((p) => p.currentScore));
-
-  // Render top player cards in seat order
-  sortedPlayers.forEach((p) => {
+  // Render score cards in seat order
+  sortedPlayers.forEach((p, seatPosition) => {
     const origIndex = players.findIndex((pl) => pl.id === p.id);
-    const isLeader =
-      p.currentScore === maxScore &&
-      p.currentScore > localRoomState.startingScore;
-    const scoreColor =
-      p.currentScore < 0
-        ? "text-red-700"
-        : isLeader
-          ? "text-gold-600"
-          : "text-ink";
-    const diff = p.currentScore - localRoomState.startingScore;
-    const diffStr = diff > 0 ? `+${diff}` : diff === 0 ? "0" : `${diff}`;
-    const diffChip =
-      diff > 0
-        ? "border-jade-200 bg-jade-50 text-jade-700"
-        : diff < 0
-          ? "border-red-200 bg-red-50 text-red-700"
-          : "border-ink/10 bg-ink/5 text-ink-mute";
-
     const wind = getPlayerWind(origIndex, dealerIndex, players.length);
     const badge = WIND_BADGES[wind];
-    const cardClass = isLeader
-      ? "leader-card relative flex flex-col overflow-hidden rounded-2xl p-4 sm:p-5"
-      : "card-surface relative flex flex-col overflow-hidden rounded-2xl p-4 transition-shadow hover:shadow-lift sm:p-5";
+    const rank = allTied ? null : ranks[p.id] || sortedPlayers.length;
+    const isLeader = leaderId === p.id;
+    const isDealer = wind === "East";
+    const prevScore = isFirstRender
+      ? startingScore
+      : previousScores?.[p.id] ?? startingScore;
+    const scoreDelta = p.currentScore - prevScore;
+    const changed = !isFirstRender && scoreDelta !== 0;
+    const net = p.currentScore - startingScore;
+    const netClass = net > 0 ? "is-up" : net < 0 ? "is-down" : "is-even";
+    const netText = `${net > 0 ? "+" : net < 0 ? "-" : ""}${Math.abs(net).toLocaleString()}`;
+    const gapText = isLeader
+      ? "Leading"
+      : allTied
+        ? "All tied"
+        : `${(maxScore - p.currentScore).toLocaleString()} back`;
+
+    const cardClasses = [
+      "score-card",
+      `wind-${wind.toLowerCase()}`,
+      isLeader ? "is-leader" : "",
+      isDealer ? "is-dealer" : "",
+      changed ? (scoreDelta > 0 ? "just-gained" : "just-lost") : "",
+      isFirstRender ? "score-card--enter" : "",
+      leaderChanged && isLeader ? "is-new-leader" : "",
+      dealerChanged && isDealer ? "became-dealer" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
 
     dashHTML += `
-            <div class="${cardClass}">
-              <div class="relative z-10 flex items-center justify-between gap-2">
-                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider ${badge.bg} ${badge.text}">
-                  <span class="font-display text-[13px] leading-none">${badge.kanji}</span>
-                  ${badge.label}
+            <div class="${cardClasses}" data-player-id="${p.id}" style="--card-index:${seatPosition}">
+              ${isLeader ? '<span class="leader-shine" aria-hidden="true"></span>' : ""}
+              <div class="seat-top">
+                <span class="wind-badge">
+                  <span class="wind-kanji">${badge.kanji}</span>
+                  ${isDealer ? "Dealer" : wind}
+                </span>
+                <span class="rank-badge${rank === 1 ? " is-first" : ""}" title="${rank === null ? "All players tied" : `Seat rank ${rank}`}">
+                  ${rank === 1 ? CROWN_SVG : ""}${rank === null ? "–" : rank}
                 </span>
               </div>
-              <p class="relative z-10 mt-3 truncate text-sm font-bold text-ink-soft">${p.name}</p>
-              <p class="font-display relative z-10 mt-0.5 text-3xl font-semibold tabular-nums tracking-tight ${scoreColor}">${p.currentScore.toLocaleString()}</p>
-              <span class="relative z-10 mt-2 inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[10px] font-extrabold tabular-nums ${diffChip}">
-                Net ${diffStr}
-              </span>
-              <div class="relative z-10 mt-4 flex gap-2">
-                <button onclick="declareRiichi('${p.id}')" class="flex flex-1 items-center justify-center gap-1 rounded-xl border border-red-200 bg-red-50 px-2 py-2 text-xs font-bold text-red-700 transition-colors hover:bg-red-100">Riichi</button>
-                <button onclick="claimPot('${p.id}')" class="flex flex-1 items-center justify-center gap-1 rounded-xl border border-jade-200 bg-jade-50 px-2 py-2 text-xs font-bold text-jade-700 transition-colors hover:bg-jade-100">Win pot</button>
+              <p class="seat-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</p>
+              <div class="score-row">
+                <span class="score-value" data-from="${prevScore}" data-to="${p.currentScore}">${p.currentScore.toLocaleString()}</span>
+                <span class="score-pts">pts</span>
+                ${changed ? `<span class="score-float ${scoreDelta > 0 ? "is-up" : "is-down"}" aria-hidden="true">${scoreDelta > 0 ? "+" : ""}${scoreDelta.toLocaleString()}</span>` : ""}
+              </div>
+              <div class="seat-meta">
+                <span class="net-chip ${netClass}" title="Net from starting score"><span class="net-label">Net</span>${netText}</span>
+                <span class="seat-gap">${gapText}</span>
+              </div>
+              <div class="seat-actions">
+                <button type="button" onclick="declareRiichi('${p.id}')" class="seat-btn seat-btn-riichi" aria-label="Declare riichi for ${escapeHtml(p.name)}">
+                  <span class="riichi-dot"></span>Riichi
+                </button>
+                <button type="button" onclick="claimPot('${p.id}')" class="seat-btn seat-btn-pot" aria-label="Award the pot to ${escapeHtml(p.name)}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg>
+                  Pot
+                </button>
               </div>
             </div>
           `;
   });
+  dashHTML += `</div>`;
   DOM.scoreDashboard.innerHTML = dashHTML;
   if (DOM.roundCount) DOM.roundCount.textContent = history.length;
+
+  // Animate the numerals after the new scoreboard is in the DOM.
+  requestAnimationFrame(() => {
+    DOM.scoreDashboard
+      .querySelectorAll(".score-value[data-from]")
+      .forEach((el) => {
+        const from = Number(el.dataset.from);
+        const to = Number(el.dataset.to);
+        if (Number.isFinite(from) && Number.isFinite(to) && from !== to) {
+          animateNumber(el, from, to, isFirstRender ? 1050 : 760);
+        }
+      });
+    const potEl = DOM.scoreDashboard.querySelector("[data-pot-to]");
+    if (potEl && !isFirstRender) {
+      const from = Number(potEl.dataset.potFrom);
+      const to = Number(potEl.dataset.potTo);
+      if (Number.isFinite(from) && Number.isFinite(to) && from !== to) {
+        animateNumber(potEl, from, to, 720);
+      }
+    }
+  });
 
   // Always force render of inputContainer to avoid stale DOM labels
   let inputHTML = "";
@@ -773,19 +952,21 @@ function renderGameUI() {
     const origIndex = players.findIndex((pl) => pl.id === p.id);
     const wind = getPlayerWind(origIndex, dealerIndex, players.length);
     const badge = WIND_BADGES[wind];
+    const windClass = wind.toLowerCase();
 
     // Preserve existing typed values if present during a sync re-render
     const existingVal = document.getElementById(`input-${p.id}`)?.value || "";
 
     inputHTML += `
-            <div>
-              <label data-input-label="${p.id}" for="input-${p.id}" class="mb-2 flex items-center gap-2 text-sm font-bold text-ink-soft">
-                <span class="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-jade-50 text-[11px] font-extrabold text-jade-700">${badge.kanji}</span>
-                <span class="truncate">${p.name}</span>
+            <div class="entry-item wind-${windClass}">
+              <label data-input-label="${p.id}" for="input-${p.id}" class="entry-label">
+                <span class="entry-wind">${badge.kanji}</span>
+                <span class="entry-name">${escapeHtml(p.name)}</span>
+                <span class="entry-wind-text">${wind}</span>
               </label>
-              <div class="relative">
-                <input type="number" id="input-${p.id}" value="${existingVal}" oninput="window.validateSum()" placeholder="0" class="field score-input py-3 pr-12 text-center text-lg font-bold tabular-nums">
-                <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-extrabold uppercase text-ink-mute">pts</span>
+              <div class="relative entry-control">
+                <input type="number" id="input-${p.id}" value="${escapeHtml(existingVal)}" oninput="window.validateSum()" placeholder="0" inputmode="numeric" enterkeyhint="done" autocomplete="off" aria-label="Point change for ${escapeHtml(p.name)}" class="field score-input py-3 pr-12 text-center text-lg font-bold tabular-nums">
+                <span class="entry-pts">pts</span>
               </div>
             </div>
           `;
@@ -795,20 +976,29 @@ function renderGameUI() {
   // Render match history header and ledger rows...
   let headerHTML = `<th class="w-14 px-4 py-4 text-center font-extrabold">#</th>`;
   players.forEach((p) => {
-    headerHTML += `<th class="px-4 py-4 text-right font-extrabold">${p.name}</th>`;
+    headerHTML += `<th class="px-4 py-4 text-right font-extrabold">${escapeHtml(p.name)}</th>`;
   });
   headerHTML += `<th class="px-4 py-4 text-right font-extrabold text-jade-700">Pot</th><th class="px-6 py-4 text-left font-extrabold">Note</th>`;
   DOM.historyHeader.innerHTML = headerHTML;
 
   let bodyHTML = "";
   if (history.length === 0) {
-    bodyHTML = `<tr><td colspan="7" class="px-6 py-14 text-center text-ink-mute">No rounds recorded yet</td></tr>`;
+    bodyHTML = `<tr><td colspan="${players.length + 3}" class="px-6 py-14 text-center text-ink-mute">No rounds recorded yet</td></tr>`;
   } else {
     [...history].reverse().forEach((record, index) => {
       const roundNum = history.length - index;
-      let rowHTML = `<tr><td class="px-4 py-3 text-center"><span class="inline-grid h-7 w-7 place-items-center rounded-lg bg-ink/5 text-[11px] font-extrabold text-ink-mute">${roundNum}</span></td>`;
+      const deltas = record.deltas || {};
+      const isNew = newRows > 0 && index < newRows;
+      const rowClasses = [
+        "ledger-row",
+        isFirstRender && index < 12 ? "ledger-row--enter" : "",
+        isNew ? "ledger-row--new" : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      let rowHTML = `<tr class="${rowClasses}" style="--row-index:${Math.min(index, 12)}"><td class="px-4 py-3 text-center"><span class="inline-grid h-7 w-7 place-items-center rounded-lg bg-ink/5 text-[11px] font-extrabold text-ink-mute">${roundNum}</span></td>`;
       players.forEach((p) => {
-        const delta = record.deltas[p.id] || 0;
+        const delta = deltas[p.id] || 0;
         const colorClass =
           delta > 0
             ? "bg-jade-50 text-jade-700"
@@ -817,11 +1007,24 @@ function renderGameUI() {
               : "text-ink-mute";
         rowHTML += `<td class="px-4 py-3 text-right"><span class="inline-block rounded-lg px-2 py-1 text-sm font-bold tabular-nums ${colorClass}">${delta === 0 ? "–" : (delta > 0 ? "+" : "") + delta.toLocaleString()}</span></td>`;
       });
-      rowHTML += `<td class="border-l border-ink/5 px-4 py-3 text-right text-xs text-ink-mute">${record.deltas.pot || "–"}</td><td class="px-6 py-3 text-left text-xs font-medium text-ink-mute">${record.note || "–"}</td></tr>`;
+      const potDelta = deltas.pot || 0;
+      const potText =
+        potDelta === 0
+          ? "–"
+          : `${potDelta > 0 ? "+" : ""}${potDelta.toLocaleString()}`;
+      rowHTML += `<td class="border-l border-ink/5 px-4 py-3 text-right text-xs text-ink-mute">${potText}</td><td class="px-6 py-3 text-left text-xs font-medium text-ink-mute">${record.note ? escapeHtml(record.note) : "–"}</td></tr>`;
       bodyHTML += rowHTML;
     });
   }
   DOM.historyBody.innerHTML = bodyHTML;
+
+  previousScores = Object.fromEntries(
+    players.map((p) => [p.id, p.currentScore]),
+  );
+  previousDealerIndex = dealerIndex;
+  previousPot = currentPot;
+  previousHistoryLength = history.length;
+  previousLeaderId = leaderId;
 }
 
 function validateSum() {
@@ -838,6 +1041,11 @@ function validateSum() {
   });
 
   DOM.sumIndicator.textContent = `Sum: ${sum}`;
+  DOM.sumIndicator.dataset.state = !hasInput
+    ? "empty"
+    : sum === 0
+      ? "valid"
+      : "invalid";
   if (!hasInput) {
     DOM.sumIndicator.className =
       "rounded-xl border-2 border-ink/10 bg-white px-5 py-2.5 text-lg font-extrabold tabular-nums text-ink-mute transition-colors";
@@ -922,6 +1130,7 @@ async function handleSubmitRound() {
       history: updatedHistory,
       lastActiveAt: new Date().toISOString(),
     });
+    pulseHaptic(12);
     clearInputs();
   } catch (err) {
     console.error("Submit error:", err);
@@ -975,6 +1184,7 @@ function handleUndo() {
           pot: revertedPot,
           history: revertedHistory,
         });
+        pulseHaptic(10);
       } catch (err) {
         console.error("Undo error:", err);
         showModal("Error", "Failed to undo round.", "error");

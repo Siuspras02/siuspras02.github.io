@@ -1498,7 +1498,10 @@ window.runCalculation = () => {
         (p) => p.id !== (inferredWinner ? inferredWinner.id : ""),
       );
       const targetOptions = otherPlayers
-        .map((p) => `<option value="${p.id}">${p.name}</option>`)
+        .map(
+          (p) =>
+            `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`,
+        )
         .join("");
 
       targetSectionHTML = `
@@ -1523,7 +1526,7 @@ window.runCalculation = () => {
             </span>
           </div>
           <p class="text-ink text-xs">${paymentDetail}</p>
-          <p class="text-[11px] text-jade-700 font-semibold mt-0.5">Winner: <b>${inferredWinner ? inferredWinner.name : "Unknown"}</b> (${targetSeatName} Seat)</p>
+          <p class="text-[11px] text-jade-700 font-semibold mt-0.5">Winner: <b>${inferredWinner ? escapeHtml(inferredWinner.name) : "Unknown"}</b> (${targetSeatName} Seat)</p>
         </div>
         <button
           type="button"
@@ -1545,7 +1548,7 @@ window.runCalculation = () => {
     console.error("Score Calc Error:", err);
     out.classList.remove("hidden");
     out.innerHTML = `
-      <p class="text-xs font-semibold text-red-700">⚠ ${err.message}</p>
+      <p class="text-xs font-semibold text-red-700">⚠ ${escapeHtml(err.message)}</p>
       <p class="text-xs text-ink-mute mt-1">Fix the hand or meld above and recalculate.</p>
     `;
   }
@@ -1631,8 +1634,8 @@ function updateMeldPreview() {
         .map(
           (code) => `
                   <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border border-jade-300 rounded-md shadow-xs">
-                    <span class="text-[3rem] leading-none font-serif font-bold text-jade-800">${(TILE_FACES[code] && TILE_FACES[code].sym) || code}</span>
-                    <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
+                    <span class="text-[3rem] leading-none font-serif font-bold text-jade-800">${(TILE_FACES[code] && escapeHtml(TILE_FACES[code].sym)) || escapeHtml(code)}</span>
+                    <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${escapeHtml(code)}</span>
                   </div>`,
         )
         .join("")
@@ -1755,15 +1758,15 @@ function renderMelds() {
           };
           return `
                   <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border border-ink/20 rounded-md shadow-xs">
-                    <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${face.sym}</span>
-                    <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
+                    <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${escapeHtml(face.sym)}</span>
+                    <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${escapeHtml(code)}</span>
                   </div>`;
         })
         .join("");
 
       return `
               <span class="inline-flex items-center gap-2 rounded-xl border border-ink/15 bg-slate-100/80 p-2 shadow-sm">
-                <span class="uppercase text-[11px] text-jade-700 font-extrabold tracking-wider">[${m.type}]</span>
+                <span class="uppercase text-[11px] text-jade-700 font-extrabold tracking-wider">[${escapeHtml(m.type)}]</span>
                 <div class="flex gap-1">${tilesHTML}</div>
                 <button type="button" onclick="removeMeld(${idx})" class="text-red-600 hover:text-red-800 font-bold text-base leading-none p-1">✕</button>
               </span>`;
@@ -1803,8 +1806,8 @@ function renderHandTiles() {
     };
     winTileDisplay.innerHTML = `
             <div class="inline-flex flex-col items-center justify-center w-full h-full bg-amber-50 border border-amber-300 rounded-2xl">
-              <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${face.sym}</span>
-              <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${lastTile}</span>
+              <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${escapeHtml(face.sym)}</span>
+              <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${escapeHtml(lastTile)}</span>
             </div>`;
   }
 
@@ -1819,8 +1822,8 @@ function renderHandTiles() {
       return `
               <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border ${isWinTile ? "border-amber-400 ring-2 ring-amber-300" : "border-ink/20"} rounded-2xl shadow-xs relative group cursor-pointer" onclick="removeHandTile(${idx})">
                 ${isWinTile ? `<span class="absolute -top-2 -right-1.5 bg-amber-500 text-white text-[8px] font-extrabold px-1 rounded-full uppercase">Win</span>` : ""}
-                <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${face.sym}</span>
-                <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
+                <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${escapeHtml(face.sym)}</span>
+                <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${escapeHtml(code)}</span>
               </div>`;
     })
     .join("");
@@ -1919,8 +1922,8 @@ function renderDoraTiles() {
       };
       return `
               <div class="inline-flex flex-col items-center justify-center w-10 h-14 bg-white border border-ink/20 rounded-xl shadow-xs relative group cursor-pointer" onclick="removeDoraTile(${idx})">
-                <span class="text-[2.5rem] leading-none ${face.color}">${face.sym}</span>
-                <span class="text-[8px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${code}</span>
+                <span class="text-[2.5rem] leading-none ${face.color}">${escapeHtml(face.sym)}</span>
+                <span class="text-[8px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${escapeHtml(code)}</span>
               </div>`;
     })
     .join("");
@@ -2241,7 +2244,7 @@ window.calculateCombinedScores = async () => {
           <div class="flex items-center justify-between">
             <span class="flex items-center gap-2 font-bold text-sm text-ink">
               <span class="grid h-6 w-6 place-items-center rounded-md ${idx === 0 ? "bg-gold-100 text-gold-700" : "bg-ink/5 text-ink-soft"} text-xs font-extrabold">${idx + 1}</span>
-              ${p.displayName}
+              ${escapeHtml(p.displayName)}
             </span>
             <span class="font-display text-lg font-bold text-ink">${p.totalScore.toLocaleString()} pts</span>
           </div>
@@ -2261,4 +2264,20 @@ window.calculateCombinedScores = async () => {
   }
 };
 
+// Utility function to escape HTML characters
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>'"]/g, function(match) {
+    const escape = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    };
+    return escape[match];
+  });
+}
+
 window.addEventListener("DOMContentLoaded", init);
+

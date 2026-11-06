@@ -53,6 +53,16 @@ export function windIndices() {
   return [27, 28, 29, 30];
 }
 
+/** Winds used in 3-player (Sanma): no North seat. @returns {number[]} */
+export function sanmaWindIndices() {
+  return [27, 28, 29];
+}
+
+/** Manzu indices removed in Sanma: 2m–8m. @returns {number[]} */
+export function sanmaRemovedTileIndices() {
+  return [1, 2, 3, 4, 5, 6, 7];
+}
+
 /** Parse "6z" / "0p" to {index, isRed, code}. Throws on bad notation. */
 export function parseTile(code) {
   if (typeof code !== "string") throw new Error(`Invalid tile: ${JSON.stringify(code)}`);
@@ -77,14 +87,25 @@ export function codeOf(index, isRed = false) {
   return `${n}${suit}`;
 }
 
-/** Dora tile revealed by an indicator (successor rule). Red indicator acts as its five. */
-export function doraFromIndicator(indicatorCode) {
+/**
+ * Dora tile revealed by an indicator (successor rule). Red indicator acts as its five.
+ * In Sanma mode manzu wraps 1m ↔ 9m (2m–8m are not used).
+ * @param {string} indicatorCode
+ * @param {{sanma?: boolean}} [opts]
+ */
+export function doraFromIndicator(indicatorCode, opts = {}) {
   let { index, isRed } = parseTile(indicatorCode);
   if (isRed) { /* red five indicator behaves as an ordinary five */ }
   if (isHonor(index)) {
     // winds 1z→2z→3z→4z→1z, dragons 5z→6z→7z→5z
     if (index >= 27 && index <= 30) return (28 + (index - 27 + 1) % 4) - 1;
     return 30 + (index - 30 + 1 - 1) % 3 + 1; // 31→32→33→31
+  }
+  if (index < 9 && opts.sanma) {
+    // Sanma manzu: only 1m and 9m exist — indicators wrap between them.
+    if (index === 0) return 8;
+    if (index === 8) return 0;
+    return index + 1; // unreachable for legal sanma hands, kept for safety
   }
   return (index % 9 === 8) ? index - 8 : index + 1;
 }

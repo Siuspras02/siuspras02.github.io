@@ -14,6 +14,7 @@ import {
   parseTile, buildCounts, mergeCounts, assertMaxPerTile, codeOf,
   isHonor, isTerminal, isTerminalOrHonor, suitOf, dragonIndices,
   doraFromIndicator, countRedFives, windIndices,
+  sanmaWindIndices, sanmaRemovedTileIndices,
 } from "./tiles.js";
 import {
   findStandardDecompositions, findChiitoitsu, findKokushi, runWaitType,
@@ -59,6 +60,20 @@ function parseInput(input) {
   }
   const cfg = { ...DEFAULT_CONFIG, ...(input.config || {}) };
 
+  /* --- game mode: 4-player (default) or 3-player Sanma --- */
+  const sanma = input.players === 3 || (input.config || {}).sanma === true ||
+    input.mode === "sanma";
+  const nukidora = Number.isFinite(+input.nukidora)
+    ? Math.max(0, Math.min(4, Math.floor(+input.nukidora)))
+    : 0;
+  if (nukidora > 0 && !sanma) {
+    throw new Error("nukidora is only valid in 3-player (Sanma) games");
+  }
+  const tsumoLoss = input.tsumoLoss === "redistribute" ? "redistribute" : "skip";
+  if (tsumoLoss === "redistribute" && !sanma) {
+    throw new Error("tsumoLoss redistribution is only valid in 3-player games");
+  }
+
   const handCodes = [...(input.hand || [])].map(String);
   const meldsIn = [...(input.melds || [])];
   const doraIn = [...(input.doraIndicators || [])];
@@ -73,6 +88,14 @@ function parseInput(input) {
   // winds
   const roundWindIndex = parseWind(input.roundWind);
   const seatWindIndex = parseWind(input.seatWind);
+  if (sanma) {
+    if (seatWindIndex === 30) {
+      throw new Error("North is not a seat wind in 3-player (Sanma) games");
+    }
+    if (roundWindIndex === 30) {
+      throw new Error("North is not a round wind in 3-player (Sanma) games");
+    }
+  }
 
   // tiles
   const hand = buildCounts(handCodes);
@@ -84,6 +107,9 @@ function parseInput(input) {
   // resolve melds
   const melds = meldsIn.map((m) => resolveMeld(m));
   const meldSetCount = melds.length;
+  if (sanma && melds.some((m) => m.type === "chii")) {
+    throw new Error("chi is not allowed in 3-player (Sanma) games");
+  }
 
   // expected closed tile-count shape: 14 incl win - 3 per meld (kans = one set)
   const handLen = 14 - 3 * meldSetCount;
@@ -143,6 +169,25 @@ function parseInput(input) {
   // dora indicators
   for (const d of doraIn) parseTile(String(d));
   for (const d of uraIn) parseTile(String(d));
+
+  // sanma tile-set validation: 2m–8m are not used anywhere
+  if (sanma) {
+    const removed = sanmaRemovedTileIndices();
+    const banCheck = (label, counts) => {
+      for (const i of removed) {
+        if (counts[i] > 0) {
+          throw new Error(
+            `${codeOf(i)} is not used in 3-player (Sanma) games (found in ${label})`
+          );
+        }
+      }
+    };
+    banCheck("the hand", hand.counts);
+    banCheck("the melds", meldTiles.counts);
+    banCheck("the win tile", buildCounts([String(input.winTile)]).counts);
+    for (const d of doraIn) banCheck("dora indicators", buildCounts([String(d)]).counts);
+    for (const d of uraIn) banCheck("ura dora indicators", buildCounts([String(d)]).counts);
+  }
   // ura dora only counts under riichi (silently ignored otherwise — documented)
   const uraValid = riichi; // doubleRiichi implies riichi
 
@@ -167,7 +212,8 @@ function parseInput(input) {
 
   return {
     cfg, winType, roundWindIndex, seatWindIndex, hand, melds,
-    meldTiles, combined, winIndex, menzen,
+    meldTiles, combined, winIndex, menzen, sanma,
+    nukidora, tsumoLoss,
     riichi, doubleRiichi: doubleRiichi && riichi ? true : false,
     ippatsu: !!input.ippatsu,
     lastTile: !!input.lastTile,
@@ -416,7 +462,7 @@ function scoreCandidate(state, cand) {
   /* --- dora / ura / aka --- */
   const doraList = [];
   for (const ind of state.doraIn) {
-    const d = doraFromIndicator(String(ind));
+    const d = doraFromIndicator(String(ind), { sanma: state.sanma });
     doraList.push({ name: "Dora", index: d });
   }
   let doraCount = 0;
@@ -425,7 +471,7 @@ function scoreCandidate(state, cand) {
   let uraCount = 0;
   if (state.uraValid) {
     for (const ind of state.uraIn) {
-      const d = doraFromIndicator(String(ind));
+      const d = doraFromIndicator(String(ind), { sanma: state.sanma });
       uraCount += state.combined.counts[d.index];
     }
   }
@@ -433,6 +479,10 @@ function scoreCandidate(state, cand) {
   const akaCount = state.redEnabled ? countRedFives(state.combined.red) : 0;
 
   const yaku = [...sitHan];
+  /* nukidora (Sanma): each declared North tile is +1 han */
+  if (state.nukidora > 0) {
+    yaku.push({ name: `Nukidora`, han: state.nukidora, isYakuman: false });
+  }
   if (doraCount > 0) yaku.push({ name: "Dora", han: doraCount, isYakuman: false });
   if (uraCount > 0) yaku.push({ name: "Ura Dora", han: uraCount, isYakuman: false });
   if (akaCount > 0) yaku.push({ name: "Aka Dora (Red Five)", han: akaCount, isYakuman: false });
@@ -444,7 +494,7 @@ function scoreCandidate(state, cand) {
     pinfuCandidate
   );
 
-  const han = sitHan.reduce((a, y) => a + y.han, 0) + doraCount + uraCount + akaCount;
+  const han = sitHan.reduce((a, y) => a + y.han, 0) + doraCount + uraCount + akaCount + state.nukidora;
 
   return {
     han,
@@ -549,7 +599,44 @@ export function calculateScore(input) {
   let payments = {};
   let points;
 
-  if (state.winType === "ron") {
+  if (state.sanma) {
+    if (state.winType === "ron") {
+      // Sanma: dealer ron 6× base, non-dealer ron 4× base (both rounded to
+      // 100). Double ron is possible — each of the 2 non-winning players
+      // pays the full amount (head-bump rules may reduce this to one payer,
+      // the engine's per-player amount is unchanged either way).
+      const pay = round100(basic * (dealer ? 6 : 4)) + state.honba * 300;
+      payments.ron = pay;
+      payments.ronPerPayer = pay;
+      payments.ronPayers = 2;
+      points = pay;
+    } else if (dealer) {
+      // Sanma dealer tsumo: each of the 2 other players pays 2× base.
+      // With redistribution the missing 4th seat's share is split, so each
+      // pays 3× instead.
+      const each =
+        state.tsumoLoss === "redistribute"
+          ? round100(basic * 3)
+          : round100(basic * 2);
+      payments.nonDealer = each + state.honba * 100;
+      points = payments.nonDealer * 2;
+    } else {
+      // Sanma non-dealer tsumo: dealer pays 2× base, the other player 1×.
+      // "skip" (Tenhou-style default): the missing 4th seat simply doesn't
+      // pay. "redistribute": that share is split between the 2 payers.
+      const dealerPays =
+        state.tsumoLoss === "redistribute"
+          ? round100(basic * 2.5)
+          : round100(basic * 2);
+      const otherPays =
+        state.tsumoLoss === "redistribute"
+          ? round100(basic * 1.5)
+          : round100(basic * 1);
+      payments.dealer = dealerPays + state.honba * 100;
+      payments.nonDealer = otherPays + state.honba * 100;
+      points = payments.dealer + payments.nonDealer;
+    }
+  } else if (state.winType === "ron") {
     const main = isYakuman ? basic * (dealer ? 6 : 4) : basic * (dealer ? 6 : 4);
     const pay = round100(main) + state.honba * 300;
     payments.ron = pay;
@@ -580,6 +667,9 @@ export function calculateScore(input) {
     fuBreakdown: best.fuBreakdown,
     isYakuman,
     seatIsDealer: dealer,
+    players: state.sanma ? 3 : 4,
+    nukidora: state.nukidora,
+    tsumoLoss: state.sanma ? state.tsumoLoss : null,
     winTile: input.winTile,
     winType: state.winType,
     winningDecomp: describeDecomp(best.candidate),

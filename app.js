@@ -1197,7 +1197,124 @@ function handleOpenCalculator() {
   window.open("https://riichi.onecomp.one/#/calculator", "_blank");
 }
 
+/* ------------------------------------------------------------------ *
+ * Calculator game mode (4 Players / 3 Players Sanma)
+ * ------------------------------------------------------------------ */
+const CALC_MODE_KEY = "riichi-calc-players";
+let calcPlayersMode = 4;
+
+function readStoredCalcMode() {
+  try {
+    const v = parseInt(localStorage.getItem(CALC_MODE_KEY), 10);
+    if (v === 3 || v === 4) return v;
+  } catch {
+    /* localStorage may be unavailable in a sandbox — mode is kept in memory */
+  }
+  return null;
+}
+
+function storeCalcMode(mode) {
+  try {
+    localStorage.setItem(CALC_MODE_KEY, String(mode));
+  } catch {
+    /* non-persistent environments are fine — mode lives in memory */
+  }
+}
+
+/** Tile list per suit for the pickers; manzu shrinks to 1m/9m in Sanma. */
+function calcTileSets() {
+  const sanma = calcPlayersMode === 3;
+  return {
+    m: sanma
+      ? ["1m", "9m"]
+      : ["1m", "2m", "3m", "4m", "0m", "5m", "6m", "7m", "8m", "9m"],
+    p: ["1p", "2p", "3p", "4p", "0p", "5p", "6p", "7p", "8p", "9p"],
+    s: ["1s", "2s", "3s", "4s", "0s", "5s", "6s", "7s", "8s", "9s"],
+    z: ["1z", "2z", "3z", "4z", "5z", "6z", "7z"],
+  };
+}
+
+function applyCalcModeUI({ recalc = true } = {}) {
+  const sanma = calcPlayersMode === 3;
+
+  const btn4 = document.getElementById("calc-mode-4");
+  const btn3 = document.getElementById("calc-mode-3");
+  for (const [btn, active] of [
+    [btn4, !sanma],
+    [btn3, sanma],
+  ]) {
+    if (!btn) continue;
+    btn.setAttribute("aria-selected", active ? "true" : "false");
+    btn.classList.toggle("bg-jade-600", active);
+    btn.classList.toggle("text-white", active);
+    btn.classList.toggle("text-ink-mute", !active);
+  }
+
+  const sanmaPanel = document.getElementById("calc-sanma-settings");
+  if (sanmaPanel) sanmaPanel.classList.toggle("hidden", !sanma);
+
+  // Chi is not a legal call in Sanma — hide its builder shortcut.
+  const chiBtn = document.getElementById("calc-chi-btn");
+  if (chiBtn) chiBtn.classList.toggle("hidden", sanma);
+
+  // North is not a seat/round wind in Sanma.
+  const allowedWinds = sanma ? ["1z", "2z", "3z"] : ["1z", "2z", "3z", "4z"];
+  const windLabels = {
+    "1z": "East (東)",
+    "2z": "South (南)",
+    "3z": "West (西)",
+    "4z": "North (北)",
+  };
+  for (const selectId of ["calc-seatwind", "calc-roundwind"]) {
+    const select = document.getElementById(selectId);
+    if (!select) continue;
+    const keep = select.value;
+    select.innerHTML = allowedWinds
+      .map((w) => `<option value="${w}">${windLabels[w]}</option>`)
+      .join("");
+    // Drop an illegal 4z selection when switching to Sanma.
+    select.value = allowedWinds.includes(keep) ? keep : "1z";
+  }
+
+  // Pickers show the correct tile set for the active mode.
+  initTilePicker();
+  renderMeldPicker();
+  renderDoraPickerBoard();
+
+  if (sanma) {
+    // Any chi already selected in 4P mode becomes invalid — drop them.
+    if (typeof currentMelds !== "undefined" && currentMelds.length) {
+      const legal = currentMelds.filter((m) => m.type !== "chii");
+      if (legal.length !== currentMelds.length) {
+        currentMelds = legal;
+        renderMelds();
+      }
+    }
+  }
+  if (recalc) runCalculation();
+}
+
+window.setCalcMode = (mode) => {
+  const next = mode === 3 || mode === "3" ? 3 : 4;
+  if (next === calcPlayersMode) return;
+  calcPlayersMode = next;
+  storeCalcMode(next);
+  applyCalcModeUI();
+};
+
+window.adjustNukidora = (delta) => {
+  const input = document.getElementById("calc-nukidora-value");
+  if (!input) return;
+  const next = Math.max(0, Math.min(4, (parseInt(input.value, 10) || 0) + delta));
+  input.value = String(next);
+  runCalculation();
+};
+
 window.openCalculatorModal = () => {
+  // Restore the saved mode, defaulting to the room's player count.
+  const stored = readStoredCalcMode();
+  calcPlayersMode = stored ?? (localRoomState?.players?.length === 3 ? 3 : 4);
+  applyCalcModeUI({ recalc: false });
   document.getElementById("calculator-modal").classList.remove("hidden");
   initTilePicker();
   renderHandTiles();
@@ -1265,6 +1382,16 @@ window.runCalculation = () => {
       .map((s) => s.trim())
       .filter(Boolean);
 
+    // Sanma settings (only used when the calculator is in 3-player mode).
+    const nukidoraValue = document.getElementById("calc-nukidora-value");
+    const nukidora = Math.max(
+      0,
+      Math.min(4, parseInt(nukidoraValue?.value, 10) || 0),
+    );
+    const tsumoLoss =
+      document.getElementById("calc-tsumo-loss")?.value || "skip";
+    const ronSplit = document.getElementById("calc-ron-split")?.value || "all";
+
     const result = RiichiScore.calculateScore({
       hand,
       melds,
@@ -1272,6 +1399,9 @@ window.runCalculation = () => {
       winType,
       seatWind,
       roundWind,
+      players: calcPlayersMode,
+      nukidora: calcPlayersMode === 3 ? nukidora : 0,
+      tsumoLoss: calcPlayersMode === 3 ? tsumoLoss : "skip",
       riichi,
       isRiichi: riichi,
       doubleRiichi,
@@ -1292,7 +1422,7 @@ window.runCalculation = () => {
 
     const players =
       localRoomState && localRoomState.players ? localRoomState.players : [];
-    const is3Player = players.length === 3;
+    const is3Player = calcPlayersMode === 3;
     const isDealer = result.seatIsDealer;
     const payments = result.payments || {};
 
@@ -1305,7 +1435,7 @@ window.runCalculation = () => {
           ? payments.nonDealer.toLocaleString()
           : "0";
         paymentDetail = is3Player
-          ? `<b>${nonDealerPay}</b> each from 2 players (Dealer Tsumo)`
+          ? `<b>${nonDealerPay}</b> each from the 2 other players (Dealer Tsumo)`
           : `<b>${nonDealerPay}</b> from all (Dealer Tsumo)`;
       } else {
         const dealerPay = payments.dealer
@@ -1315,9 +1445,18 @@ window.runCalculation = () => {
           ? payments.nonDealer.toLocaleString()
           : "0";
         paymentDetail = is3Player
-          ? `Dealer: <b>${dealerPay}</b> · Other Player: <b>${nonDealerPay}</b>`
+          ? `Dealer: <b>${dealerPay}</b> · Other Player: <b>${nonDealerPay}</b> · Missing seat: ${tsumoLoss === "redistribute" ? "share redistributed" : "not paid (tsumo loss)"}`
           : `Dealer: <b>${dealerPay}</b> · Others: <b>${nonDealerPay}</b> each`;
       }
+    } else if (is3Player) {
+      // Sanma ron: `points` is the per-payer amount; both non-winning
+      // players owe it under double-ron rules unless head bump is chosen.
+      const perPayer = payments.ron ? payments.ron.toLocaleString() : "0";
+      paymentDetail =
+        (isDealer ? "Dealer Ron: " : "Ron: ") +
+        (ronSplit === "headbump"
+          ? `<b>${perPayer}</b> from head-end player (head bump)`
+          : `<b>${perPayer}</b> each from the 2 other players (double ron)`);
     } else {
       const ronPay = payments.ron ? payments.ron.toLocaleString() : "0";
       paymentDetail = isDealer
@@ -1325,9 +1464,13 @@ window.runCalculation = () => {
         : `Ron: <b>${ronPay}</b> from target player`;
     }
 
-    const totalPointsFormatted = result.points
-      ? result.points.toLocaleString()
-      : "0";
+    // In Sanma a double ron moves points from BOTH non-winning players,
+    // so the winner's total is the per-payer amount × 2.
+    const totalPoints =
+      result.winType === "ron" && calcPlayersMode === 3 && ronSplit !== "headbump"
+        ? (result.points || 0) * 2
+        : result.points || 0;
+    const totalPointsFormatted = totalPoints.toLocaleString();
 
     // Auto-detect winner based on Seat Wind matching active room seats
     const dealerIdx =
@@ -1409,12 +1552,7 @@ window.runCalculation = () => {
 };
 
 function initTilePicker() {
-  const suits = {
-    m: ["1m", "2m", "3m", "4m", "0m", "5m", "6m", "7m", "8m", "9m"],
-    p: ["1p", "2p", "3p", "4p", "0p", "5p", "6p", "7p", "8p", "9p"],
-    s: ["1s", "2s", "3s", "4s", "0s", "5s", "6s", "7s", "8s", "9s"],
-    z: ["1z", "2z", "3z", "4z", "5z", "6z", "7z"],
-  };
+  const suits = calcTileSets();
 
   for (const [suit, codes] of Object.entries(suits)) {
     const container = document.getElementById(`picker-${suit}`);
@@ -1502,12 +1640,7 @@ function updateMeldPreview() {
 }
 
 function renderMeldPicker() {
-  const suits = {
-    m: ["1m", "2m", "3m", "4m", "0m", "5m", "6m", "7m", "8m", "9m"],
-    p: ["1p", "2p", "3p", "4p", "0p", "5p", "6p", "7p", "8p", "9p"],
-    s: ["1s", "2s", "3s", "4s", "0s", "5s", "6s", "7s", "8s", "9s"],
-    z: ["1z", "2z", "3z", "4z", "5z", "6z", "7z"],
-  };
+  const suits = calcTileSets();
 
   for (const [suit, codes] of Object.entries(suits)) {
     const container = document.getElementById(`meld-picker-${suit}`);
@@ -1728,12 +1861,7 @@ window.closeDoraPicker = () => {
 };
 
 function renderDoraPickerBoard() {
-  const suits = {
-    m: ["1m", "2m", "3m", "4m", "0m", "5m", "6m", "7m", "8m", "9m"],
-    p: ["1p", "2p", "3p", "4p", "0p", "5p", "6p", "7p", "8p", "9p"],
-    s: ["1s", "2s", "3s", "4s", "0s", "5s", "6s", "7s", "8s", "9s"],
-    z: ["1z", "2z", "3z", "4z", "5z", "6z", "7z"],
-  };
+  const suits = calcTileSets();
 
   for (const [suit, codes] of Object.entries(suits)) {
     const container = document.getElementById(`dora-picker-${suit}`);
@@ -1828,6 +1956,9 @@ function initAutoCalculation() {
     "calc-lasttile",
     "calc-tenhou",
     "calc-chiihou",
+    "calc-nukidora-value",
+    "calc-tsumo-loss",
+    "calc-ron-split",
   ];
 
   triggers.forEach((id) => {
@@ -1870,6 +2001,10 @@ window.applyCalcToNote = () => {
 
   const winnerId = winnerPlayer.id;
   const targetId = document.getElementById("calc-target-player")?.value;
+  const ronSplit =
+    document.getElementById("calc-ron-split")?.value === "headbump"
+      ? "headbump"
+      : "all";
 
   if (
     lastCalcResult.winType === "ron" &&
@@ -1888,18 +2023,32 @@ window.applyCalcToNote = () => {
 
   if (lastCalcResult.winType === "ron") {
     const amount = payments.ron || 0;
-    deltas[winnerId] = amount;
-    deltas[targetId] = -amount;
+    if (
+      calcPlayersMode === 3 &&
+      ronSplit === "all" &&
+      players.length === 3
+    ) {
+      // Sanma double ron: both remaining players pay the full amount.
+      const losers = players.filter((p) => p.id !== winnerId);
+      losers.forEach((p) => {
+        deltas[p.id] -= amount;
+      });
+      deltas[winnerId] += amount * losers.length;
+    } else {
+      deltas[winnerId] = amount;
+      deltas[targetId] = -amount;
+    }
   } else if (lastCalcResult.winType === "tsumo") {
     if (winnerId === dealerId) {
-      // Dealer Tsumo: All non-dealers pay payments.nonDealer
+      // Dealer Tsumo: All non-dealers pay payments.nonDealer.
       const payEach = payments.nonDealer || 0;
       let totalGained = 0;
-      players.forEach((p) => {
-        if (p.id !== winnerId) {
-          deltas[p.id] = -payEach;
-          totalGained += payEach;
-        }
+      const payers = players.filter((p) => p.id !== winnerId);
+      // In Sanma exactly 2 players pay, even if the room tracks 4 seats.
+      const limited = calcPlayersMode === 3 ? payers.slice(0, 2) : payers;
+      limited.forEach((p) => {
+        deltas[p.id] = -payEach;
+        totalGained += payEach;
       });
       deltas[winnerId] = totalGained;
     } else {
@@ -1908,13 +2057,19 @@ window.applyCalcToNote = () => {
       const nonDealerPay = payments.nonDealer || 0;
       let totalGained = 0;
 
+      // In Sanma only 1 other non-dealer pays; in 4P every non-dealer pays.
+      const others = players.filter(
+        (p) => p.id !== winnerId && p.id !== dealerId,
+      );
+      const payers = calcPlayersMode === 3 ? others.slice(0, 1) : others;
+
       players.forEach((p) => {
         if (p.id === winnerId) return;
         if (p.id === dealerId) {
-          deltas[p.id] = -dealerPay;
+          deltas[p.id] -= dealerPay;
           totalGained += dealerPay;
-        } else {
-          deltas[p.id] = -nonDealerPay;
+        } else if (payers.some((o) => o.id === p.id)) {
+          deltas[p.id] -= nonDealerPay;
           totalGained += nonDealerPay;
         }
       });

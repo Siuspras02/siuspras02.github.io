@@ -620,6 +620,33 @@ input[type="number"] {
   border-color: var(--ds-line);
   box-shadow: var(--ds-shadow-sm);
 }
+/* 4-player / 3-player (Sanma) segmented switch */
+#calc-mode-switch .calc-mode-btn {
+  color: var(--ds-ink-mute, #6b7280);
+  transition: background-color 160ms ease, color 160ms ease,
+    box-shadow 160ms ease;
+}
+#calc-mode-switch .calc-mode-btn:active {
+  transform: scale(0.97);
+}
+#calc-mode-switch .calc-mode-btn[aria-selected="true"] {
+  background: #0f5c46;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(15, 92, 70, 0.35);
+}
+#calc-mode-switch .calc-mode-btn[aria-selected="false"] {
+  background: transparent;
+}
+/* Sanma settings panel */
+#calc-sanma-settings {
+  background: rgba(255, 251, 235, 0.65);
+  border-color: rgba(217, 173, 66, 0.4);
+}
+@media (prefers-reduced-motion: reduce) {
+  #calc-mode-switch .calc-mode-btn {
+    transition: none;
+  }
+}
 #calculator-modal .bg-slate-900 {
   background-color: #0f2a23;
   background-image:

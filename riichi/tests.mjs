@@ -93,4 +93,209 @@ test("closed kan of an aka five counts exactly 1 red dora", () => {
   assert.equal(aka[0].han, 1);
 });
 
+/* ------------------------------------------------------------------ *
+ * Sanma (3-player) tests
+ * ------------------------------------------------------------------ */
+
+const SANMA_BASE = {
+  winType: "ron",
+  roundWind: "1z",
+  seatWind: "2z",
+  players: 3,
+};
+
+// Closed, all-simples tsumo hand used for several sanma tests:
+// 333p + 777s triplets, 345p + 678p runs, 4s4s pair completed by 4s (tanki).
+// Yaku: Riichi + Menzen Tsumo + Tanyao = 3 han.
+// Fu: 20 base + 2 tsumo + 4 + 4 concealed simple triplets + 2 tanki = 32 → 40.
+const SANMA_TSUMO_HAND = {
+  hand: ["3p", "3p", "3p", "7s", "7s", "7s", "3p", "4p", "5p", "6p", "7p", "8p", "4s", "4s"],
+  winTile: "4s",
+  winType: "tsumo",
+  riichi: true,
+  melds: [],
+};
+
+test("sanma: non-dealer 3 han 40 fu tsumo (tsumo loss — missing seat doesn't pay)", () => {
+  const r = calculateScore({
+    ...SANMA_BASE,
+    ...SANMA_TSUMO_HAND,
+    seatWind: "2z",
+  });
+  assert.equal(r.han, 3);
+  assert.equal(r.fu, 40);
+  assert.equal(r.seatIsDealer, false);
+  assert.equal(r.tsumoLoss, "skip");
+  // base = 40 × 2^5 = 1280 → dealer 2× (rounded to 100) = 2600, other 1300
+  assert.equal(r.payments.dealer, 2600);
+  assert.equal(r.payments.nonDealer, 1300);
+  assert.equal(r.points, 3900);
+});
+
+test("sanma: tsumo redistribution splits the missing seat's share", () => {
+  const r = calculateScore({
+    ...SANMA_BASE,
+    ...SANMA_TSUMO_HAND,
+    seatWind: "2z",
+    tsumoLoss: "redistribute",
+  });
+  // dealer 2.5× = 3200, other player 1.5× = 1920 → rounded to 100
+  assert.equal(r.payments.dealer, 3200);
+  assert.equal(r.payments.nonDealer, 2000);
+  assert.equal(r.points, 5200);
+});
+
+// Open dealer-ron sanma hand: a melded White Dragon pon, a concealed 2s
+// triplet (unclaimed), two plain pin runs, and a plain 3s pair completed
+// by 3s on a tanki wait. A 1s indicator gives 3 dora on the 2s triplet.
+// Yaku: White Dragon (1) + Dora (3) = 4 han.
+// Fu: 20 base + 4 open honor pon + 4 concealed simple triplet + 2 tanki
+// = 30 fu exactly.
+const SANMA_DEALER_HAND = {
+  hand: ["2s", "2s", "2s", "3p", "4p", "5p", "6p", "7p", "8p", "3s", "3s"],
+  winTile: "3s",
+  winType: "ron",
+  seatWind: "1z",
+  roundWind: "1z",
+  melds: [{ type: "pon", tiles: ["6z", "6z", "6z"] }],
+  doraIndicators: ["1s"],
+};
+
+test("sanma: dealer 4 han 30 fu ron pays 6× base to a single loser", () => {
+  const r = calculateScore({
+    ...SANMA_BASE,
+    ...SANMA_DEALER_HAND,
+    config: { kiriageMangan: false },
+  });
+  assert.equal(r.han, 4);
+  assert.equal(r.fu, 30);
+  assert.equal(r.seatIsDealer, true);
+  // base = 30 × 2^6 = 1920 → dealer ron = 6 × 1920 = 11,520 → 11,600
+  assert.equal(r.payments.ron, 11600);
+  assert.equal(r.payments.ronPerPayer, 11600);
+  assert.equal(r.payments.ronPayers, 2, "double ron: both losers pay");
+  assert.equal(r.points, 11600);
+});
+
+test("sanma: dealer tsumo — each of the 2 other players pays 2× base", () => {
+  // Closed dealer tsumo: White Dragon triplet + Menzen Tsumo = 2 han.
+  // Fu: 20 base + 2 tsumo + 8 concealed honor triplet = 30 → base 480
+  // → each payer round100(960) = 1000, total 2000.
+  const r = calculateScore({
+    ...SANMA_BASE,
+    seatWind: "1z",
+    winType: "tsumo",
+    hand: [
+      "6z", "6z", "6z", "2p", "2p", "3p", "4p", "5p",
+      "6p", "7p", "8p", "3s", "4s", "5s",
+    ],
+    winTile: "5s",
+    riichi: false,
+  });
+  assert.equal(r.han, 2);
+  assert.equal(r.fu, 30);
+  assert.equal(r.seatIsDealer, true);
+  assert.equal(r.payments.nonDealer, 1000);
+  assert.equal(r.points, 2000);
+});
+
+test("sanma: mangan with 2 nukidora (nukidora adds 1 han each)", () => {
+  const r = calculateScore({
+    ...SANMA_BASE,
+    ...SANMA_TSUMO_HAND,
+    seatWind: "2z",
+    nukidora: 2,
+  });
+  assert.equal(r.han, 5, "3 han hand + 2 nukidora = 5 (mangan)");
+  assert.equal(r.tier, "Mangan");
+  const nuki = (r.yaku || []).find((y) => y.name === "Nukidora");
+  assert.ok(nuki, "nukidora listed as its own yaku entry");
+  assert.equal(nuki.han, 2);
+  // mangan base 2000 → dealer 4000, other player 2000
+  assert.equal(r.payments.dealer, 4000);
+  assert.equal(r.payments.nonDealer, 2000);
+  assert.equal(r.points, 6000);
+});
+
+test("sanma: a 1m indicator reveals 9m as dora", () => {
+  const r = calculateScore({
+    ...SANMA_BASE,
+    seatWind: "3z",
+    hand: ["7z", "7z", "7z", "3s", "3p", "4p", "5p", "6p", "7p", "8p", "3s"],
+    winTile: "3s",
+    melds: [{ type: "pon", tiles: ["9m", "9m", "9m"] }],
+    doraIndicators: ["1m"],
+  });
+  assert.ok(r.yaku.some((y) => y.name === "Dora" && y.han === 3));
+});
+
+test("sanma: a 9m indicator reveals 1m as dora", () => {
+  const r = calculateScore({
+    ...SANMA_BASE,
+    seatWind: "3z",
+    hand: ["7z", "7z", "7z", "3s", "3p", "4p", "5p", "6p", "7p", "8p", "3s"],
+    winTile: "3s",
+    melds: [{ type: "pon", tiles: ["1m", "1m", "1m"] }],
+    doraIndicators: ["9m"],
+  });
+  assert.ok(r.yaku.some((y) => y.name === "Dora" && y.han === 3));
+});
+
+test("4-player: a 1m indicator still reveals 2m as dora (unchanged)", () => {
+  const r = calculateScore({
+    ...BASE,
+    seatWind: "3z",
+    hand: ["7z", "7z", "7z", "3s", "3p", "4p", "5p", "6p", "7p", "8p", "3s"],
+    winTile: "3s",
+    melds: [{ type: "pon", tiles: ["2m", "2m", "2m"] }],
+    doraIndicators: ["1m"],
+  });
+  assert.ok(r.yaku.some((y) => y.name === "Dora" && y.han === 3));
+  assert.equal(r.players, 4);
+});
+
+test("sanma rejects chi melds", () => {
+  assert.throws(
+    () =>
+      calculateScore({
+        ...SANMA_BASE,
+        hand: ["7z", "7z", "7z", "3s", "3p", "4p", "5p", "6p", "7p", "8p", "3s"],
+        winTile: "3s",
+        melds: [{ type: "chii", tiles: ["3p", "4p", "5p"] }],
+      }),
+    /chi is not allowed/i,
+  );
+});
+
+test("sanma rejects 2m–8m tiles", () => {
+  assert.throws(
+    () =>
+      calculateScore({
+        ...SANMA_BASE,
+        hand: [
+          "7z", "7z", "7z", "3s", "3s", "3p", "4p", "5p",
+          "6p", "7p", "8p", "9p", "5m", "1s",
+        ],
+        winTile: "1s",
+      }),
+    /not used in 3-player/i,
+  );
+});
+
+test("sanma rejects North as seat or round wind", () => {
+  const hand = {
+    hand: SANMA_TSUMO_HAND.hand,
+    winTile: SANMA_TSUMO_HAND.winTile,
+    winType: "tsumo",
+  };
+  assert.throws(
+    () => calculateScore({ ...SANMA_BASE, ...hand, seatWind: "4z" }),
+    /North is not a seat wind/i,
+  );
+  assert.throws(
+    () => calculateScore({ ...SANMA_BASE, ...hand, roundWind: "4z" }),
+    /North is not a round wind/i,
+  );
+});
+
 console.log(`\n${passed} test(s) passed`);

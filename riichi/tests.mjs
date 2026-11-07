@@ -298,4 +298,74 @@ test("sanma rejects North as seat or round wind", () => {
   );
 });
 
+/* ------------------------------------------------------------------ *
+ * Yaku-pattern regressions
+ * ------------------------------------------------------------------ */
+
+test("ryanpeikou: two different doubled runs, not just 4-of-a-kind runs", () => {
+  // 123m 123m 456m 456m 77m — two identical-run pairs of DIFFERENT runs.
+  // Menzen tsumo, no dora: Ryanpeikou 3 + Chinitsu 6 + Menzen Tsumo 1 = 10 han.
+  const r = calculateScore({
+    hand: ["1m", "2m", "3m", "1m", "2m", "3m", "4m", "5m", "6m", "4m", "5m", "6m", "7m", "7m"],
+    winTile: "7m",
+    winType: "tsumo",
+    roundWind: "1z",
+    seatWind: "2z",
+    doraIndicators: [],
+  });
+  const yp = (r.yaku || []).find((y) => y.name === "Ryanpeikou");
+  assert.ok(yp, `expected Ryanpeikou in ${r.yaku.map((y) => y.name).join(", ")}`);
+  assert.equal(yp.han, 3);
+  assert.ok(!r.yaku.some((y) => y.name === "Iipeikou"), "iipeikou superseded");
+});
+
+test("ryanpeikou + pinfu: the reference 11-han sanbaiman hand", () => {
+  // 11223344556677, tanki on 7m — pinfu (tanki counts) + ryanpeikou stack.
+  // Menzen tsumo: Ryanpeikou 3 + Chinitsu 6 + Menzen Tsumo 1 + Pinfu 1 = 11 han
+  // → Sanbaiman. Fu: 20 base, +0 for pinfu tsumo.
+  const r = calculateScore({
+    hand: ["1m", "1m", "2m", "2m", "3m", "3m", "4m", "4m", "5m", "5m", "6m", "6m", "7m", "7m"],
+    winTile: "7m",
+    winType: "tsumo",
+    roundWind: "1z",
+    seatWind: "1z",
+    doraIndicators: [],
+  });
+  assert.equal(r.han, 11, `han: ${r.han} [${r.yaku.map((y) => y.name).join(", ")}]`);
+  assert.equal(r.fu, 20);
+  assert.equal(r.tier, "Sanbaiman");
+  assert.ok(r.yaku.some((y) => y.name === "Ryanpeikou"));
+  assert.ok(r.yaku.some((y) => y.name === "Pinfu"));
+  // Dealer tsumo sanbaiman: 12,000 from each of the 3 others → 36,000.
+  assert.equal(r.payments.nonDealer, 12000);
+  assert.equal(r.points, 36000);
+});
+
+test("four identical runs still count as ryanpeikou (2 identical pairs)", () => {
+  const r = calculateScore({
+    hand: ["1m", "2m", "3m", "1m", "2m", "3m", "1m", "2m", "3m", "1m", "2m", "3m", "6z", "6z"],
+    winTile: "6z",
+    winType: "ron",
+    roundWind: "1z",
+    seatWind: "2z",
+    doraIndicators: [],
+  });
+  assert.ok(r.yaku.some((y) => y.name === "Ryanpeikou"));
+});
+
+test("single doubled run stays iipeikou (1 han)", () => {
+  // iipeikou, tsumo: 123m 123m 456m + concealed 999m + 2z pair (tanki).
+  const r = calculateScore({
+    hand: ["1m", "2m", "3m", "1m", "2m", "3m", "4m", "5m", "6m", "9m", "9m", "9m", "2z", "2z"],
+    winTile: "2z",
+    winType: "tsumo",
+    roundWind: "1z",
+    seatWind: "1z",
+    doraIndicators: [],
+  });
+  assert.ok(r.yaku.some((y) => y.name === "Iipeikou"),
+    `expected Iipeikou in ${r.yaku.map((y) => y.name).join(", ")}`);
+  assert.ok(!r.yaku.some((y) => y.name === "Ryanpeikou"));
+});
+
 console.log(`\n${passed} test(s) passed`);

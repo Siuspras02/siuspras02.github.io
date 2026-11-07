@@ -328,10 +328,14 @@ export function detectSitHanYaku(ctx) {
 
   /* iipeikou / ryanpeikou (closed only); ryanpeikou supersedes iipeikou */
   if (ctx.isMenzen) {
-    const dups = Object.values(rm);
-    if (dups.some((v) => v >= 4)) {
-      if (!y.some((e) => e.name === "Ryanpeikou")) add("Ryanpeikou", 3);
-    } else if (dups.some((v) => v >= 2)) {
+    // Count complete pairs of identical runs. `rm` is keyed by run start,
+    // so 123-123 + 456-456 lands as {123:2, 456:2} — two identical-run
+    // pairs, not a single key with count 4.
+    let identicalRunPairs = 0;
+    for (const v of Object.values(rm)) identicalRunPairs += Math.floor(v / 2);
+    if (identicalRunPairs >= 2) {
+      add("Ryanpeikou", 3);
+    } else if (identicalRunPairs === 1) {
       add("Iipeikou", 1);
     }
   }

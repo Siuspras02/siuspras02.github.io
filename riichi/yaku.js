@@ -203,9 +203,34 @@ export function detectSitHanYaku(ctx) {
   if (ctx.winType === "ron" && ctx.robbingKan) add("Chankan", 1);
   if (ctx.kanCount === 4) add("Sankantsu", 2);
 
-  /* --- composition checks (standard shape only; chiitoitsu/kokushi stop) --- */
+  /* --- composition checks (standard shape only; kokushi stops) --- */
   if (ctx.shape !== "standard") {
-    if (ctx.shape === "chiitoitsu") add("Chiitoitsu", 2);
+    if (ctx.shape === "chiitoitsu") {
+      add("Chiitoitsu", 2);
+      // Tanyao / Honitsu / Chinitsu may stack with chiitoitsu (pair hands
+      // are always closed, so use menzen values). Kokushi is handled as a
+      // yakuman before this point.
+      const counts = ctx.counts;
+      let tanyaoOk = true;
+      let onlySuit = null;
+      let hasHonor = false;
+      for (let i = 0; i < 34; i++) {
+        if (counts[i] === 0) continue;
+        if (isTerminalOrHonor(i)) tanyaoOk = false;
+        if (i < 27) {
+          const s = suitOf(i);
+          if (onlySuit === null) onlySuit = s;
+          else if (onlySuit !== s) onlySuit = "mixed";
+        } else {
+          hasHonor = true;
+        }
+      }
+      if (tanyaoOk) add("Tanyao", 1);
+      if (onlySuit !== null && onlySuit !== "mixed") {
+        if (hasHonor) add("Honitsu", 3);
+        else add("Chinitsu", 6);
+      }
+    }
     return y;
   }
 

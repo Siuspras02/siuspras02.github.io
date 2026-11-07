@@ -210,6 +210,13 @@ function parseInput(input) {
     }
   }
 
+  // nagashi mangan (optional house rule): ten tiles of every kind in the river
+  // at the round's end (declared by the caller; the calculator has no river).
+  const nagashiMangan = input.nagashiMangan === true;
+  if (nagashiMangan && winType !== "tsumo" && winType !== "ron") {
+    throw new Error(`nagashi mangan requires winType "ron" or "tsumo"`);
+  }
+
   return {
     cfg, winType, roundWindIndex, seatWindIndex, hand, melds,
     meldTiles, combined, winIndex, menzen, sanma,
@@ -218,6 +225,7 @@ function parseInput(input) {
     ippatsu: !!input.ippatsu,
     lastTile: !!input.lastTile,
     robbingKan, afterKan,
+    nagashiMangan,
     doraIn, uraIn, uraValid, redEnabled,
     honba: Number.isFinite(+input.honba) ? Math.max(0, Math.floor(+input.honba)) : 0,
     riichiSticks: Number.isFinite(+input.riichiSticks) ? Math.max(0, Math.floor(+input.riichiSticks)) : 0,
@@ -379,6 +387,7 @@ function scoreCandidate(state, cand) {
     lastTile: state.lastTile,
     afterKan: state.afterKan,
     robbingKan: state.robbingKan,
+    nagashiMangan: state.nagashiMangan,
     roundWindIndex: state.roundWindIndex,
     seatWindIndex: state.seatWindIndex,
     config: cfg,
@@ -408,15 +417,22 @@ function scoreCandidate(state, cand) {
       if (s.kind === "triplet" || s.kind === "kan") tm[s.tiles[0]] = (tm[s.tiles[0]] || 0) + 1;
     }
     if (cand.shape === "standard") {
-      // suuankou: 4 concealed triplet-equivalents; tanki wait keeps them concealed
-      if (cand.waitType === "tanki") {
+      // suuankou: 4 concealed triplet-equivalents. A ron may only come from a
+      // tanki wait (the winning tile may not complete a triplet); on tsumo the
+      // winning tile is part of the closed hand, so a concealed shanpon
+      // completion is also valid — the completed triplet stays concealed.
+      const suuankouEligible =
+        cand.waitType === "tanki" ||
+        (cand.waitType === "shanpon" && state.winType === "tsumo");
+      if (suuankouEligible) {
         const closed = sets.filter(
-          (s) => (s.kind === "triplet" || s.kind === "kan") && !s.claimedByWin &&
+          (s) => (s.kind === "triplet" || s.kind === "kan") &&
+            !(s.claimedByWin && state.winType === "ron") &&
             (s.origin === "hand" || s.isClosedMeld)
         );
         if (closed.length >= 4) {
           addYakuman("Suuankou");
-          if (cfg.doubleSuuankouTanki) addYakuman("Suuankou Tanki (pair wait)");
+          if (cand.waitType === "tanki" && cfg.doubleSuuankouTanki) addYakuman("Suuankou Tanki (pair wait)");
         }
       }
       if (detectDaisangen(tm)) addYakuman("Daisangen");
@@ -438,6 +454,9 @@ function scoreCandidate(state, cand) {
   }
   if (state.blessing === "renhou" && state.cfg.renhouMode !== "none") {
     addYakuman("Renhou", state.cfg.renhouMode === "double" ? 2 : 1);
+  }
+  if (state.nagashiMangan) {
+    addYakuman("Nagashi Mangan");
   }
 
   if (yakuman.length > 0) {
@@ -666,6 +685,7 @@ export function calculateScore(input) {
     payments,
     fuBreakdown: best.fuBreakdown,
     isYakuman,
+    yakumanUnits: best.yakumanUnits,
     seatIsDealer: dealer,
     players: state.sanma ? 3 : 4,
     nukidora: state.nukidora,

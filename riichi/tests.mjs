@@ -353,6 +353,129 @@ test("four identical runs still count as ryanpeikou (2 identical pairs)", () => 
   assert.ok(r.yaku.some((y) => y.name === "Ryanpeikou"));
 });
 
+test("chiitoitsu stacks with tanyao (all-simple, non-adjacent pairs)", () => {
+  // 22p 44p 66p 88p 44s 66s 88s — gaps prevent any run/ryanpeikou decomposition,
+  // so chiitoitsu is the only shape. Tsumo: chiitoi 2 + tanyao 1 + menzen 1 = 4.
+  const r = calculateScore({
+    hand: ["2p", "2p", "4p", "4p", "6p", "6p", "8p", "8p", "4s", "4s", "6s", "6s", "8s", "8s"],
+    winTile: "8s",
+    winType: "tsumo",
+    roundWind: "1z",
+    seatWind: "2z",
+    doraIndicators: [],
+  });
+  assert.equal(r.han, 4, `han: ${r.han} [${r.yaku.map((y) => y.name).join(", ")}]`);
+  assert.ok(r.yaku.some((y) => y.name === "Chiitoitsu"));
+  assert.ok(r.yaku.some((y) => y.name === "Tanyao"));
+});
+
+test("chiitoitsu stacks with chinitsu when no run decomposition exists", () => {
+  // Ranks 2,3,4,5,6,8,9 — 223344 55 66 88 99 has no completing run set, so the
+  // hand is chiitoitsu-only + chinitsu: 2 + 6 + 1 (menzen tsumo) = 9 han.
+  // (Consecutive pairs like 1-7 would also decompose as ryanpeikou, which the
+  // engine correctly prefers as the higher-scoring yaku.)
+  const r = calculateScore({
+    hand: ["2m", "2m", "3m", "3m", "4m", "4m", "5m", "5m", "6m", "6m", "8m", "8m", "9m", "9m"],
+    winTile: "9m",
+    winType: "tsumo",
+    roundWind: "1z",
+    seatWind: "2z",
+    doraIndicators: [],
+  });
+  assert.equal(r.han, 9, `han: ${r.han} [${r.yaku.map((y) => y.name).join(", ")}]`);
+  assert.ok(r.yaku.some((y) => y.name === "Chiitoitsu"));
+  assert.ok(r.yaku.some((y) => y.name === "Chinitsu"));
+});
+
+test("chiitoitsu stacks with honitsu (honor + one suit pairs)", () => {
+  // 55z 66z 77z 11p 22p 33p 44p, ron 4p.
+  const r = calculateScore({
+    hand: ["5z", "5z", "6z", "6z", "7z", "7z", "1p", "1p", "2p", "2p", "3p", "3p", "4p", "4p"],
+    winTile: "4p",
+    winType: "ron",
+    roundWind: "1z",
+    seatWind: "2z",
+    doraIndicators: [],
+  });
+  assert.ok(r.yaku.some((y) => y.name === "Honitsu"),
+    `expected Honitsu in ${r.yaku.map((y) => y.name).join(", ")}`);
+});
+
+test("suuankou tanki ron counts as double yakuman", () => {
+  // Concealed 555p 555s 666s 666z + 7s7s pair completed on ron of 7s.
+  const r = calculateScore({
+    hand: ["5p", "5p", "5p", "5s", "5s", "5s", "6s", "6s", "6s", "6z", "6z", "6z", "7s", "7s"],
+    winTile: "7s",
+    winType: "ron",
+    roundWind: "1z",
+    seatWind: "2z",
+    doraIndicators: [],
+  });
+  assert.equal(r.isYakuman, true);
+  assert.equal(r.yakumanUnits, 2, `units: ${r.yakumanUnits} [${r.yaku.map((y) => y.name).join(", ")}]`);
+  // Double yakuman non-dealer ron: 32,000 per unit → 64,000.
+  assert.equal(r.points, 64000);
+});
+
+test("suuankou shanpon tsumo stays a single yakuman", () => {
+  // Concealed 111m 111p 111s + completing 666z + 7s pair (shanpon, tsumo):
+  // the fourth triplet is completed by the drawn tile and stays concealed.
+  const r = calculateScore({
+    hand: ["1m", "1m", "1m", "1p", "1p", "1p", "1s", "1s", "1s", "6z", "6z", "6z", "7s", "7s"],
+    winTile: "6z",
+    winType: "tsumo",
+    roundWind: "1z",
+    seatWind: "2z",
+    doraIndicators: [],
+  });
+  assert.equal(r.isYakuman, true,
+    `not yakuman: ${r.yaku ? r.yaku.map((y) => y.name).join(", ") : r}`);
+  assert.equal(r.yakumanUnits, 1);
+  assert.ok(r.yaku.some((y) => y.name === "Suuankou"));
+});
+
+test("suuankou shanpon ron is NOT a yakuman (falls back to sit-han yaku)", () => {
+  const r = calculateScore({
+    hand: ["1m", "1m", "1m", "1p", "1p", "1p", "1s", "1s", "1s", "6z", "6z", "6z", "7s", "7s"],
+    winTile: "6z",
+    winType: "ron",
+    roundWind: "1z",
+    seatWind: "2z",
+    doraIndicators: [],
+  });
+  assert.equal(r.isYakuman, false);
+  assert.ok(r.yaku.some((y) => y.name === "Sanankou"),
+    `expected Sanankou in ${r.yaku.map((y) => y.name).join(", ")}`);
+});
+
+test("nagashi mangan counts as a yakuman when declared", () => {
+  const r = calculateScore({
+    ...BASE,
+    hand: CLOSED_PART,
+    winTile: WIN_TILE,
+    melds: [{ type: "pon", tiles: ["5p", "5p", "5p"] }],
+    doraIndicators: [],
+    nagashiMangan: true,
+  });
+  assert.equal(r.isYakuman, true);
+  assert.equal(r.yakumanUnits, 1);
+  assert.ok(r.yaku.some((y) => y.name === "Nagashi Mangan"),
+    `unexpected: ${r.yaku.map((y) => y.name).join(", ")}`);
+  // Yakuman non-dealer ron = 32,000.
+  assert.equal(r.points, 32000);
+});
+
+test("nagashi mangan is ignored when not declared", () => {
+  const r = calculateScore({
+    ...BASE,
+    hand: CLOSED_PART,
+    winTile: WIN_TILE,
+    doraIndicators: [],
+    melds: [{ type: "pon", tiles: ["5p", "5p", "5p"] }],
+  });
+  assert.equal(r.isYakuman, false);
+});
+
 test("single doubled run stays iipeikou (1 han)", () => {
   // iipeikou, tsumo: 123m 123m 456m + concealed 999m + 2z pair (tanki).
   const r = calculateScore({

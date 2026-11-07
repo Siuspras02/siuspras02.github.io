@@ -1369,6 +1369,8 @@ window.runCalculation = () => {
     const robbingKan =
       document.getElementById("calc-robbingkan")?.checked || false;
     const lastTile = document.getElementById("calc-lasttile")?.checked || false;
+    const nagashiMangan =
+      document.getElementById("calc-nagashi")?.checked || false;
 
     const blessing = document.getElementById("calc-tenhou")?.checked
       ? "tenhou"
@@ -1414,6 +1416,7 @@ window.runCalculation = () => {
       isRobbingKan: robbingKan,
       lastTile,
       isLastTile: lastTile,
+      nagashiMangan,
       blessing,
       doraIndicators,
       config: { kiriageMangan: false },
@@ -1959,6 +1962,7 @@ function initAutoCalculation() {
     "calc-lasttile",
     "calc-tenhou",
     "calc-chiihou",
+    "calc-nagashi",
     "calc-nukidora-value",
     "calc-tsumo-loss",
     "calc-ron-split",

@@ -2282,6 +2282,220 @@ function escapeHTML(str) {
     return escape[match];
   });
 }
+// ==========================================
+// STORE CREDIT TRACKER LOGIC
+// ==========================================
+let storeCreditLedger = [];
+let isStoreCreditAdmin = false;
+
+window.openStoreCreditModal = () => {
+  document.getElementById("store-credit-modal").classList.remove("hidden");
+  isStoreCreditAdmin = false;
+  document.getElementById("sc-public-view").classList.remove("hidden");
+  document.getElementById("sc-admin-view").classList.add("hidden");
+  document.getElementById("sc-pin-screen").classList.add("hidden");
+  document.getElementById("sc-toggle-admin-btn").textContent = "Admin Login";
+  fetchStoreCreditLedger();
+};
+
+window.closeStoreCreditModal = () => {
+  document.getElementById("store-credit-modal").classList.add("hidden");
+};
+
+window.toggleStoreCreditAdminMode = () => {
+  if (isStoreCreditAdmin) {
+    isStoreCreditAdmin = false;
+    document.getElementById("sc-public-view").classList.remove("hidden");
+    document.getElementById("sc-admin-view").classList.add("hidden");
+    document.getElementById("sc-pin-screen").classList.add("hidden");
+    document.getElementById("sc-toggle-admin-btn").textContent = "Admin Login";
+  } else {
+    document.getElementById("sc-public-view").classList.add("hidden");
+    document.getElementById("sc-pin-screen").classList.remove("hidden");
+    document.getElementById("sc-pin-input").value = "";
+  }
+};
+
+window.verifyStoreCreditPin = () => {
+  const entered = document.getElementById("sc-pin-input").value.trim();
+  const correct = _p.join(""); // Uses your 0202 pin array
+  if (entered === correct) {
+    isStoreCreditAdmin = true;
+    document.getElementById("sc-pin-screen").classList.add("hidden");
+    document.getElementById("sc-admin-view").classList.remove("hidden");
+    document.getElementById("sc-toggle-admin-btn").textContent = "Leaderboard View";
+    renderStoreCreditAdminView();
+  } else {
+    showModal("Incorrect PIN", "The code you entered is incorrect.", "error");
+    document.getElementById("sc-pin-input").value = "";
+  }
+};
+
+async function fetchStoreCreditLedger() {
+  if (!db) return;
+  try {
+    const docRef = doc(db, "artifacts", appId, "public", "data", "store_credit", "ledger");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      storeCreditLedger = docSnap.data().transactions || [];
+    } else {
+      storeCreditLedger = [];
+    }
+    renderStoreCreditLeaderboard();
+  } catch (err) {
+    console.error("Error fetching store credit ledger:", err);
+  }
+}
+
+// FIFO Expiry Calculation (2 Months validity)
+function computeActiveBalances(transactions) {
+  const playerMap = {};
+  
+  // Sort chronological
+  const sorted = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const now = new Date();
+
+  sorted.forEach(tx => {
+    const name = tx.name.trim();
+    if (!playerMap[name]) playerMap[name] = { activeCredits: [], totalActive: 0 };
+
+    if (tx.amount > 0) {
+      const winDate = new Date(tx.date);
+      const expiryDate = new Date(winDate);
+      expiryDate.setMonth(expiryDate.getMonth() + 2); // Exactly 2 months
+
+      playerMap[name].activeCredits.push({
+        amount: tx.amount,
+        date: tx.date,
+        expiryDate: expiryDate,
+        expired: now > expiryDate
+      });
+    } else {
+      // Deduct spent credit using FIFO (oldest active first)
+      let remainingDeduction = Math.abs(tx.amount);
+      for (let credit of playerMap[name].activeCredits) {
+        if (!credit.expired && credit.amount > 0) {
+          if (credit.amount >= remainingDeduction) {
+            credit.amount -= remainingDeduction;
+            remainingDeduction = 0;
+            break;
+          } else {
+            remainingDeduction -= credit.amount;
+            credit.amount = 0;
+          }
+        }
+      }
+    }
+  });
+
+  // Summarize totals ignoring expired items
+  const summary = {};
+  Object.keys(playerMap).forEach(name => {
+    let activeSum = 0;
+    playerMap[name].activeCredits.forEach(c => {
+      if (!c.expired && c.amount > 0) activeSum += c.amount;
+    });
+    if (activeSum > 0) summary[name] = activeSum;
+  });
+
+  return summary;
+}
+
+function renderStoreCreditLeaderboard() {
+  const container = document.getElementById("sc-leaderboard-list");
+  if (!container) return;
+
+  const activeBalances = computeActiveBalances(storeCreditLedger);
+  const sorted = Object.entries(activeBalances).sort((a, b) => b[1] - a[1]);
+
+  if (sorted.length === 0) {
+    container.innerHTML = `<p class="text-xs text-ink-mute text-center py-6">No active store credit balances found.</p>`;
+    return;
+  }
+
+  container.innerHTML = sorted.map(([name, balance], idx) => `
+    <div class="flex items-center justify-between rounded-2xl border border-ink/15 bg-white px-4 py-3 shadow-xs">
+      <span class="flex items-center gap-3 font-bold text-sm text-ink">
+        <span class="grid h-6 w-6 place-items-center rounded-md ${idx === 0 ? 'bg-gold-100 text-gold-700' : 'bg-jade-50 text-jade-700'} text-xs font-extrabold">${idx + 1}</span>
+        ${escapeHtml(name)}
+      </span>
+      <span class="font-extrabold tabular-nums text-jade-700 text-base">${balance.toLocaleString()} SC</span>
+    </div>
+  `).join("");
+}
+
+window.submitStoreCreditTransaction = async () => {
+  const name = document.getElementById("sc-input-name").value.trim();
+  const amount = parseInt(document.getElementById("sc-input-amount").value, 10);
+  const note = document.getElementById("sc-input-note").value.trim() || "Tournament Win";
+
+  if (!name || isNaN(amount)) {
+    return showModal("Error", "Please enter a valid player name and amount.", "error");
+  }
+
+  const newTx = {
+    date: new Date().toISOString().split("T")[0],
+    name,
+    amount,
+    note
+  };
+
+  storeCreditLedger.push(newTx);
+
+  try {
+    const docRef = doc(db, "artifacts", appId, "public", "data", "store_credit", "ledger");
+    await setDoc(docRef, { transactions: storeCreditLedger });
+    
+    document.getElementById("sc-input-name").value = "";
+    document.getElementById("sc-input-amount").value = "";
+    document.getElementById("sc-input-note").value = "";
+    
+    renderStoreCreditLeaderboard();
+    renderStoreCreditAdminView();
+    pulseHaptic(12);
+  } catch (err) {
+    console.error("Error saving transaction:", err);
+    showModal("Error", "Failed to save transaction to Firebase.", "error");
+  }
+};
+
+function renderStoreCreditAdminView() {
+  const container = document.getElementById("sc-lgs-payouts-container");
+  if (!container) return;
+
+  // Group expired credits by Month/Year for the LGS payout report
+  const expiredByMonth = {};
+  const now = new Date();
+
+  storeCreditLedger.forEach(tx => {
+    if (tx.amount > 0) {
+      const winDate = new Date(tx.date);
+      const expiryDate = new Date(winDate);
+      expiryDate.setMonth(expiryDate.getMonth() + 2);
+
+      if (now > expiryDate) {
+        const monthKey = `${expiryDate.toLocaleString('default', { month: 'long' })} ${expiryDate.getFullYear()}`;
+        expiredByMonth[monthKey] = (expiredByMonth[monthKey] || 0) + tx.amount;
+      }
+    }
+  });
+
+  const entries = Object.entries(expiredByMonth);
+  if (entries.length === 0) {
+    container.innerHTML = `<p class="text-xs text-ink-mute text-center py-4 bg-white rounded-xl border border-ink/10">No expired credits pending LGS payout yet.</p>`;
+    return;
+  }
+
+  container.innerHTML = entries.map(([month, total]) => `
+    <div class="flex items-center justify-between rounded-xl border border-ink/10 bg-white px-4 py-3">
+      <div>
+        <span class="text-xs font-bold text-ink">${month} Expired Total</span>
+        <p class="text-[10px] text-ink-mute">Owed to LGS venue</p>
+      </div>
+      <span class="font-extrabold tabular-nums text-gold-600 text-sm">Rp ${total.toLocaleString()}</span>
+    </div>
+  `).join("");
+}
 
 window.addEventListener("DOMContentLoaded", init);
 

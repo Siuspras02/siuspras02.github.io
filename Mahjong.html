@@ -96,7 +96,7 @@
     <!-- Custom Modal Overlay for Alerts -->
     <div
       id="modal-overlay"
-      class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
+      class="fixed inset-0 z-[90] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
     >
       <div
         class="fade-in w-full max-w-sm rounded-3xl border border-white/70 bg-parchment p-6 text-center shadow-lift"
@@ -276,6 +276,46 @@
                 Redistribute — share split between the two payers
               </option>
             </select>
+          </div>
+        </div>
+
+        <!-- Repeat sticks (honba) — applies to 4-player and Sanma -->
+        <div
+          class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white/60 p-4"
+        >
+          <div class="min-w-0">
+            <label class="label mb-1" for="calc-honba-value"
+              >Repeat sticks (honba)</label
+            >
+            <p class="text-[10px] font-semibold text-ink-mute">
+              +300 on ron · +100 per payer on tsumo
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              onclick="adjustHonba(-1)"
+              aria-label="Remove one repeat stick"
+              class="btn btn-soft h-8 w-8 p-0 text-sm"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              id="calc-honba-value"
+              value="0"
+              min="0"
+              max="30"
+              class="field w-16 text-center py-1 text-sm font-bold"
+            />
+            <button
+              type="button"
+              onclick="adjustHonba(1)"
+              aria-label="Add one repeat stick"
+              class="btn btn-soft h-8 w-8 p-0 text-sm"
+            >
+              ＋
+            </button>
           </div>
         </div>
 
@@ -834,6 +874,101 @@
       </div>
     </div>
 
+    <!-- Hand of Fame Modal -->
+    <div
+      id="fame-modal"
+      class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
+    >
+      <div
+        class="fade-in flex max-h-[90dvh] w-full max-w-3xl flex-col rounded-3xl border border-white/70 bg-parchment shadow-lift custom-scrollbar overflow-y-auto"
+      >
+        <div
+          class="fame-head sticky top-0 z-10 flex items-center justify-between border-b border-ink/10 px-5 pb-3.5 pt-5 bg-parchment"
+        >
+          <div class="flex items-center gap-3">
+            <div class="grid h-10 w-10 place-items-center rounded-xl bg-gold-100 text-lg">🏆</div>
+            <div>
+              <h3 class="font-display text-xl font-semibold text-ink">Hand of Fame</h3>
+              <p class="text-[11px] font-medium text-ink-mute">Biggest hands this device has seen</p>
+            </div>
+          </div>
+          <button
+            onclick="closeFameModal()"
+            aria-label="Close Hand of Fame"
+            class="text-ink-mute hover:text-ink font-bold"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- Threshold setting -->
+        <div class="flex flex-wrap items-end justify-between gap-3 px-5 pt-4">
+          <div>
+            <label class="label mb-1" for="fame-threshold-input">Record threshold (points)</label>
+            <div class="flex items-center gap-2">
+              <input
+                type="number"
+                id="fame-threshold-input"
+                min="0"
+                value="12000"
+                class="field w-28 px-3 py-2 text-sm font-bold"
+              />
+              <button
+                type="button"
+                onclick="setFameThreshold()"
+                class="btn btn-soft px-3.5 py-2.5 text-xs"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onclick="copyFameText()"
+              class="btn btn-soft px-3.5 py-2.5 text-xs"
+            >
+              📋 Copy list
+            </button>
+            <button
+              type="button"
+              onclick="shareFameImage()"
+              class="btn btn-primary px-3.5 py-2.5 text-xs"
+            >
+              🖼 Share image
+            </button>
+          </div>
+        </div>
+
+        <p class="px-5 pt-2.5 pb-1 text-[11px] text-ink-mute">
+          Hands scoring <b id="fame-threshold-label">12,000</b>+ points are saved automatically when a round is submitted.
+        </p>
+
+        <!-- Entries -->
+        <div id="fame-list" class="fame-list space-y-3 px-5 pb-6 pt-2.5"></div>
+      </div>
+    </div>
+
+    <!-- Hand of Fame celebration overlay (particles are injected by JS) -->
+    <div
+      id="fame-burst"
+      class="pointer-events-none fixed inset-0 z-[95] hidden"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Hand of Fame toast -->
+    <button
+      type="button"
+      id="fame-toast"
+      onclick="openFameModal()"
+      class="fame-toast hidden fixed bottom-24 left-1/2 z-[96] mx-4 flex max-w-[min(92vw,26rem)] -translate-x-1/2 items-center gap-3 rounded-2xl px-4 py-3 text-left"
+      aria-live="polite"
+    >
+      <span class="fame-toast-crown grid h-9 w-9 shrink-0 place-items-center rounded-xl text-lg">👑</span>
+      <span id="fame-toast-text" class="min-w-0 text-xs font-bold text-white/95"></span>
+      <span class="fame-toast-cta shrink-0 text-[10px] font-extrabold uppercase tracking-wider">View</span>
+    </button>
+
     <main
       class="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-10 pt-6 sm:px-6 sm:pt-8 lg:px-8"
     >
@@ -1040,6 +1175,37 @@
                 <line x1="16" y1="16" x2="16" y2="16"></line>
               </svg>
               <span class="btn-label">3rd party calculator</span>
+            </button>
+            <button
+              onclick="openFameModal()"
+              aria-label="Open Hand of Fame"
+              title="Hand of Fame"
+              class="btn btn-ghost fame-nav-btn px-3.5 py-2 text-xs"
+            >
+              <span class="relative inline-flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                  <path d="M4 22h16"></path>
+                  <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                  <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                  <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                </svg>
+                <span
+                  id="fame-nav-badge"
+                  class="fame-nav-badge hidden absolute -top-2 -right-2.5 grid h-[1.15rem] min-w-[1.15rem] place-items-center rounded-full px-1 text-[9px] font-extrabold leading-none">0</span>
+              </span>
+              <span class="btn-label">Hand of Fame</span>
             </button>
           </div>
         </div>

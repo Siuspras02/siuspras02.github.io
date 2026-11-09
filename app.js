@@ -194,6 +194,15 @@ window.adjustPlayers = adjustPlayers;
 
 async function init() {
   try {
+    // Hand of Fame badge + modal copy must reflect saved entries after reload.
+    updateFameNavBadge();
+    // Listen for threshold changes made in other tabs of the same device.
+    try {
+      window.addEventListener("storage", (e) => {
+        if (e.key === FAME_THRESHOLD_KEY) updateFameNavBadge();
+      });
+    } catch { /* older browsers */ }
+
     if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
       updateStatus(false, "Config Missing");
       return;
@@ -1131,6 +1140,18 @@ async function handleSubmitRound() {
       lastActiveAt: new Date().toISOString(),
     });
     pulseHaptic(12);
+    // Hand of Fame: auto-record if this hand beat the threshold. Only 2
+    // positive deltas in a family room — use the biggest transfer, which is
+    // the hand value itself.
+    maybeRecordFame(deltas, {
+      note: noteVal,
+      roundNumber: updatedHistory.length,
+      dealerIdx: currentDealerIdx,
+      roundTs: newHistoryRecord.timestamp,
+      tiles: famePendingTiles,
+    });
+    // The hand belongs to this round only — never leak it into the next one.
+    famePendingTiles = null;
     clearInputs();
   } catch (err) {
     console.error("Submit error:", err);
@@ -1185,6 +1206,8 @@ function handleUndo() {
           history: revertedHistory,
         });
         pulseHaptic(10);
+        // Drop any Hand of Fame entry that came from the undone round.
+        removeFameForRound(lastRecord.timestamp);
       } catch (err) {
         console.error("Undo error:", err);
         showModal("Error", "Failed to undo round.", "error");
@@ -1196,6 +1219,495 @@ function handleUndo() {
 function handleOpenCalculator() {
   window.open("https://riichi.onecomp.one/#/calculator", "_blank");
 }
+
+/* ------------------------------------------------------------------ *
+ * Hand of Fame — auto-recorded big hands (localStorage)
+ * ------------------------------------------------------------------ */
+const FAME_KEY = "riichi-hand-of-fame";
+const FAME_THRESHOLD_KEY = "riichi-fame-threshold";
+const FAME_DEFAULT_THRESHOLD = 12000;
+let fameEditingId = null;
+let fameFreshIds = []; // ids of this round's new entries, highlighted until rendered
+// When the engine calculator's "Apply" fills the score inputs, remember the
+// hand it used so the Hand of Fame card can show the winning tiles.
+let famePendingTiles = null;
+
+function readFameEntries() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(FAME_KEY) || "[]");
+    return Array.isArray(raw) ? raw : [];
+  } catch {
+    /* sandboxed or corrupt storage — treat as empty */
+    return [];
+  }
+}
+
+function saveFameEntries(list) {
+  try {
+    localStorage.setItem(FAME_KEY, JSON.stringify(list));
+  } catch {
+    /* non-persistent environments keep entries for the session only */
+  }
+}
+
+function readFameThreshold() {
+  try {
+    const v = parseInt(localStorage.getItem(FAME_THRESHOLD_KEY), 10);
+    if (Number.isFinite(v) && v >= 0) return v;
+  } catch {
+    /* fall through to the default */
+  }
+  return FAME_DEFAULT_THRESHOLD;
+}
+
+function storeFameThreshold(v) {
+  try {
+    localStorage.setItem(FAME_THRESHOLD_KEY, String(v));
+  } catch {
+    /* memory-only fallback */
+  }
+}
+
+const FAME_WIND_LABEL = { East: "E", South: "S", West: "W", North: "N" };
+
+/* --- tile display --- */
+function fameTileSpan(code, isWin) {
+  const f = TILE_FACES[code];
+  const sym = f ? f.sym : escapeHtml(code);
+  const color = f ? f.color : "text-slate-800";
+  return `<span class="fame-tile ${isWin ? "fame-tile-win" : ""}" ${isWin ? 'title="Winning tile"' : ""}><span class="${color}">${sym}</span></span>`;
+}
+
+/**
+ * Mini tile strip for a saved entry: closed tiles + separated meld groups,
+ * winning tile highlighted. Returns "" when the entry has no tile data
+ * (round was entered manually instead of via the engine calculator).
+ */
+function fameTilesHTML(tiles) {
+  if (!tiles || !Array.isArray(tiles.hand) || tiles.hand.length === 0) return "";
+  const winIdx = (() => {
+    const code = tiles.winTile;
+    if (!code) return -1;
+    // The winning tile is conventionally the last matching one.
+    for (let i = tiles.hand.length - 1; i >= 0; i--) {
+      if (tiles.hand[i] === code) return i;
+    }
+    return -1;
+  })();
+
+  const closed = tiles.hand
+    .map((code, i) => fameTileSpan(code, i === winIdx))
+    .join("");
+  const melds = (Array.isArray(tiles.melds) ? tiles.melds : [])
+    .filter((m) => Array.isArray(m.tiles) && m.tiles.length)
+    .map(
+      (m) =>
+        `<span class="fame-meld">${m.tiles
+          .map((c) => fameTileSpan(c, false))
+          .join("")}</span>`,
+    )
+    .join("");
+
+  return `
+    <div class="fame-tiles flex-1 min-w-0 flex flex-wrap items-end gap-0.5" aria-label="Winning hand tiles">
+      ${closed}${melds}
+    </div>`;
+}
+
+/* --- export strings --- */
+function fameTilesString(tiles) {
+  if (!tiles || !Array.isArray(tiles.hand)) return "";
+  const melds = tiles.melds || [];
+  const face = (c) => (TILE_FACES[c] ? TILE_FACES[c].sym : c);
+  const closed = tiles.hand.map(face).join("");
+  const meld = melds.length ? " +[" + melds.map((m) => Array.isArray(m.tiles) ? m.tiles.map(face).join("") : "").join("][") + "]" : "";
+  const win = tiles.winTile && TILE_FACES[tiles.winTile] ? ` (win ${face(tiles.winTile)})` : "";
+  return closed + meld + win;
+}
+
+/**
+ * Called after a round was submitted successfully. Saves one entry per player
+ * whose point gain beats the threshold, so a double ron makes two entries.
+ * @param {Record<string, number>} deltas per-player point changes
+ * @param {{note: string, roundNumber: number, dealerIdx: number, roundTs: string}} meta
+ */
+function maybeRecordFame(deltas, meta) {
+  if (!localRoomState) return null;
+  const threshold = readFameThreshold();
+  const ranked = localRoomState.players
+    .map((p, idx) => ({
+      player: p,
+      delta: deltas[p.id] || 0,
+      wind: getPlayerWind(idx, meta.dealerIdx, localRoomState.players.length),
+    }))
+    .filter((w) => w.delta > threshold)
+    .sort((a, b) => b.delta - a.delta);
+  if (ranked.length === 0) return null;
+
+  const saved = ranked.map((w) => ({
+    id: `f-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
+    name: w.player.name,
+    score: w.delta,
+    ts: new Date().toISOString(),
+    round: meta.roundNumber,
+    wind: w.wind,
+    note: meta.note || "",
+    roundTs: meta.roundTs,
+    tiles: meta.tiles && Array.isArray(meta.tiles.hand) && meta.tiles.hand.length ? meta.tiles : null,
+    fresh: true,
+  }));
+  const list = readFameEntries();
+  list.push(...saved);
+  saveFameEntries(list);
+  fameFreshIds = saved.map((e) => e.id);
+  updateFameNavBadge();
+  celebrateFameEntry(saved[0], saved.length - 1);
+  return saved;
+}
+
+/** Remove fame entries that belonged to an undone round. */
+function removeFameForRound(roundTs) {
+  const list = readFameEntries();
+  const filtered = list.filter((e) => e.roundTs !== roundTs);
+  if (filtered.length !== list.length) {
+    saveFameEntries(filtered);
+    updateFameNavBadge();
+    if (document.getElementById("fame-modal")?.classList.contains("hidden") === false) {
+      renderFameList();
+    }
+  }
+}
+
+function updateFameNavBadge() {
+  const badge = document.getElementById("fame-nav-badge");
+  if (badge) {
+    const count = readFameEntries().length;
+    badge.textContent = count > 99 ? "99+" : String(count);
+    badge.classList.toggle("hidden", count === 0);
+  }
+  const label = document.getElementById("fame-threshold-label");
+  if (label) {
+    label.textContent = readFameThreshold().toLocaleString();
+  }
+}
+
+/* --- celebration (hidden for reduced motion) --- */
+function celebrateFameEntry(topEntry, otherWinners) {
+  pulseHaptic([40, 60, 90]);
+  const burst = document.getElementById("fame-burst");
+  if (burst && !reducedMotionQuery.matches) {
+    burst.innerHTML = "";
+    for (let i = 0; i < 26; i++) {
+      const spark = document.createElement("i");
+      const angle = (Math.PI * 2 * i) / 26 + Math.random() * 0.6;
+      const dist = 120 + Math.random() * 220;
+      spark.className = `fame-spark ${["c1", "c2", "c3"][i % 3]}`;
+      spark.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
+      spark.style.setProperty("--dy", `${Math.sin(angle) * dist}px`);
+      spark.style.setProperty("--dr", `${Math.random() * 720 - 360}deg`);
+      spark.style.top = "45%";
+      spark.style.left = "50%";
+      spark.style.animationDelay = `${(Math.random() * 250) | 0}ms`;
+      burst.appendChild(spark);
+    }
+    burst.classList.remove("hidden");
+    clearTimeout(celebrateFameEntry._t);
+    celebrateFameEntry._t = setTimeout(() => {
+      burst.classList.add("hidden");
+      burst.innerHTML = "";
+    }, 2600);
+  }
+  const toast = document.getElementById("fame-toast");
+  if (toast) {
+    const extra =
+      otherWinners > 0
+        ? ` & ${otherWinners} more scored ${topEntry.score.toLocaleString()}+`
+        : ` scored ${topEntry.score.toLocaleString()}`;
+    document.getElementById("fame-toast-text").textContent =
+      `${topEntry.name}${extra} — added to Hand of Fame`;
+    toast.classList.remove("hidden");
+    clearTimeout(celebrateFameEntry._t2);
+    celebrateFameEntry._t2 = setTimeout(() => {
+      toast.classList.add("hidden");
+    }, 6000);
+  }
+}
+
+/* --- modal rendering --- */
+function fmtFameDate(ts) {
+  try {
+    return new Date(ts).toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return ts;
+  }
+}
+
+function renderFameList() {
+  const container = document.getElementById("fame-list");
+  if (!container) return;
+
+  const threshold = readFameThreshold();
+  const thresholdEl = document.getElementById("fame-threshold-input");
+  if (thresholdEl) thresholdEl.value = threshold;
+  const thresholdLabel = document.getElementById("fame-threshold-label");
+  if (thresholdLabel) thresholdLabel.textContent = threshold.toLocaleString();
+
+  const entries = [...readFameEntries()].sort(
+    (a, b) => b.score - a.score || new Date(b.ts) - new Date(a.ts),
+  );
+  const freshIds = fameFreshIds; // fresh highlight is consumed on first paint
+  fameFreshIds = [];
+
+  if (entries.length === 0) {
+    container.innerHTML = `
+      <div class="fame-empty py-10 px-4 text-center">
+        <div class="fame-empty-accent mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl text-2xl">🏆</div>
+        <p class="font-display text-lg font-semibold text-ink">No famous hands yet</p>
+        <p class="mt-1.5 text-xs text-ink-mute max-w-xs mx-auto">
+          When a player scores more than <b>${threshold.toLocaleString()}</b> points in one hand,
+          it will appear here automatically. Good luck!
+        </p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = entries
+    .map((entry, idx) => {
+      const rank = idx + 1;
+      const isTop = rank === 1;
+      const windLabel = FAME_WIND_LABEL[entry.wind] || "";
+      const editable = entry.id === fameEditingId;
+      return `
+      <article
+        class="fame-card ${isTop ? "rank-1" : ""} ${freshIds.includes(entry.id) ? "fresh" : ""}"
+        data-fame-id="${entry.id}"
+      >
+        <div class="flex items-start gap-3">
+          <div class="fame-rank grid h-9 w-9 shrink-0 place-items-center ${isTop ? "fame-rank-gold" : "fame-rank-soft"} font-display text-sm font-bold ${rank <= 3 ? "visible" : ""}">
+            ${isTop ? "👑" : rank}
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="fame-name truncate font-display text-base font-bold text-ink">${escapeHtml(entry.name)}</p>
+            <div class="mt-1 flex flex-wrap items-center gap-1.5">
+              ${isTop ? `<span class="fame-chip fame-chip-top">🏆 Champion</span>` : ""}
+              <span class="fame-chip">Round ${entry.round ?? "—"}</span>
+              ${windLabel ? `<span class="fame-chip">${windLabel} Seat</span>` : ""}
+              <span class="fame-chip">${fmtFameDate(entry.ts)}</span>
+            </div>
+          </div>
+          <div class="flex shrink-0 flex-col gap-1.5">
+            ${editable ? "" : `
+              <button type="button" onclick="editFameNote('${entry.id}')" class="fame-icon-btn" aria-label="Edit note" title="Edit note">✏️</button>`}
+            <button type="button" onclick="deleteFameEntry('${entry.id}')" class="fame-icon-btn" aria-label="Delete entry" title="Delete entry">🗑️</button>
+          </div>
+        </div>
+        <!-- Tiles + score span the full card width, score sits under the tiles -->
+        <div class="mt-2.5">
+          <div class="flex items-end justify-between gap-2">
+            ${fameTilesHTML(entry.tiles) || `<div aria-hidden="true"></div>`}
+            <p class="fame-score shrink-0 font-display text-2xl font-extrabold tabular-nums">${entry.score.toLocaleString()}<span class="ml-1 text-xs font-bold text-ink-mute">pts</span></p>
+          </div>
+          ${editable ? `
+            <div class="mt-2 flex gap-2">
+              <input
+                id="fame-note-input"
+                type="text"
+                maxlength="120"
+                value="${escapeHtml(entry.note)}"
+                placeholder="Hand type, e.g. Mangan · Riichi · Iipeikou"
+                class="field flex-1 px-3 py-2.5 text-sm"
+                aria-label="Note for this entry"
+              />
+              <button type="button" onclick="saveFameNote('${entry.id}')" class="btn btn-primary px-4 py-2.5 text-xs shrink-0">Save</button>
+              <button type="button" onclick="cancelFameNoteEdit()" class="btn btn-soft px-3 py-2.5 text-xs shrink-0">Cancel</button>
+            </div>` : `
+            <p class="fame-note mt-1.5 text-xs text-ink-mute ${entry.note ? "" : "italic opacity-60"}">
+              ${entry.note ? escapeHtml(entry.note) : "No note — tap ✏ to add one"}
+            </p>`}
+        </div>
+      </article>`;
+    })
+    .join("");
+}
+
+window.openFameModal = () => {
+  document.getElementById("fame-modal").classList.remove("hidden");
+  updateFameNavBadge();
+  renderFameList();
+};
+
+window.closeFameModal = () => {
+  document.getElementById("fame-modal").classList.add("hidden");
+};
+
+window.setFameThreshold = () => {
+  const input = document.getElementById("fame-threshold-input");
+  if (!input) return;
+  const v = Math.max(0, parseInt(input.value, 10) || FAME_DEFAULT_THRESHOLD);
+  input.value = v;
+  storeFameThreshold(v);
+  renderFameList();
+};
+
+window.editFameNote = (id) => {
+  fameEditingId = id;
+  renderFameList();
+  const input = document.getElementById("fame-note-input");
+  if (input) input.focus();
+};
+
+window.cancelFameNoteEdit = () => {
+  fameEditingId = null;
+  renderFameList();
+};
+
+window.saveFameNote = (id) => {
+  const input = document.getElementById("fame-note-input");
+  const list = readFameEntries();
+  const entry = list.find((e) => e.id === id);
+  if (entry && input) {
+    entry.note = input.value.trim().slice(0, 120);
+    saveFameEntries(list);
+  }
+  fameEditingId = null;
+  renderFameList();
+};
+
+window.deleteFameEntry = (id) => {
+  showModal(
+    "Delete entry?",
+    "This removes the hand from the Hand of Fame. You can't restore it later.",
+    "confirm",
+    () => {
+      saveFameEntries(readFameEntries().filter((e) => e.id !== id));
+      renderFameList();
+      updateFameNavBadge();
+    },
+  );
+};
+
+/* --- export / share --- */
+window.copyFameText = () => {
+  const text = buildFameText();
+  const done = () => showModal("Copied!", "The list is copied to your clipboard.", "info");
+  try {
+    navigator.clipboard.writeText(text).then(done, () => copyFallback(text, done));
+  } catch {
+    copyFallback(text, done);
+  }
+};
+
+function copyFallback(text, done) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
+  done();
+}
+
+function buildFameText() {
+  const threshold = readFameThreshold();
+  const entries = [...readFameEntries()].sort((a, b) => b.score - a.score);
+  const lines = entries.map((e, i) => {
+    const parts = [
+      `#${i + 1}`,
+      `${e.name} — ${e.score.toLocaleString()}`,
+      `Round ${e.round ?? "—"}${e.wind ? ` · ${e.wind} Seat` : ""}`,
+      fmtFameDate(e.ts),
+    ];
+    if (e.note) parts.push(`${e.note}`);
+    const tilesStr = fameTilesString(e.tiles);
+    if (tilesStr) parts.push(`Tiles: ${tilesStr}`);
+    return parts.join(" · ");
+  });
+  return [`🀄 Hand of Fame (${entries.length}) — threshold ${threshold.toLocaleString()}`, ...lines].join("\n");
+}
+
+window.shareFameImage = () => {
+  const entries = [...readFameEntries()].sort((a, b) => b.score - a.score).slice(0, 10);
+  const canvas = document.createElement("canvas");
+  const W = 720;
+  const rowH = 104;
+  const H = 190 + Math.max(entries.length, 1) * rowH + 40;
+  canvas.width = W;
+  canvas.height = H;
+  const c = canvas.getContext("2d");
+
+  // felt background + gold band
+  const grad = c.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, "#0f2a23");
+  grad.addColorStop(1, "#123129");
+  c.fillStyle = grad;
+  c.fillRect(0, 0, W, H);
+
+  c.fillStyle = "#d9a53a";
+  c.font = "bold 40px Georgia, serif";
+  c.fillText("🏆 Hand of Fame", 32, 72);
+  c.fillStyle = "rgba(255,253,250,0.75)";
+  c.font = "17px system-ui, sans-serif";
+  c.fillText(`Any hand over ${readFameThreshold().toLocaleString()} points · ${new Date().toLocaleDateString()}`, 32, 102);
+
+  if (entries.length === 0) {
+    c.fillStyle = "rgba(255,253,250,0.7)";
+    c.font = "22px system-ui, sans-serif";
+    c.fillText("No famous hands yet — good luck!", 32, 190);
+  }
+
+  entries.forEach((entry, idx) => {
+    const y = 140 + idx * rowH;
+    c.fillStyle = "rgba(255,255,255,0.06)";
+    c.beginPath();
+    c.roundRect(24, y + 6, W - 48, rowH - 18, 16);
+    c.fill();
+    c.fillStyle = idx === 0 ? "#d9a53a" : "#a8b5b0";
+    c.font = "bold 22px Georgia, serif";
+    c.fillText(idx === 0 ? "👑" : `#${idx + 1}`, 44, y + 52);
+    c.fillStyle = "#fffdf9";
+    c.font = "bold 24px system-ui, sans-serif";
+    let name = entry.name;
+    while (c.measureText(name).width > 300 && name.length > 3) name = name.slice(0, -2);
+    c.fillText(name, 104, y + 52);
+    c.fillStyle = "#e6bf6a";
+    c.font = "bold 30px Georgia, serif";
+    c.fillText(entry.score.toLocaleString(), W - 44 - c.measureText(entry.score.toLocaleString()).width, y + 56);
+    c.fillStyle = "rgba(255,253,250,0.6)";
+    c.font = "15px system-ui, sans-serif";
+    const sub = [`Round ${entry.round ?? "—"}${entry.wind ? ` · ${entry.wind} Seat` : ""}`, entry.note].filter(Boolean).join(" — ");
+    c.fillText(sub.length > 92 ? `${sub.slice(0, 92)}…` : sub, 104, y + 70);
+    const tilesStr = fameTilesString(entry.tiles);
+    if (tilesStr) {
+      c.fillStyle = "#f4efe2";
+      c.font = "17px system-ui, sans-serif";
+      const shown = tilesStr.length > 26 ? `${tilesStr.slice(0, 26)}…` : tilesStr;
+      c.fillText(shown, 104, y + 88);
+    }
+  });
+
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const file = new File([blob], "hand-of-fame.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: "Hand of Fame" }).catch(() => {});
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "hand-of-fame.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+      showModal("Image saved", "hand-of-fame.png was downloaded to your device.", "info");
+    }
+  });
+};
 
 /* ------------------------------------------------------------------ *
  * Calculator game mode (4 Players / 3 Players Sanma)
@@ -1310,6 +1822,14 @@ window.adjustNukidora = (delta) => {
   runCalculation();
 };
 
+window.adjustHonba = (delta) => {
+  const input = document.getElementById("calc-honba-value");
+  if (!input) return;
+  const next = Math.max(0, Math.min(30, (parseInt(input.value, 10) || 0) + delta));
+  input.value = String(next);
+  runCalculation();
+};
+
 window.openCalculatorModal = () => {
   // Restore the saved mode, defaulting to the room's player count.
   const stored = readStoredCalcMode();
@@ -1393,6 +1913,12 @@ window.runCalculation = () => {
     const tsumoLoss =
       document.getElementById("calc-tsumo-loss")?.value || "skip";
     const ronSplit = document.getElementById("calc-ron-split")?.value || "all";
+    // Repeat sticks (honba): +300 ron / +100 each payer on tsumo, handled by
+    // the engine for both 4-player and Sanma.
+    const honba = Math.max(
+      0,
+      Math.min(30, parseInt(document.getElementById("calc-honba-value")?.value, 10) || 0),
+    );
 
     const result = RiichiScore.calculateScore({
       hand,
@@ -1402,6 +1928,7 @@ window.runCalculation = () => {
       seatWind,
       roundWind,
       players: calcPlayersMode,
+      honba,
       nukidora: calcPlayersMode === 3 ? nukidora : 0,
       tsumoLoss: calcPlayersMode === 3 ? tsumoLoss : "skip",
       riichi,
@@ -2104,6 +2631,22 @@ window.applyCalcToNote = () => {
     const existing = noteInput.value.trim();
     noteInput.value = existing ? `${existing} · ${noteString}` : noteString;
   }
+
+  // Remember the exact tiles so the Hand of Fame card can show this hand.
+  const rawCalcHand = document
+    .getElementById("calc-hand")
+    .value.split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  famePendingTiles = rawCalcHand.length
+    ? {
+        hand: rawCalcHand,
+        melds: (currentMelds || []).map((m) => ({ ...m, tiles: [...m.tiles] })),
+        winTile:
+          document.getElementById("calc-wintile").value.trim() ||
+          rawCalcHand[rawCalcHand.length - 1],
+      }
+    : null;
 
   // Close calculator modal and auto-validate
   window.closeCalculatorModal();

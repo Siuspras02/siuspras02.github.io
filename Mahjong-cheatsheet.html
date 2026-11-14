@@ -1,0 +1,1671 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0d3b2e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>Riichi Mahjong Cheat Sheet — Riichi Tracker</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      @page {
+        size: A4 landscape;
+        margin: 6mm;
+      }
+
+      :root {
+        --ink: #14231e;
+        --ink-soft: #3d4f47;
+        --ink-mute: #5d6e65;
+        --ivory: #f4f2ec;
+        --parchment: #fffdfa;
+        --jade-50: #eef7f2;
+        --jade-100: #d7ede2;
+        --jade-200: #b0dbc6;
+        --jade-500: #2f8f6b;
+        --jade-600: #1f7355;
+        --jade-700: #185c45;
+        --felt: #0d3b2e;
+        --gold-50: #fdf8e7;
+        --gold-100: #f8ecc0;
+        --gold-200: #f0d98a;
+        --gold-300: #e5c25a;
+        --gold-700: #7a5309;
+        --line: #cbd5d1;
+        --line-soft: #e2e7e5;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      body {
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background: var(--ivory);
+        color: var(--ink);
+        min-height: 100vh;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .top-accent {
+        position: fixed;
+        inset: 0 0 auto 0;
+        height: 4px;
+        background: linear-gradient(90deg, #185c45, #e5c25a, #185c45);
+        z-index: 60;
+      }
+
+      .container {
+        max-width: 1360px;
+        margin: 0 auto;
+        padding: 28px 20px 48px;
+      }
+
+      /* Top Header matching Mahjong.html */
+      .site-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .site-brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand-tile {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 52px;
+        border-radius: 12px;
+        background: linear-gradient(150deg, #fff8dd, #f0d98a 55%, #d9b13f);
+        color: #0e3328;
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 700;
+        font-size: 24px;
+        box-shadow: 0 6px 16px -6px rgba(20, 35, 30, 0.35),
+          inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      }
+
+      .site-header h1 {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--ink);
+        line-height: 1.15;
+      }
+
+      .site-subtitle {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ink-mute);
+        margin-top: 2px;
+      }
+
+      .header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 16px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.15s ease;
+      }
+
+      .btn-soft {
+        background: var(--parchment);
+        border-color: rgba(20, 35, 30, 0.14);
+        color: var(--ink-soft);
+        box-shadow: 0 1px 2px rgba(20, 35, 30, 0.04);
+      }
+
+      .btn-soft:hover {
+        background: #ebe7de;
+        color: var(--ink);
+      }
+
+      .btn-primary {
+        background: linear-gradient(180deg, var(--jade-500), var(--jade-600));
+        color: #ffffff;
+        box-shadow: 0 6px 16px -6px rgba(31, 115, 85, 0.65);
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(180deg, #35a077, #1b6a4e);
+      }
+
+      /* Hero Banner */
+      .hero-banner {
+        background: linear-gradient(135deg, #0f4234, #082a21);
+        color: #ffffff;
+        border-radius: 20px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        border-bottom: 3px solid var(--gold-300);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        box-shadow: 0 12px 30px -16px rgba(20, 35, 30, 0.45);
+      }
+
+      .hero-banner h2 {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .hero-banner p {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.72);
+        margin-top: 2px;
+      }
+
+      .legend-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+      }
+
+      .pill-tag {
+        padding: 2px 7px;
+        border-radius: 6px;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .pill-tag.gold {
+        background: var(--gold-100);
+        color: var(--gold-700);
+      }
+
+      .pill-tag.jade {
+        background: var(--jade-100);
+        color: var(--jade-700);
+      }
+
+      /* Quick Jump Nav */
+      .jump-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 22px;
+      }
+
+      .jump-link {
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: var(--parchment);
+        border: 1px solid rgba(20, 35, 30, 0.1);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--ink-soft);
+        text-decoration: none;
+        transition: all 0.15s ease;
+      }
+
+      .jump-link:hover {
+        border-color: var(--jade-500);
+        background: var(--jade-50);
+        color: var(--jade-700);
+      }
+
+      /* Responsive Web Layout Grid */
+      .web-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+        align-items: start;
+      }
+
+      .col-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .span-full {
+        grid-column: 1 / -1;
+      }
+
+      @media (max-width: 960px) {
+        .web-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Card Styling */
+      .card {
+        background: var(--parchment);
+        border: 1px solid rgba(20, 35, 30, 0.1);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 1px 2px rgba(20, 35, 30, 0.04),
+          0 10px 24px -14px rgba(20, 35, 30, 0.16);
+      }
+
+      .card-head {
+        background: var(--jade-50);
+        border-bottom: 1px solid var(--jade-200);
+        padding: 14px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .card-head.amber {
+        background: var(--gold-50);
+        border-bottom-color: var(--gold-200);
+      }
+
+      .card-head.rose {
+        background: #fef3f2;
+        border-bottom-color: #fecdca;
+      }
+
+      .card-head.slate {
+        background: #f2f5f4;
+        border-bottom-color: var(--line);
+      }
+
+      .card-title {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--jade-700);
+      }
+
+      .card-head.amber .card-title {
+        color: var(--gold-700);
+      }
+
+      .card-head.rose .card-title {
+        color: #9f1d14;
+      }
+
+      .card-head.slate .card-title {
+        color: var(--ink);
+      }
+
+      .badge {
+        background: #ffffff;
+        border: 1px solid rgba(20, 35, 30, 0.14);
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        color: var(--ink-soft);
+      }
+
+      .card-body {
+        padding: 18px 20px;
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--ink);
+      }
+
+      /* Large Legible Unicode Tiles */
+      .t {
+        font-size: 26px;
+        line-height: 1.1;
+        vertical-align: middle;
+        letter-spacing: -1px;
+        font-family: "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji",
+          sans-serif;
+      }
+
+      .t-md {
+        font-size: 22px;
+        line-height: 1.1;
+        vertical-align: middle;
+        letter-spacing: -1px;
+      }
+
+      .red {
+        color: #c0392b;
+      }
+
+      .grn {
+        color: #185c45;
+      }
+
+      .blu {
+        color: #1d4ed8;
+      }
+
+      .mono {
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-weight: 700;
+      }
+
+      .nowrap {
+        white-space: nowrap;
+      }
+
+      /* Suit Showcase Rows */
+      .suit-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .suit-item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 12px;
+        background: #ffffff;
+        border: 1px solid var(--line-soft);
+        border-radius: 12px;
+      }
+
+      .suit-label {
+        font-size: 13.5px;
+      }
+
+      .suit-label span {
+        color: var(--ink-mute);
+        font-size: 12.5px;
+      }
+
+      /* Tables */
+      .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--line-soft);
+        padding: 10px 14px;
+        text-align: left;
+        vertical-align: middle;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      th {
+        background: #f7f9f8;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-mute);
+      }
+
+      tbody tr:hover {
+        background: rgba(238, 247, 242, 0.45);
+      }
+
+      .sub-note {
+        display: block;
+        font-size: 12px;
+        color: var(--ink-mute);
+        font-weight: 500;
+      }
+
+      /* Yaku Grid on Wide Screens */
+      .yaku-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .yaku-grid table:first-child {
+        border-right: 1px solid var(--line-soft);
+      }
+
+      @media (max-width: 1050px) {
+        .yaku-grid {
+          grid-template-columns: 1fr;
+        }
+        .yaku-grid table:first-child {
+          border-right: none;
+          border-bottom: 1px solid var(--line-soft);
+        }
+      }
+
+      .han-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 8px;
+        background: var(--gold-50);
+        border: 1px solid var(--gold-200);
+        color: var(--gold-700);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 12.5px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      /* Clean Bullet Lists */
+      ul.clean {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      ul.clean li {
+        padding-left: 18px;
+        position: relative;
+      }
+
+      ul.clean li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: var(--jade-600);
+        font-weight: 900;
+        font-size: 16px;
+        line-height: 1.3;
+      }
+
+      .callout {
+        margin-top: 12px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: #ffffff;
+        border: 1px solid var(--line-soft);
+        font-size: 13.5px;
+      }
+
+      .site-footer {
+        margin-top: 32px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--ink-mute);
+      }
+
+      /* =========================================================
+         PRINT OVERRIDES: Fits everything cleanly onto 1 A4 Landscape
+         ========================================================= */
+      @media print {
+        body {
+          background: #ffffff;
+          padding: 0;
+          margin: 0;
+          line-height: 1.25;
+        }
+
+        .top-accent,
+        .site-header,
+        .jump-nav,
+        .site-footer {
+          display: none !important;
+        }
+
+        .container {
+          max-width: none;
+          width: 285mm;
+          height: 198mm;
+          padding: 2mm;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 1.8mm;
+          border: 1px solid #99a8a2;
+          border-radius: 2mm;
+        }
+
+        .hero-banner {
+          border-radius: 1.5mm;
+          padding: 1.6mm 3mm;
+          margin-bottom: 0;
+          box-shadow: none;
+          border-bottom-width: 1.5px;
+        }
+
+        .hero-banner h2 {
+          font-size: 11.5pt;
+        }
+
+        .hero-banner p {
+          display: none;
+        }
+
+        .pill {
+          padding: 1.5px 5px;
+          font-size: 6pt;
+        }
+
+        .pill-tag {
+          font-size: 5.8pt;
+          padding: 1px 4px;
+        }
+
+        .web-grid {
+          flex: 1;
+          display: grid;
+          grid-template-columns: 0.95fr 1.18fr 0.98fr 0.94fr;
+          gap: 1.8mm;
+          min-height: 0;
+          align-items: stretch;
+        }
+
+        .span-full {
+          grid-column: auto;
+        }
+
+        .col-stack {
+          gap: 1.6mm;
+          min-height: 0;
+        }
+
+        .card {
+          border-radius: 1.5mm;
+          box-shadow: none;
+          border-color: #cbd5d1;
+        }
+
+        .card-head {
+          padding: 1mm 1.8mm;
+        }
+
+        .card-title {
+          font-family: ui-sans-serif, system-ui, sans-serif;
+          font-size: 6.7pt;
+          font-weight: 800;
+        }
+
+        .badge {
+          font-size: 5.3pt;
+          padding: 2px 4px 1px;
+        }
+
+        .card-body {
+          padding: 1.3mm 1.8mm;
+          font-size: 6.2pt;
+          line-height: 1.22;
+        }
+
+        .suit-list {
+          gap: 0.8mm;
+          margin-bottom: 1mm;
+        }
+
+        .suit-item {
+          padding: 1px 4px;
+          border-radius: 3px;
+        }
+
+        .suit-label,
+        .suit-label span {
+          font-size: 6pt;
+        }
+
+        .t {
+          font-size: 10.5pt;
+          line-height: 0.95;
+          letter-spacing: -0.5px;
+        }
+
+        .t-md {
+          font-size: 9.5pt;
+          line-height: 0.92;
+          letter-spacing: -0.5px;
+        }
+
+        th,
+        td {
+          padding: 2px 3px 1px;
+          font-size: 5.9pt;
+          line-height: 1.14;
+        }
+
+        th {
+          font-size: 5.6pt;
+        }
+
+        .sub-note {
+          font-size: 5.3pt;
+        }
+
+        .yaku-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .yaku-grid table:first-child {
+          border-right: none;
+          border-bottom: 1px solid var(--line-soft);
+        }
+
+        .han-badge {
+          padding: 0 3px;
+          font-size: 5.8pt;
+          border: none;
+          background: transparent;
+        }
+
+        ul.clean {
+          gap: 0.8mm;
+        }
+
+        ul.clean li {
+          padding-left: 2.2mm;
+        }
+
+        ul.clean li::before {
+          font-size: 7pt;
+          line-height: 1.1;
+        }
+
+        .callout {
+          margin-top: 1mm;
+          padding: 1mm 1.5mm;
+          font-size: 6pt;
+          border-radius: 3px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div aria-hidden="true" class="top-accent"></div>
+
+    <div class="container">
+      <!-- Screen Web Header -->
+      <header class="site-header">
+        <div class="site-brand">
+          <div class="brand-tile" aria-hidden="true">中</div>
+          <div>
+            <h1>Riichi Tracker</h1>
+            <p class="site-subtitle">Beginner Rules &amp; Yaku Cheat Sheet</p>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <a href="Mahjong.html" class="btn btn-soft">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+            Back to Scorekeeper
+          </a>
+          <button onclick="window.print()" class="btn btn-primary">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path
+                d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+              ></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Print / Save 1-Page PDF
+          </button>
+        </div>
+      </header>
+
+      <!-- Hero Legend Banner -->
+      <section class="hero-banner">
+        <div>
+          <h2>RIICHI MAHJONG QUICK REFERENCE</h2>
+          <p>
+            Complete table reference — click Print / Save PDF anytime for a
+            1-page A4 Landscape sheet.
+          </p>
+        </div>
+        <div class="legend-pills">
+          <span class="pill"
+            ><span class="pill-tag gold">C / O</span> Closed / Open Han</span
+          >
+          <span class="pill"
+            ><span class="pill-tag jade">25k → 30k</span> Start / Return</span
+          >
+          <span class="pill"
+            ><span class="pill-tag jade">1 Yaku Min</span> Required to Win
+            (Dora ≠ Yaku)</span
+          >
+          <span class="pill"><span class="t-md">🀫</span> Face-down Tile</span>
+        </div>
+      </section>
+
+      <!-- Quick Section Jump Links (Screen only) -->
+      <nav class="jump-nav" aria-label="Jump to section">
+        <a href="#sec-tiles" class="jump-link">1. Tile Set</a>
+        <a href="#sec-hand" class="jump-link">2. Winning Hand</a>
+        <a href="#sec-flow" class="jump-link">3. Turn Flow &amp; Calls</a>
+        <a href="#sec-yaku" class="jump-link">4. Common Yaku (26)</a>
+        <a href="#sec-yakuman" class="jump-link">5. Yakuman</a>
+        <a href="#sec-fu" class="jump-link">6. Fu Calculation</a>
+        <a href="#sec-dora" class="jump-link">7. Dora, Winds &amp; Dragons</a>
+        <a href="#sec-furiten" class="jump-link">8. Furiten &amp; Rotation</a>
+        <a href="#sec-draws" class="jump-link">9. Draws</a>
+      </nav>
+
+      <!-- Main Responsive Grid -->
+      <div class="web-grid">
+        <!-- COLUMN 1 STACK -->
+        <div class="col-stack">
+          <!-- 1. Tile Set -->
+          <section id="sec-tiles" class="card">
+            <div class="card-head">
+              <h3 class="card-title">1. Tile Set (136 Tiles = 34 × 4)</h3>
+              <span class="badge">4 OF EACH</span>
+            </div>
+            <div class="card-body">
+              <div class="suit-list">
+                <div class="suit-item">
+                  <div class="suit-label">
+                    <b>Manzu</b> <span>(Characters 1–9)</span>
+                  </div>
+                  <div class="t">
+                    🀇🀈🀉🀊<span class="red">🀋</span>🀌🀍🀎🀏
+                  </div>
+                </div>
+                <div class="suit-item">
+                  <div class="suit-label">
+                    <b>Pinzu</b> <span>(Circles 1–9)</span>
+                  </div>
+                  <div class="t">
+                    🀙🀚🀛🀜<span class="red">🀝</span>🀞🀟🀠🀡
+                  </div>
+                </div>
+                <div class="suit-item">
+                  <div class="suit-label">
+                    <b>Souzu</b> <span>(Bamboo 1–9)</span>
+                  </div>
+                  <div class="t">
+                    🀐🀑🀒🀓<span class="red">🀔</span>🀕🀖🀗🀘
+                  </div>
+                </div>
+                <div class="suit-item">
+                  <div class="suit-label">
+                    <b>Winds</b> <span>(E · S · W · N)</span> &amp;
+                    <b>Dragons</b> <span>(Wh / Gr / Rd)</span>
+                  </div>
+                  <div class="t">
+                    🀀🀁🀂🀃 &nbsp; 🀆<span class="grn">🀅</span
+                    ><span class="red">🀄</span>
+                  </div>
+                </div>
+              </div>
+              <p>
+                <b>Simples (Tanyao):</b> 2–8 of suits. <b>Terminals:</b> 1 &amp;
+                9 of suits. <b>Honors:</b> Winds &amp; Dragons.
+                <b>Aka-Dora (Red 5s):</b>
+                <span class="t-md red">🀋🀝🀔</span> (+1 Han each when in hand).
+              </p>
+            </div>
+          </section>
+
+          <!-- 2. Winning Hand -->
+          <section id="sec-hand" class="card">
+            <div class="card-head">
+              <h3 class="card-title">2. Winning Hand (14 Tiles)</h3>
+              <span class="badge">4 MELDS + 1 PAIR</span>
+            </div>
+            <div class="card-body" style="padding: 0">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 28%">Meld / Hand</th>
+                      <th style="width: 36%">Rule</th>
+                      <th>Example</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <b>Sequence</b>
+                        <span class="sub-note">(Shuntsu)</span>
+                      </td>
+                      <td>3 consecutive suited tiles</td>
+                      <td><span class="t-md">🀈🀉🀊</span> 2-3-4m</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Triplet</b>
+                        <span class="sub-note">(Koutsu)</span>
+                      </td>
+                      <td>3 identical tiles (Open/Closed)</td>
+                      <td><span class="t-md grn">🀅🀅🀅</span> 3 Grn</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Quad</b>
+                        <span class="sub-note">(Kantsu)</span>
+                      </td>
+                      <td>4 identical tiles (counts as 1 meld)</td>
+                      <td><span class="t-md">🀫🀀🀀🀫</span> Closed</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Pair</b>
+                        <span class="sub-note">(Jantou)</span>
+                      </td>
+                      <td>2 identical tiles (head)</td>
+                      <td><span class="t-md">🀙🀙</span> 1p pair</td>
+                    </tr>
+                    <tr>
+                      <td><b>7 Pairs / 13 Orphans</b></td>
+                      <td>Special closed-only structures</td>
+                      <td>7×2 or 13 terminals/honors+1</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="callout" style="margin: 12px 16px 16px">
+                <b>Complete Hand Example:</b>
+                <span class="t-md nowrap"
+                  >🀇🀈🀉 &nbsp; 🀜🀝🀞 &nbsp; 🀕🀖🀗 &nbsp;
+                  <span class="red">🀄🀄🀄</span> &nbsp; 🀁🀁</span
+                >
+                <span class="sub-note">(4 melds + 1 pair)</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Turn Flow, Calls & Dora -->
+          <section id="sec-flow" class="card">
+            <div class="card-head">
+              <h3 class="card-title">3. Turn Flow, Calls &amp; Dora</h3>
+              <span class="badge">RON &gt; PON/KAN &gt; CHI</span>
+            </div>
+            <div class="card-body">
+              <ul class="clean">
+                <li>
+                  <b>Turn:</b> Draw 1 from wall → Declare Tsumo / Closed Kan /
+                  Riichi → Discard 1 tile.
+                </li>
+                <li>
+                  <b>Chi:</b> Call sequence from <b>left player only</b> (opens
+                  hand).
+                </li>
+                <li>
+                  <b>Pon:</b> Call triplet from <b>any player</b> (opens hand).
+                </li>
+                <li>
+                  <b>Kan:</b> <b>Open</b> (call on discard or upgrade open Pon)
+                  or <b>Closed</b> (4 in hand). Draws 1 dead-wall tile + flips
+                  <b>1 Kan Dora</b>.
+                </li>
+                <li>
+                  <b>Riichi:</b> Closed hand in Tenpai (1 away) → bet
+                  <span class="mono">1,000</span> stick, discard sideways. Hand
+                  locked (only closed Kan allowed if waits unchanged).
+                </li>
+                <li>
+                  <b>Win:</b> <b>Tsumo</b> (self-draw; all 3 pay) or
+                  <b>Ron</b> (on discard; discarder pays).
+                </li>
+                <li>
+                  <b>Dead Wall (14 tiles):</b> 4 replacement tiles + up to 5
+                  Dora &amp; 5 Ura-Dora indicators.
+                </li>
+              </ul>
+            </div>
+          </section>
+        </div>
+
+        <!-- COLUMN 2: ALL 26 COMMON YAKU (Full Width on Screen, Col 2 in Print) -->
+        <section id="sec-yaku" class="card span-full">
+          <div class="card-head amber">
+            <h3 class="card-title">4. Common Yaku (26 Patterns)</h3>
+            <span class="badge">C / O = CLOSED / OPEN HAN</span>
+          </div>
+          <div class="card-body" style="padding: 0">
+            <div class="yaku-grid">
+              <!-- First 13 Yaku -->
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 26%">Yaku</th>
+                    <th style="width: 14%; text-align: center">C / O</th>
+                    <th>Requirement &amp; Tile Example</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><b>Riichi</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">1 / −</span>
+                    </td>
+                    <td>Closed tenpai declaration + 1,000pt bet</td>
+                  </tr>
+                  <tr>
+                    <td><b>Ippatsu</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">1 / −</span>
+                    </td>
+                    <td>Win within 1 uninterrupted turn of Riichi</td>
+                  </tr>
+                  <tr>
+                    <td><b>Menzen Tsumo</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">1 / −</span>
+                    </td>
+                    <td>Self-draw win with a fully closed hand</td>
+                  </tr>
+                  <tr>
+                    <td><b>Pinfu</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">1 / −</span>
+                    </td>
+                    <td>
+                      4 seq + valueless pair + 2-sided wait<br /><span
+                        class="t-md nowrap"
+                        >🀈🀉🀊 🀛🀜🀝 🀓🀔🀕 🀖🀗🀘 🀚🀚</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Tanyao</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">1 / 1</span>
+                    </td>
+                    <td>
+                      All simples (2–8 only)<br /><span class="t-md nowrap"
+                        >🀈🀉🀊 🀚🀛🀜 🀓🀓🀓 🀕🀖🀗 🀝🀝</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Iipeikou</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">1 / −</span>
+                    </td>
+                    <td>
+                      2 identical sequences in 1 suit<br /><span
+                        class="t-md nowrap"
+                        >🀈🀉🀊 🀈🀉🀊</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Yakuhai</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">1 / 1</span>
+                    </td>
+                    <td>
+                      Triplet/Quad of Dragon, Seat or Round Wind<br /><span
+                        class="t-md red nowrap"
+                        >🀄🀄🀄</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Haitei Raoyue</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">1 / 1</span>
+                    </td>
+                    <td>Win by Tsumo on the very last wall tile</td>
+                  </tr>
+                  <tr>
+                    <td><b>Houtei Raoyui</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">1 / 1</span>
+                    </td>
+                    <td>Win by Ron on the very last discard</td>
+                  </tr>
+                  <tr>
+                    <td><b>Rinshan Kaihou</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">1 / 1</span>
+                    </td>
+                    <td>Win on dead-wall replacement draw after Kan</td>
+                  </tr>
+                  <tr>
+                    <td><b>Chankan</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">1 / 1</span>
+                    </td>
+                    <td>
+                      Rob opponent's added Kan (or closed Kan for 13 Orphans)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Double Riichi</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">2 / −</span>
+                    </td>
+                    <td>Declare Riichi on your very first uninterrupted turn</td>
+                  </tr>
+                  <tr>
+                    <td><b>Chiitoitsu</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">2 / −</span>
+                    </td>
+                    <td>
+                      7 distinct pairs (fixed 25 fu)<br /><span
+                        class="t-md nowrap"
+                        >🀇🀇 🀊🀊 🀏🀏 🀚🀚 🀡🀡 🀓🀓 🀀🀀</span
+                      >
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- Second 13 Yaku -->
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 26%">Yaku</th>
+                    <th style="width: 14%; text-align: center">C / O</th>
+                    <th>Requirement &amp; Tile Example</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><b>Sanshoku Doujun</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">2 / 1</span>
+                    </td>
+                    <td>
+                      Same sequence in all 3 suits<br /><span
+                        class="t-md nowrap"
+                        >🀊🀋🀌 🀜🀝🀞 🀓🀔🀕</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Ittsu</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">2 / 1</span>
+                    </td>
+                    <td>
+                      1–9 pure straight in 1 suit<br /><span
+                        class="t-md nowrap"
+                        >🀐🀑🀒 🀓🀔🀕 🀖🀗🀘</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Chanta</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">2 / 1</span>
+                    </td>
+                    <td>
+                      Terminal/Honor in every set+pair<br /><span
+                        class="t-md nowrap"
+                        >🀇🀈🀉 🀟🀠🀡 🀐🀑🀒 🀀🀀🀀
+                        <span class="red">🀄🀄</span></span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Toitoi</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">2 / 2</span>
+                    </td>
+                    <td>
+                      All 4 melds are triplets/quads<br /><span
+                        class="t-md nowrap"
+                        >🀉🀉🀉 🀝🀝🀝 🀖🀖🀖 🀁🀁🀁</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Sanankou</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">2 / 2</span>
+                    </td>
+                    <td>3 concealed triplets (4th meld may be open)</td>
+                  </tr>
+                  <tr>
+                    <td><b>Sanshoku Doukou</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">2 / 2</span>
+                    </td>
+                    <td>
+                      Same numbered triplet in all 3 suits<br /><span
+                        class="t-md nowrap"
+                        >🀈🀈🀈 🀚🀚🀚 🀑🀑🀑</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Sankantsu</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">2 / 2</span>
+                    </td>
+                    <td>3 Quads (Kans) declared in one hand</td>
+                  </tr>
+                  <tr>
+                    <td><b>Honroutou</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">2 / 2</span>
+                    </td>
+                    <td>
+                      All Terminals &amp; Honors<br /><span class="t-md nowrap"
+                        >🀇🀇🀇 🀡🀡🀡 🀐🀐🀐 🀂🀂🀂
+                        <span class="grn">🀅🀅</span></span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Shousangen</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">2 / 2</span>
+                    </td>
+                    <td>
+                      2 Dragon triplets + 3rd Dragon pair<br /><span
+                        class="t-md nowrap"
+                        >🀆🀆🀆 <span class="grn">🀅🀅🀅</span>
+                        <span class="red">🀄🀄</span></span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Honitsu</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">3 / 2</span>
+                    </td>
+                    <td>
+                      Half Flush: 1 suit + Honors<br /><span class="t-md nowrap"
+                        >🀙🀚🀛 🀝🀞🀟 🀠🀠🀠 🀃🀃🀃 🀆🀆</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Junchan</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">3 / 2</span>
+                    </td>
+                    <td>
+                      Terminal (1 or 9) in every set+pair, no Honors<br /><span
+                        class="t-md nowrap"
+                        >🀇🀈🀉 🀍🀎🀏 🀟🀠🀡 🀐🀐🀐 🀘🀘</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Ryanpeikou</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">3 / −</span>
+                    </td>
+                    <td>
+                      2 sets of Iipeikou (4 seq)<br /><span class="t-md nowrap"
+                        >🀈🀉🀊 🀈🀉🀊 🀑🀒🀓 🀑🀒🀓 🀁🀁</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Chinitsu</b></td>
+                    <td style="text-align: center">
+                      <span class="han-badge">6 / 5</span>
+                    </td>
+                    <td>
+                      Full Flush: all 14 tiles in 1 suit<br /><span
+                        class="t-md nowrap"
+                        >🀈🀉🀊 🀊🀋🀌 🀍🀎🀏 🀏🀏🀏 🀇🀇</span
+                      >
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- COLUMN 3 STACK: YAKUMAN & FU -->
+        <div class="col-stack">
+          <!-- 5. Yakuman -->
+          <section id="sec-yakuman" class="card">
+            <div class="card-head rose">
+              <h3 class="card-title">5. Yakuman (Limit Hands: 32k / 48k)</h3>
+              <span class="badge">CLOSED UNLESS NOTED</span>
+            </div>
+            <div class="card-body" style="padding: 0">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 30%">Yakuman</th>
+                      <th>Condition &amp; Tile Example</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <b>Kokushi Musou</b>
+                        <span class="sub-note">13 Orphans</span>
+                      </td>
+                      <td>
+                        1 of each 13 terminals/honors + 1 duplicate<br /><span
+                          class="t-md nowrap"
+                          >🀇🀏🀙🀡🀐🀘🀀🀁🀂🀃🀆<span class="grn">🀅</span
+                          ><span class="red">🀄🀄</span></span
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Suuankou</b>
+                        <span class="sub-note">4 Concealed Triplets</span>
+                      </td>
+                      <td>
+                        4 closed triplets (closed hand; ron on a shanpon wait
+                        doesn't count)<br /><span class="t-md nowrap"
+                          >🀈🀈🀈 🀝🀝🀝 🀖🀖🀖 🀀🀀🀀 🀆🀆</span
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Daisangen</b>
+                        <span class="sub-note">Big 3 Dragons (O/C)</span>
+                      </td>
+                      <td>
+                        Triplets/quads of all 3 Dragons<br /><span
+                          class="t-md nowrap"
+                          >🀆🀆🀆 <span class="grn">🀅🀅🀅</span>
+                          <span class="red">🀄🀄🀄</span></span
+                        >
+                        + 1 meld + pair
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Shousuushii</b>
+                        <span class="sub-note">Little 4 Winds (O/C)</span>
+                      </td>
+                      <td>
+                        3 Wind triplets/quads + 4th Wind pair<br /><span
+                          class="t-md nowrap"
+                          >🀀🀀🀀 🀁🀁🀁 🀂🀂🀂 🀃🀃</span
+                        >
+                        + 1 meld
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Daisuushii</b>
+                        <span class="sub-note">Big 4 Winds (O/C, 2×)</span>
+                      </td>
+                      <td>
+                        Triplets/quads of all 4 Winds<br /><span
+                          class="t-md nowrap"
+                          >🀀🀀🀀 🀁🀁🀁 🀂🀂🀂 🀃🀃🀃</span
+                        >
+                        + pair
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Tsuuiisou</b>
+                        <span class="sub-note">All Honors (O/C)</span>
+                      </td>
+                      <td>
+                        All 14 tiles are Winds &amp; Dragons<br /><span
+                          class="t-md nowrap"
+                          >🀀🀀🀀 🀂🀂🀂 🀆🀆🀆 <span class="red">🀄🀄🀄</span>
+                          🀁🀁</span
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Ryuuiisou</b>
+                        <span class="sub-note">All Green (O/C)</span>
+                      </td>
+                      <td>
+                        Only <span class="t-md grn">🀑🀒🀓🀕🀗🀅</span> (2,3,4,6,8 Sou
+                        &amp; Green Dragon)<br /><span class="t-md grn nowrap"
+                          >🀑🀒🀓 🀑🀒🀓 🀕🀕🀕 🀅🀅🀅 🀗🀗</span
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Chinroutou</b>
+                        <span class="sub-note">All Terminals (O/C)</span>
+                      </td>
+                      <td>
+                        All 14 tiles are 1s and 9s<br /><span
+                          class="t-md nowrap"
+                          >🀇🀇🀇 🀏🀏🀏 🀙🀙🀙 🀡🀡🀡 🀐🀐</span
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Chuuren Poutou</b>
+                        <span class="sub-note">Nine Gates</span>
+                      </td>
+                      <td>
+                        1112345678999 + any 1 in same suit<br /><span
+                          class="t-md nowrap"
+                          >🀇🀇🀇🀈🀉🀊<span class="red">🀋</span>🀌🀍🀎🀏🀏🀏 +
+                          🀋</span
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <b>Suukantsu</b>
+                        <span class="sub-note">4 Quads (O/C)</span>
+                      </td>
+                      <td>4 Kans declared by one player + pair</td>
+                    </tr>
+                    <tr>
+                      <td><b>Tenhou / Chiihou</b></td>
+                      <td>
+                        Dealer wins on initial 14-tile deal / Non-dealer wins on
+                        1st draw
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- 6. Fu Calculation -->
+          <section id="sec-fu" class="card">
+            <div class="card-head slate">
+              <h3 class="card-title">6. Fu (Minipoints) Calculation</h3>
+              <span class="badge">ROUND UP TO 10</span>
+            </div>
+            <div class="card-body">
+              <p style="margin-bottom: 8px">
+                <b>Base Fu:</b> <span class="mono">20 fu</span> (standard) ·
+                <span class="mono">25 fu</span> (Chiitoitsu,
+                <b>Open Pinfu: 30 fu</b> no rounding)
+              </p>
+              <p style="margin-bottom: 12px">
+                <b>Win Method:</b> Closed Ron <span class="mono">+10</span> ·
+                Tsumo <span class="mono">+2</span> (0 if Closed Pinfu)
+                &nbsp;|&nbsp; <b>Pair:</b> Dragon/Seat/Round Wind
+                <span class="mono">+2</span> (Double Wind +4)
+              </p>
+              <div class="table-wrap" style="margin-bottom: 12px">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Meld Fu</th>
+                      <th style="text-align: center">Open Triplet</th>
+                      <th style="text-align: center">Closed Triplet</th>
+                      <th style="text-align: center">Open Kan</th>
+                      <th style="text-align: center">Closed Kan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><b>Simples (2–8)</b></td>
+                      <td class="mono blu" style="text-align: center">+2</td>
+                      <td class="mono blu" style="text-align: center">+4</td>
+                      <td class="mono blu" style="text-align: center">+8</td>
+                      <td class="mono blu" style="text-align: center">+16</td>
+                    </tr>
+                    <tr>
+                      <td><b>Terminals / Honors</b></td>
+                      <td class="mono blu" style="text-align: center">+4</td>
+                      <td class="mono blu" style="text-align: center">+8</td>
+                      <td class="mono blu" style="text-align: center">+16</td>
+                      <td class="mono blu" style="text-align: center">+32</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                <b>Wait Fu (+2):</b> <b>Kanchan</b> (closed
+                <span class="t-md">🀇🀉→🀈</span>), <b>Penchan</b> (edge
+                <span class="t-md">🀇🀈→🀉</span>), <b>Tanki</b> (pair
+                <span class="t-md">🀀→🀀</span>). (0 fu for 2-sided Ryanmen or
+                Dual-pair Shanpon).
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <!-- COLUMN 4 STACK: DORA, FURITEN, DRAWS -->
+        <div class="col-stack">
+          <!-- 7. Dora Rotation, Winds & Dragons -->
+          <section id="sec-dora" class="card">
+            <div class="card-head">
+              <h3 class="card-title">7. Dora Rotation, Winds &amp; Dragons</h3>
+              <span class="badge">INDICATOR → NEXT TILE</span>
+            </div>
+            <div class="card-body">
+              <p style="margin-bottom: 10px">
+                <b>Dora Rule:</b> The actual Dora is the
+                <b>next tile in sequence</b> after the face-up indicator on the
+                dead wall (+1 Han per matching tile in hand; Dora ≠ Yaku).
+              </p>
+              <div class="suit-list">
+                <div class="suit-item">
+                  <div class="suit-label">
+                    <b>Numbered Suits:</b> <span>1→2→…→9 wraps to 1</span>
+                  </div>
+                  <div class="t-md">🀇→🀈 &nbsp; 🀏→🀇</div>
+                </div>
+                <div class="suit-item">
+                  <div class="suit-label">
+                    <b>Winds:</b> <span>East → South → West → North → East</span>
+                  </div>
+                  <div class="t-md">🀀→🀁→🀂→🀃→🀀</div>
+                </div>
+                <div class="suit-item">
+                  <div class="suit-label">
+                    <b>Dragons:</b> <span>White → Green → Red → White</span>
+                  </div>
+                  <div class="t-md">
+                    🀆→<span class="grn">🀅</span>→<span class="red">🀄</span>→🀆
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-wrap" style="margin-bottom: 12px">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 26%">Honor Tile</th>
+                      <th style="width: 24%">Name</th>
+                      <th>When it gives +1 Han (Yakuhai)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="t-md">🀀🀁🀂🀃</span></td>
+                      <td>
+                        <b>Winds</b>
+                        <span class="sub-note">E · S · W · N</span>
+                      </td>
+                      <td>
+                        Triplet/Quad matching <b>Round Wind</b> (East/South) or
+                        your <b>Seat Wind</b> (both = +2 Han)
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <span class="t-md"
+                          >🀆<span class="grn">🀅</span
+                          ><span class="red">🀄</span></span
+                        >
+                      </td>
+                      <td>
+                        <b>Dragons</b>
+                        <span class="sub-note">Wh · Gr · Rd</span>
+                      </td>
+                      <td>
+                        Triplet/Quad of <b>any Dragon</b> always grants +1 Han
+                        (universal value)
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><span class="t-md red">🀋🀝🀔</span></td>
+                      <td>
+                        <b>Aka-Dora</b>
+                        <span class="sub-note">Red Fives</span>
+                      </td>
+                      <td>
+                        Always +1 Han each in hand (does not need a wall
+                        indicator)
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p>
+                <b>Ura-Dora &amp; Kan-Dora:</b> Flip a new Kan-Dora indicator for
+                every Kan declared. If you win after declaring <b>Riichi</b>,
+                reveal the tiles underneath all active indicators as bonus
+                <b>Ura-Dora</b>.
+              </p>
+            </div>
+          </section>
+
+          <!-- 8. Furiten, Rotation & Counters -->
+          <section id="sec-furiten" class="card">
+            <div class="card-head slate">
+              <h3 class="card-title">8. Furiten, Rotation &amp; Counters</h3>
+            </div>
+            <div class="card-body">
+              <ul class="clean">
+                <li>
+                  <b>Furiten (No Ron allowed; Tsumo only):</b>
+                  <b>1. Permanent</b> (any winning tile is in your discards);
+                  <b>2. Temporary</b> (passed on a Ron; clears on your next
+                  discard); <b>3. Riichi Furiten</b> (passed on a winning tile
+                  after Riichi → permanent for rest of hand).
+                </li>
+                <li>
+                  <b>Dealer Rotation (Renchan):</b> Dealer keeps East if they win
+                  or are Tenpai on exhaustive draw; otherwise rotates
+                  counter-clockwise (<b>E→S→W→N</b>).
+                </li>
+                <li>
+                  <b>Honba (100pt repeat stick):</b> Placed by dealer on dealer
+                  win or draw. Adds <span class="mono">+300</span> pts per
+                  counter to Ron (<span class="mono">+100</span>/payer on
+                  Tsumo). Resets when non-dealer wins.
+                </li>
+                <li>
+                  <b>Riichi Sticks:</b> <span class="mono">1,000</span> pts each;
+                  winner takes all on table (leftover at game end goes to 1st
+                  place).
+                </li>
+                <li>
+                  <b>Game Length:</b> Hanchan = East + South rounds (8 hands
+                  min). Ends early if any player drops below
+                  <span class="mono">0</span> pts (Tobi).
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- 9. Exhaustive & Abortive Draws -->
+          <section id="sec-draws" class="card">
+            <div class="card-head amber">
+              <h3 class="card-title">9. Exhaustive &amp; Abortive Draws</h3>
+            </div>
+            <div class="card-body">
+              <ul class="clean">
+                <li>
+                  <b>Exhaustive Draw (Ryuukyoku):</b> Wall empties with no
+                  winner. Players reveal hands: 1 tenpai:
+                  <span class="mono">+3000</span> (each noten pays
+                  <span class="mono">1000</span>) · 2 tenpai:
+                  <span class="mono">+1500</span> each · 3 tenpai:
+                  <span class="mono">+1000</span> each (noten pays
+                  <span class="mono">3000</span>).
+                </li>
+                <li>
+                  <b>Nagashi Mangan:</b> At exhaustive draw, if all your
+                  discards are Terminals/Honors and none were called, score as a
+                  mangan tsumo: non-dealer <span class="mono">2000/4000</span>,
+                  dealer <span class="mono">4000</span> all.
+                </li>
+                <li>
+                  <b>Abortive Draws (Dealer repeats, +1 Honba):</b>
+                  <b>Kyuushu Kyuuhai</b> (9+ diff terminals/honors on 1st draw);
+                  <b>Suufon Renda</b> (same 4 Winds discarded in 1st turn);
+                  <b>Suucha Riichi</b> (all 4 players declare Riichi);
+                  <b>Suukaikan</b> (4 Kans declared by 2+ players);
+                  <b>Sanchahou</b> (Triple Ron on one discard).
+                </li>
+              </ul>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <footer class="site-footer">Riichi Tracker by Siuspras</footer>
+    </div>
+  </body>
+</html>

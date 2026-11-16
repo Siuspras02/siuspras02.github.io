@@ -1870,55 +1870,58 @@ button,
   }
 }
 
-/* ---------- Mobile polish ---------- */
-@media (max-width: 639px) {
-  .site-header.site-header {
-    margin-bottom: 0.7rem;
-    padding-bottom: 0.6rem;
-  }
-  .site-header .site-header-inner {
-    flex-wrap: nowrap;
-    gap: 0.5rem;
-  }
-  .site-header .site-brand {
-    min-width: 0;
-    gap: 0.55rem;
-  }
-  .site-header h1 {
-    font-size: clamp(1rem, 4.8vw, 1.2rem);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .site-subtitle {
-    display: none;
-  }
-  .brand-tile {
-    width: 2.15rem;
-    height: 2.6rem;
-    font-size: 1.15rem;
-    border-radius: 0.55rem;
-  }
-  .site-header .header-actions {
-    width: auto;
-    flex-wrap: nowrap;
-    gap: 0.3rem;
-  }
-  .header-actions .btn {
-    flex: 0 0 auto;
-    width: 2.75rem;
-    height: 2.75rem;
-    min-height: 2.75rem;
-    padding: 0;
-    border-radius: 999px;
-  }
-  .header-actions .btn-label {
-    display: none;
-  }
-  .header-actions .btn svg {
-    width: 17px;
-    height: 17px;
-  }
+  /* ---------- Mobile polish ---------- */
+  @media (max-width: 639px) {
+    .site-header.site-header {
+      margin-bottom: 0.7rem;
+      padding-bottom: 0.6rem;
+    }
+    /* Two separate rows: brand on top, action buttons below */
+    .site-header .site-header-inner {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.7rem;
+    }
+    .site-header .site-brand {
+      min-width: 0;
+      gap: 0.6rem;
+    }
+    .site-header h1 {
+      font-size: clamp(1.15rem, 5vw, 1.4rem);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .site-subtitle {
+      display: block;
+    }
+    .brand-tile {
+      width: 2.35rem;
+      height: 2.85rem;
+      font-size: 1.25rem;
+      border-radius: 0.55rem;
+    }
+    .site-header .header-actions {
+      width: 100%;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      gap: 0.25rem;
+    }
+    .header-actions .btn {
+      flex: 0 0 auto;
+      width: 2.9rem;
+      height: 2.9rem;
+      min-height: 2.9rem;
+      padding: 0;
+      border-radius: 999px;
+    }
+    .header-actions .btn-label {
+      display: none;
+    }
+    .header-actions .btn svg {
+      width: 18px;
+      height: 18px;
+    }
 
   /* Compact room bar: code + icon actions on one line */
   .room-bar.card-surface {
@@ -2064,10 +2067,12 @@ button,
 
 @media (max-width: 359px) {
   .site-header .brand-tile {
-    display: none;
+    width: 2rem;
+    height: 2.45rem;
+    font-size: 1.05rem;
   }
   .site-header h1 {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
   .player-grid,
   .player-grid.player-grid--three {

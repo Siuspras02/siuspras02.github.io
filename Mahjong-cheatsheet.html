@@ -12,7 +12,16 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
+    <meta
+      name="description"
+      content="Beginner-friendly riichi mahjong cheat sheet: tile set, winning hands, all 26 common yaku, yakuman, fu calculation, dora rotation, furiten and draws — with a 1-page A4 landscape print layout."
+    />
     <title>Riichi Mahjong Cheat Sheet — Riichi Tracker</title>
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='2' width='24' height='28' rx='5' fill='%23f0d98a'/%3E%3Ctext x='16' y='24' font-family='serif' font-size='20' font-weight='bold' text-anchor='middle' fill='%230e3328'%3E中%3C/text%3E%3C/svg%3E"
+    />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -47,6 +56,23 @@
         --gold-700: #7a5309;
         --line: #cbd5d1;
         --line-soft: #e2e7e5;
+        color-scheme: light;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* Anchor jumps must stop below the sticky jump nav */
+      section[id] {
+        scroll-margin-top: 62px;
+      }
+
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--jade-500);
+        outline-offset: 2px;
+        border-radius: 10px;
       }
 
       * {
@@ -237,12 +263,51 @@
         color: var(--jade-700);
       }
 
-      /* Quick Jump Nav */
+      /* Quick Jump Nav — sticky rail on every screen */
       .jump-nav {
+        position: sticky;
+        top: 8px;
+        z-index: 50;
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
         margin-bottom: 22px;
+        padding: 8px;
+        background: rgba(244, 242, 236, 0.88);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--line-soft);
+        border-radius: 16px;
+        box-shadow: 0 2px 10px -4px rgba(20, 35, 30, 0.18);
+      }
+
+      .jump-link[aria-current] {
+        background: var(--jade-700);
+        border-color: var(--jade-700);
+        color: #ffffff;
+      }
+
+      /* Touch screens: one scrollable rail instead of wrapped rows */
+      @media (hover: none) and (pointer: coarse) {
+        .jump-nav {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          overscroll-behavior-x: contain;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          scroll-behavior: smooth;
+        }
+        .jump-nav::-webkit-scrollbar {
+          display: none;
+        }
+        .jump-link {
+          flex: 0 0 auto;
+          padding: 9px 14px; /* ≥44px touch target with the row padding */
+          min-height: 40px;
+          display: inline-flex;
+          align-items: center;
+          white-space: nowrap;
+        }
       }
 
       .jump-link {
@@ -283,7 +348,7 @@
 
       @media (max-width: 960px) {
         .web-grid {
-          grid-template-columns: 1fr;
+          grid-template-columns: minmax(0, 1fr);
         }
       }
 
@@ -431,6 +496,8 @@
       .table-wrap {
         width: 100%;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
       }
 
       table {
@@ -482,7 +549,7 @@
 
       @media (max-width: 1050px) {
         .yaku-grid {
-          grid-template-columns: 1fr;
+          grid-template-columns: minmax(0, 1fr);
         }
         .yaku-grid table:first-child {
           border-right: none;
@@ -542,6 +609,139 @@
         color: var(--ink-mute);
       }
 
+      /* ---- Phones & small tablets ---- */
+      @media (max-width: 640px) {
+        .container {
+          padding: 20px 12px 40px;
+        }
+
+        .site-header {
+          margin-bottom: 18px;
+        }
+
+        .brand-tile {
+          width: 38px;
+          height: 45px;
+          font-size: 20px;
+        }
+
+        .site-header h1 {
+          font-size: 22px;
+        }
+
+        .header-actions {
+          width: 100%;
+        }
+
+        .header-actions .btn {
+          flex: 1 1 auto;
+          justify-content: center;
+          padding: 11px 14px; /* comfortable thumb target */
+        }
+
+        .hero-banner {
+          padding: 16px;
+          margin-bottom: 18px;
+          border-radius: 16px;
+        }
+
+        .hero-banner h2 {
+          font-size: 17px;
+        }
+
+        .legend-pills {
+          gap: 6px;
+        }
+
+        .card {
+          border-radius: 16px;
+        }
+
+        .card-head {
+          padding: 11px 14px;
+        }
+
+        .card-title {
+          font-size: 15px;
+        }
+
+        .card-body {
+          padding: 14px;
+          font-size: 13.5px;
+        }
+
+        .t {
+          font-size: 22px;
+          letter-spacing: -0.5px;
+        }
+
+        .t-md {
+          font-size: 19px;
+          letter-spacing: -0.5px;
+        }
+
+        th,
+        td {
+          padding: 8px 10px;
+          font-size: 13px;
+        }
+
+        th {
+          font-size: 10px;
+        }
+
+        .suit-item {
+          padding: 8px 10px;
+        }
+
+        .suit-label {
+          font-size: 12.5px;
+        }
+
+        .sub-note {
+          font-size: 11px;
+        }
+
+        .callout {
+          margin-top: 10px;
+          padding: 10px 12px;
+          font-size: 12.5px;
+        }
+
+        .han-badge {
+          font-size: 11.5px;
+          padding: 2px 6px;
+        }
+      }
+
+      /* Very narrow phones: shrink the long tile rows a touch */
+      @media (max-width: 380px) {
+        .t {
+          font-size: 19px;
+        }
+
+        .t-md {
+          font-size: 17px;
+        }
+
+        th,
+        td {
+          padding: 7px 8px;
+          font-size: 12px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        .jump-link,
+        .btn {
+          transition: none;
+        }
+      }
+
       /* =========================================================
          PRINT OVERRIDES: Fits everything cleanly onto 1 A4 Landscape
          ========================================================= */
@@ -587,6 +787,11 @@
 
         .hero-banner p {
           display: none;
+        }
+
+        /* Scroll wrappers must never hide table columns on paper */
+        .table-wrap {
+          overflow: visible !important;
         }
 
         .pill {
@@ -779,7 +984,8 @@
       </header>
 
       <!-- Hero Legend Banner -->
-      <section class="hero-banner">
+      <main style="display: contents">
+        <section class="hero-banner">
         <div>
           <h2>RIICHI MAHJONG QUICK REFERENCE</h2>
           <p>
@@ -990,6 +1196,7 @@
           <div class="card-body" style="padding: 0">
             <div class="yaku-grid">
               <!-- First 13 Yaku -->
+              <div class="table-wrap">
               <table>
                 <thead>
                   <tr>
@@ -1118,8 +1325,10 @@
                   </tr>
                 </tbody>
               </table>
+              </div>
 
               <!-- Second 13 Yaku -->
+              <div class="table-wrap">
               <table>
                 <thead>
                   <tr>
@@ -1277,6 +1486,7 @@
                   </tr>
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         </section>
@@ -1664,8 +1874,56 @@
           </section>
         </div>
       </div>
+      </main>
 
       <footer class="site-footer">Riichi Tracker by Siuspras</footer>
     </div>
+
+    <script>
+      // Highlight the section currently on screen in the jump nav.
+      (function () {
+        const links = Array.from(
+          document.querySelectorAll(".jump-nav .jump-link"),
+        );
+        if (!links.length || !("IntersectionObserver" in window)) return;
+        const byId = new Map(
+          links.map((link) => [
+            link.getAttribute("href").slice(1),
+            link,
+          ]),
+        );
+        const sections = Array.from(byId.keys())
+          .map((id) => document.getElementById(id))
+          .filter(Boolean);
+        const nav = document.querySelector(".jump-nav");
+        let current = sections[0]?.id;
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            const visible = entries
+              .filter((e) => e.isIntersecting)
+              .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+            if (visible.length && byId.has(visible[0].target.id)) {
+              current = visible[0].target.id;
+              links.forEach((link) => {
+                if (link.getAttribute("href").slice(1) === current) {
+                  link.setAttribute("aria-current", "true");
+                } else {
+                  link.removeAttribute("aria-current");
+                }
+              });
+              // Keep the active pill visible inside the scrollable rail.
+              const active = byId.get(current);
+              if (nav && nav.scrollWidth > nav.clientWidth) {
+                const target = active.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2;
+                nav.scrollTo({ left: Math.max(0, target), behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+              }
+            }
+          },
+          { rootMargin: "-20% 0px -70% 0px", threshold: 0 },
+        );
+        sections.forEach((s) => observer.observe(s));
+      })();
+    </script>
   </body>
 </html>

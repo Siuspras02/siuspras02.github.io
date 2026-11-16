@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0d3b2e" />
+    <meta
+      name="description"
+      content="A live riichi mahjong score tracker with real-time sync, riichi sticks, and round history."
+    />
+    <title>Riichi Tracker — Scorekeeper</title>
+    <link rel="canonical" href="/Mahjong.html" />
+    <!-- Instant redirect to the scorekeeper app -->
+    <meta http-equiv="refresh" content="0; url=Mahjong.html" />
+    <style>
+      :root {
+        --ink: #14231e;
+        --ink-mute: #5d6e65;
+        --ivory: #f4f2ec;
+        --jade-700: #185c45;
+        color-scheme: light;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        background: var(--ivory);
+        font-family:
+          "Fraunces", Georgia, "Segoe UI", system-ui, sans-serif;
+        color: var(--ink);
+      }
+      .splash {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px 26px;
+        border-radius: 18px;
+        background: #fffdfa;
+        border: 1px solid rgba(20, 35, 30, 0.1);
+        box-shadow: 0 10px 24px -14px rgba(20, 35, 30, 0.16);
+      }
+      .tile {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 56px;
+        border-radius: 10px;
+        background: linear-gradient(160deg, #fdf3cf, #f0d98a);
+        border: 1px solid rgba(20, 35, 30, 0.16);
+        font-size: 28px;
+        font-weight: 700;
+        color: #0e3328;
+      }
+      .splash p {
+        font-size: 15px;
+        color: var(--ink-mute);
+      }
+      .splash a {
+        color: var(--jade-700);
+        font-weight: 700;
+        text-decoration: none;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .tile {
+          animation: tap 1.1s ease-in-out infinite;
+        }
+        @keyframes tap {
+          0%,
+          100% {
+            transform: rotate(0deg);
+          }
+          50% {
+            transform: rotate(-8deg);
+          }
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="splash">
+      <div class="tile" aria-hidden="true">中</div>
+      <p>Opening the scorekeeper… <a href="Mahjong.html">Continue</a></p>
+    </main>
+  </body>
+</html>

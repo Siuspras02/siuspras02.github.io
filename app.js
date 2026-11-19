@@ -171,6 +171,18 @@ let pendingMeldType = null;
 let pendingMeldTiles = [];
 let lastCalcResult = null;
 
+/* ------------------------------------------------------------------ *
+ * Calculator shared-tile-palette state
+ * ------------------------------------------------------------------ */
+// Which section the shared palette currently feeds: 'dora' | 'meld' | 'hand' | null
+let calcActiveTarget = null;
+// Currently displayed suit in the palette: 'm' | 'p' | 's' | 'z'
+let calcPaletteSuit = 'm';
+// Inline meld being built: { type, tiles: [] }
+let buildingMeld = null;
+// Max copies of a single tile allowed across hand + melds + dora indicators.
+const MAX_TILE_COPIES = 4;
+
 const DOM = {
   lobby: document.getElementById("lobby-section"),
   setup: document.getElementById("setup-section"),
@@ -1771,27 +1783,25 @@ function applyCalcModeUI({ recalc = true } = {}) {
 
   // North is not a seat/round wind in Sanma.
   const allowedWinds = sanma ? ["1z", "2z", "3z"] : ["1z", "2z", "3z", "4z"];
-  const windLabels = {
-    "1z": "East (東)",
-    "2z": "South (南)",
-    "3z": "West (西)",
-    "4z": "North (北)",
-  };
-  for (const selectId of ["calc-seatwind", "calc-roundwind"]) {
-    const select = document.getElementById(selectId);
-    if (!select) continue;
-    const keep = select.value;
-    select.innerHTML = allowedWinds
-      .map((w) => `<option value="${w}">${windLabels[w]}</option>`)
-      .join("");
-    // Drop an illegal 4z selection when switching to Sanma.
-    select.value = allowedWinds.includes(keep) ? keep : "1z";
+  for (const group of ["seat", "table"]) {
+    document
+      .querySelectorAll(`.calc-seg[data-wind-group="${group}"]`)
+      .forEach((btn) => {
+        const allowed = allowedWinds.includes(btn.dataset.wind);
+        btn.disabled = !allowed;
+        btn.classList.toggle("hidden", !allowed);
+      });
+    const inputId = group === "seat" ? "calc-seatwind" : "calc-roundwind";
+    const input = document.getElementById(inputId);
+    if (input && !allowedWinds.includes(input.value)) input.value = "1z";
+    updateWindSegments(group);
   }
 
-  // Pickers show the correct tile set for the active mode.
+  // The palette shows the correct tile set for the active mode.
   initTilePicker();
-  renderMeldPicker();
-  renderDoraPickerBoard();
+  renderMelds();
+  renderHandTiles();
+  renderDoraTiles();
 
   if (sanma) {
     // Any chi already selected in 4P mode becomes invalid — drop them.
@@ -1800,9 +1810,15 @@ function applyCalcModeUI({ recalc = true } = {}) {
       if (legal.length !== currentMelds.length) {
         currentMelds = legal;
         renderMelds();
+        renderHandTiles();
       }
     }
+    if (buildingMeld && buildingMeld.type === "chii") {
+      buildingMeld = null;
+      renderMeldBuilder();
+    }
   }
+  updateFlagAvailability();
   if (recalc) runCalculation();
 }
 
@@ -1827,6 +1843,7 @@ window.adjustHonba = (delta) => {
   if (!input) return;
   const next = Math.max(0, Math.min(30, (parseInt(input.value, 10) || 0) + delta));
   input.value = String(next);
+  updateHonbaLabel();
   runCalculation();
 };
 
@@ -1840,6 +1857,9 @@ window.openCalculatorModal = () => {
   renderHandTiles();
   renderMelds();
   renderDoraTiles();
+  updateHonbaLabel();
+  updateFlagAvailability();
+  setActiveTarget(buildingMeld ? "meld" : "hand");
   runCalculation();
 };
 
@@ -1869,6 +1889,7 @@ window.runCalculation = () => {
 
     if (rawHand.length < expectedHandSize) {
       out.classList.add("hidden");
+      setLiveResultPending(rawHand.length, expectedHandSize);
       return;
     }
 
@@ -2002,6 +2023,13 @@ window.runCalculation = () => {
         : result.points || 0;
     const totalPointsFormatted = totalPoints.toLocaleString();
 
+    updateLiveResult({
+      tier: result.tier || "Hand score",
+      hanfu: `${result.han} han · ${result.fu} fu`,
+      points: `${totalPointsFormatted} pts`,
+      payments: paymentDetail,
+    });
+
     // Auto-detect winner based on Seat Wind matching active room seats
     const dealerIdx =
       localRoomState && localRoomState.dealerIndex !== undefined
@@ -2076,6 +2104,7 @@ window.runCalculation = () => {
     `;
   } catch (err) {
     console.error("Score Calc Error:", err);
+    setLiveResultError(err.message || "Check the hand and melds.");
     out.classList.remove("hidden");
     out.innerHTML = `
       <p class="text-xs font-semibold text-red-700">⚠ ${escapeHtml(err.message)}</p>
@@ -2084,224 +2113,567 @@ window.runCalculation = () => {
   }
 };
 
-function initTilePicker() {
-  const suits = calcTileSets();
+/* ------------------------------------------------------------------ *
+ * Shared tile palette + compact input flow
+ * ------------------------------------------------------------------ */
+const CALC_MELD_LABELS = {
+  chii: "Chi",
+  pon: "Pon",
+  kan: "Open Kan",
+  closed_kan: "Ankan",
+};
+const CALC_MELD_SIZES = { chii: 3, pon: 3, kan: 4, closed_kan: 4 };
+const CALC_MAX_INDICATORS = 5;
 
-  for (const [suit, codes] of Object.entries(suits)) {
-    const container = document.getElementById(`picker-${suit}`);
-    if (!container) continue;
-    container.innerHTML = "";
-    codes.forEach((code) => {
-      const face = TILE_FACES[code] || {
-        sym: code,
-        color: "text-slate-800",
-      };
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "picker-tile";
-      btn.innerHTML = `
-              <span class="text-base leading-tight ${face.color}">${face.sym}</span>
-              <span class="text-[9px] font-bold text-slate-500 leading-none mt-0.5">${code}</span>
-            `;
-      btn.onclick = () => addTileToHand(code);
-      container.appendChild(btn);
-    });
+/** Red fives count as the normal five for the four-copy limit. */
+function calcRankKey(code) {
+  return code && code.startsWith("0") ? `5${code.slice(1)}` : code;
+}
+
+function getCalcTiles(id) {
+  const el = document.getElementById(id);
+  return el && el.value ? el.value.split(",").map((s) => s.trim()).filter(Boolean) : [];
+}
+
+function setCalcTiles(id, tiles) {
+  const el = document.getElementById(id);
+  if (el) el.value = tiles.join(",");
+}
+
+function calcTileCopies() {
+  const counts = new Map();
+  const add = (code) => {
+    const key = calcRankKey(code);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  };
+  getCalcTiles("calc-hand").forEach(add);
+  getCalcTiles("calc-dora").forEach(add);
+  (currentMelds || []).forEach((m) => m.tiles.forEach(add));
+  if (buildingMeld) buildingMeld.tiles.forEach(add);
+  return counts;
+}
+
+function calcCopiesOf(code) {
+  return calcTileCopies().get(calcRankKey(code)) || 0;
+}
+
+function calcAkaCopies(code) {
+  if (!code.startsWith("0")) return 0;
+  let count = 0;
+  const add = (tile) => {
+    if (tile === code) count += 1;
+  };
+  getCalcTiles("calc-hand").forEach(add);
+  getCalcTiles("calc-dora").forEach(add);
+  (currentMelds || []).forEach((m) => m.tiles.forEach(add));
+  if (buildingMeld) buildingMeld.tiles.forEach(add);
+  return count;
+}
+
+function findTileConflict() {
+  for (const [code, count] of calcTileCopies()) {
+    if (count > 4) return { code, count };
   }
+  return null;
 }
 
-function addTileToHand(code) {
-  const hiddenInput = document.getElementById("calc-hand");
-  let tiles = hiddenInput.value
-    ? hiddenInput.value.split(",").filter(Boolean)
-    : [];
-  if (tiles.length >= 14) return;
-
-  tiles.push(code);
-  hiddenInput.value = tiles.join(",");
-  renderHandTiles();
-  runCalculation();
-}
-
-window.clearCalcHand = () => {
-  document.getElementById("calc-hand").value = "";
-  currentMelds = [];
-  renderMelds();
-  renderHandTiles();
-  renderDoraTiles();
-  runCalculation();
-};
-
-window.addMeldPrompt = (type) => {
-  pendingMeldType = type === "chi" || type === "chii" ? "chii" : type;
-  pendingMeldTiles = [];
-
-  const modal = document.getElementById("meld-builder-modal");
-  const title = document.getElementById("meld-modal-title");
-  const requiredCount =
-    pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
-  title.textContent = `Select ${requiredCount} tiles for ${pendingMeldType.toUpperCase()}`;
-
-  renderMeldPicker();
-  updateMeldPreview();
-  modal.classList.remove("hidden");
-};
-
-window.closeMeldBuilder = () => {
-  document.getElementById("meld-builder-modal").classList.add("hidden");
-};
-
-window.clearMeldSelection = () => {
-  pendingMeldTiles = [];
-  updateMeldPreview();
-};
-
-function updateMeldPreview() {
-  const container = document.getElementById("meld-selected-tiles");
-  if (!container) return;
-
-  container.innerHTML = pendingMeldTiles.length
-    ? pendingMeldTiles
-        .map(
-          (code) => `
-                  <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border border-jade-300 rounded-md shadow-xs">
-                    <span class="text-[3rem] leading-none font-serif font-bold text-jade-800">${(TILE_FACES[code] && escapeHtml(TILE_FACES[code].sym)) || escapeHtml(code)}</span>
-                    <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${escapeHtml(code)}</span>
-                  </div>`,
-        )
-        .join("")
-    : `<span class="text-ink-mute italic font-normal text-xs">Click tiles below...</span>`;
-}
-
-function renderMeldPicker() {
-  const suits = calcTileSets();
-
-  for (const [suit, codes] of Object.entries(suits)) {
-    const container = document.getElementById(`meld-picker-${suit}`);
-    if (!container) continue;
-    container.innerHTML = "";
-    codes.forEach((code) => {
-      const face = TILE_FACES[code] || {
-        sym: code,
-        color: "text-slate-800",
-      };
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "picker-tile";
-      btn.innerHTML = `
-              <span class="text-[3rem] leading-none ${face.color}">${face.sym}</span>
-              <span class="text-[9px] font-bold text-slate-500 leading-none mt-0.5">${code}</span>
-            `;
-      btn.onclick = () => selectTileForMeld(code);
-      container.appendChild(btn);
-    });
+function canAddCopies(code, count) {
+  const available = 4 - calcCopiesOf(code);
+  if (available < count) {
+    return {
+      ok: false,
+      reason: `Only four ${calcRankKey(code)} tiles exist (${calcCopiesOf(code)} already used).`,
+    };
   }
+  if (code.startsWith("0") && calcAkaCopies(code) >= 1) {
+    return { ok: false, reason: `${code} (red five) is already used.` };
+  }
+  return { ok: true };
 }
 
-function selectTileForMeld(code) {
-  const maxCount =
-    pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
-  if (
-    pendingMeldType === "pon" ||
-    pendingMeldType === "kan" ||
-    pendingMeldType === "closed_kan"
-  ) {
-    // Only one aka five exists per suit, so the meld can hold at most
-    // one "0X" — prefer normal copies and keep the aka variant only
-    // for the tile that was actually picked (aka shown last).
-    const normal = code.startsWith("0") ? "5" + code.slice(1) : code;
-    pendingMeldTiles = Array.from({ length: maxCount }, (_, i) =>
-      i === maxCount - 1 ? code : normal,
-    );
-  } else if (pendingMeldType === "chii") {
-    // A run can't repeat a rank, and an aka five ("0X") is the same
-    // rank as its normal five ("5X") — ignore re-selection instead of
-    // building an impossible meld with two "same-number" copies.
-    const rankOf = (c) => (c.startsWith("0") ? "5" + c.slice(1) : c);
-    const rank = rankOf(code);
-    if (
-      pendingMeldTiles.length < 3 &&
-      !pendingMeldTiles.some((t) => rankOf(t) === rank)
-    ) {
-      pendingMeldTiles.push(code);
+function handTargetSize() {
+  return Math.max(1, 14 - 3 * (currentMelds || []).length);
+}
+
+function updateHonbaLabel() {
+  const input = document.getElementById("calc-honba-value");
+  const label = document.getElementById("calc-honba-label");
+  if (!input || !label) return;
+  const value = Math.max(0, Math.min(30, parseInt(input.value, 10) || 0));
+  label.textContent =
+    value === 0
+      ? "No repeat sticks"
+      : `${value} repeat stick${value === 1 ? "" : "s"}`;
+}
+
+function clearCalcWarning() {
+  const el = document.getElementById("calc-live-warning");
+  if (!el) return;
+  el.classList.add("hidden");
+  el.textContent = "";
+  el.dataset.kind = "";
+}
+
+function showCalcWarning(message) {
+  const el = document.getElementById("calc-live-warning");
+  if (!el) return;
+  el.textContent = message;
+  el.dataset.kind = "info";
+  el.classList.remove("hidden");
+  clearTimeout(showCalcWarning._timer);
+  showCalcWarning._timer = setTimeout(() => {
+    if (el.dataset.kind === "info") clearCalcWarning();
+  }, 4200);
+}
+
+function refreshTileWarning() {
+  const el = document.getElementById("calc-live-warning");
+  if (!el) return false;
+  const conflict = findTileConflict();
+  if (conflict) {
+    el.textContent = `${conflict.code} appears ${conflict.count} times — max 4 per tile.`;
+    el.dataset.kind = "conflict";
+    el.classList.remove("hidden");
+    return true;
+  }
+  if (el.dataset.kind === "conflict") clearCalcWarning();
+  return false;
+}
+
+function updateLiveResult({ tier, hanfu, points, payments }) {
+  const tierEl = document.getElementById("calc-live-tier");
+  const hanfuEl = document.getElementById("calc-live-hanfu");
+  const pointsEl = document.getElementById("calc-live-points");
+  const paymentsEl = document.getElementById("calc-live-payments");
+  if (tierEl) tierEl.textContent = tier;
+  if (hanfuEl) hanfuEl.textContent = hanfu;
+  if (pointsEl) pointsEl.textContent = points;
+  if (paymentsEl) paymentsEl.innerHTML = payments;
+  refreshTileWarning();
+}
+
+function setLiveResultPending(have, need) {
+  const conflict = findTileConflict();
+  updateLiveResult({
+    tier: "Waiting for hand",
+    hanfu: `${have} / ${need} tiles`,
+    points: "—",
+    payments: conflict
+      ? "Remove the extra copy to continue."
+      : "Tap a section, then use the palette.",
+  });
+}
+
+function setLiveResultError(message) {
+  updateLiveResult({
+    tier: "Check input",
+    hanfu: "—",
+    points: "—",
+    payments: escapeHtml(message),
+  });
+}
+
+/* ---------------------------- Palette ---------------------------- */
+
+function updatePaletteTargetLabel() {
+  const label = document.getElementById("calc-palette-target");
+  if (!label) return;
+  if (calcActiveTarget === "hand") {
+    label.textContent = "Adding to: Hand tiles";
+  } else if (calcActiveTarget === "dora") {
+    label.textContent = "Adding to: Dora indicators";
+  } else if (calcActiveTarget === "meld") {
+    if (buildingMeld) {
+      const size = CALC_MELD_SIZES[buildingMeld.type];
+      label.textContent = `Adding to: ${CALC_MELD_LABELS[buildingMeld.type]} · ${buildingMeld.tiles.length}/${size}`;
+    } else {
+      label.textContent = "Melds: choose a type";
     }
+  } else {
+    label.textContent = "Tap a section to begin";
   }
-  updateMeldPreview();
 }
 
-window.confirmMeldSelection = () => {
-  const requiredCount =
-    pendingMeldType === "chii" || pendingMeldType === "pon" ? 3 : 4;
-  if (pendingMeldTiles.length !== requiredCount) {
-    alert(`Please select exactly ${requiredCount} tiles for this meld.`);
+function updatePaletteHint() {
+  const hint = document.getElementById("calc-palette-hint");
+  if (!hint) return;
+  if (calcActiveTarget === "dora") {
+    hint.textContent = "Tap a tile to add one dora indicator (max 5).";
+  } else if (calcActiveTarget === "hand") {
+    hint.textContent = "Last tile added is the win tile.";
+  } else if (calcActiveTarget === "meld") {
+    if (!buildingMeld) {
+      hint.textContent = "Choose Chi / Pon / Open Kan / Ankan first.";
+    } else if (buildingMeld.type === "chii") {
+      hint.textContent = "Tap three consecutive tiles.";
+    } else {
+      hint.textContent = "Tap one tile — copies are added automatically.";
+    }
+  } else {
+    hint.textContent = "Tap Dora, Melds, or Hand to choose where tiles go.";
+  }
+}
+
+function paletteTargetIsFull() {
+  if (calcActiveTarget === "dora") {
+    return getCalcTiles("calc-dora").length >= CALC_MAX_INDICATORS;
+  }
+  if (calcActiveTarget === "hand") {
+    return getCalcTiles("calc-hand").length >= handTargetSize();
+  }
+  if (calcActiveTarget === "meld" && buildingMeld) {
+    return buildingMeld.tiles.length >= CALC_MELD_SIZES[buildingMeld.type];
+  }
+  return false;
+}
+
+function renderPalette() {
+  const grid = document.getElementById("calc-palette-grid");
+  if (!grid) return;
+
+  const suits = calcTileSets();
+  const codes = suits[calcPaletteSuit] || suits.m;
+  const targetBlocked = paletteTargetIsFull();
+
+  grid.classList.toggle("honors", calcPaletteSuit === "z");
+  grid.innerHTML = codes
+    .map((code) => {
+      const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+      const atMax =
+        calcCopiesOf(code) >= 4 ||
+        (code.startsWith("0") && calcAkaCopies(code) >= 1);
+      const blocked = targetBlocked || atMax;
+      const reason = atMax
+        ? `${calcRankKey(code)} already has four copies`
+        : targetBlocked
+          ? "This target is full"
+          : "";
+      return `<button
+        type="button"
+        class="calc-palette-tile${blocked ? " is-max" : ""}"
+        onclick="addCalcTile('${code}')"
+        aria-label="Add ${code} to ${calcActiveTarget || "hand"}"
+        aria-disabled="${blocked ? "true" : "false"}"
+        title="${escapeHtml(reason)}"
+      >
+        <span class="sym ${face.color}">${escapeHtml(face.sym)}</span>
+        <span class="code">${escapeHtml(code)}</span>
+      </button>`;
+    })
+    .join("");
+
+  document.querySelectorAll(".calc-suit-btn").forEach((btn) => {
+    const active = btn.dataset.suit === calcPaletteSuit;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-selected", active ? "true" : "false");
+  });
+
+  updatePaletteTargetLabel();
+  updatePaletteHint();
+}
+
+window.switchSuit = (suit) => {
+  if (!["m", "p", "s", "z"].includes(suit)) return;
+  calcPaletteSuit = suit;
+  renderPalette();
+};
+
+window.setActiveTarget = (target) => {
+  if (!["dora", "meld", "hand"].includes(target)) return;
+  calcActiveTarget = target;
+  document.querySelectorAll(".calc-section[data-target]").forEach((section) => {
+    const active = section.dataset.target === target;
+    section.classList.toggle("is-active", active);
+    if (active) section.setAttribute("aria-current", "true");
+    else section.removeAttribute("aria-current");
+  });
+  renderPalette();
+};
+
+window.clearActiveTarget = () => {
+  if (calcActiveTarget === "dora") clearDoraIndicators();
+  else if (calcActiveTarget === "meld") {
+    if (buildingMeld) clearMeldBuildTiles();
+    else clearAllMelds();
+  } else clearCalcHand();
+};
+
+window.addCalcTile = (code) => {
+  if (calcActiveTarget === "dora") {
+    addDoraTile(code);
+  } else if (calcActiveTarget === "meld") {
+    selectMeldTile(code);
+  } else {
+    if (!calcActiveTarget) setActiveTarget("hand");
+    addHandTile(code);
+  }
+};
+
+function addHandTile(code) {
+  const tiles = getCalcTiles("calc-hand");
+  const target = handTargetSize();
+  if (tiles.length >= target) {
+    showCalcWarning(`Hand is full (${target} tiles). Remove a tile first.`);
     return;
   }
-  if (pendingMeldType === "chii") {
-    // Defensive check: the run must be one suit, consecutive ranks —
-    // with an aka five ("0X") counting as its normal five ("5X").
-    const norm = (c) => (c.startsWith("0") ? "5" + c.slice(1) : c);
-    const suits = new Set(pendingMeldTiles.map((c) => norm(c).slice(-1)));
-    const digits = pendingMeldTiles
-      .map((c) => parseInt(c.startsWith("0") ? "5" + c.slice(1) : c, 10))
+  const check = canAddCopies(code, 1);
+  if (!check.ok) {
+    showCalcWarning(check.reason);
+    return;
+  }
+  tiles.push(code);
+  setCalcTiles("calc-hand", tiles);
+  renderHandTiles();
+  renderPalette();
+  runCalculation();
+}
+
+function addDoraTile(code) {
+  const doras = getCalcTiles("calc-dora");
+  if (doras.length >= CALC_MAX_INDICATORS) {
+    showCalcWarning(`Up to ${CALC_MAX_INDICATORS} dora indicators.`);
+    return;
+  }
+  const check = canAddCopies(code, 1);
+  if (!check.ok) {
+    showCalcWarning(check.reason);
+    return;
+  }
+  doras.push(code);
+  setCalcTiles("calc-dora", doras);
+  renderDoraTiles();
+  renderPalette();
+  runCalculation();
+}
+
+/* ----------------------------- Melds ----------------------------- */
+
+function tileFaceSpan(code) {
+  const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+  return `<span class="calc-meld-tile ${face.color}">${escapeHtml(face.sym)}</span>`;
+}
+
+function renderMeldBuilder() {
+  const box = document.getElementById("calc-meld-builder");
+  if (!box) return;
+
+  document.querySelectorAll(".calc-meld-btn").forEach((btn) => {
+    btn.classList.toggle(
+      "is-active",
+      Boolean(buildingMeld && btn.dataset.meldType === buildingMeld.type),
+    );
+  });
+
+  if (!buildingMeld) {
+    box.classList.add("hidden");
+    return;
+  }
+
+  const size = CALC_MELD_SIZES[buildingMeld.type];
+  const label = document.getElementById("calc-meld-builder-label");
+  const preview = document.getElementById("calc-meld-preview");
+  const confirm = document.getElementById("calc-meld-confirm");
+  const hint = document.getElementById("calc-meld-hint");
+
+  box.classList.remove("hidden");
+  if (label) {
+    label.textContent = `${CALC_MELD_LABELS[buildingMeld.type]} · ${buildingMeld.tiles.length}/${size} tiles`;
+  }
+  if (preview) {
+    preview.innerHTML = buildingMeld.tiles.length
+      ? buildingMeld.tiles.map(tileFaceSpan).join("")
+      : `<span class="text-xs italic text-ink-mute">Tap tiles on the palette…</span>`;
+  }
+  if (confirm) {
+    confirm.disabled = buildingMeld.tiles.length !== size;
+    confirm.textContent =
+      buildingMeld.tiles.length === size
+        ? `Add ${CALC_MELD_LABELS[buildingMeld.type]}`
+        : `Add meld`;
+  }
+  if (hint) {
+    hint.textContent =
+      buildingMeld.type === "chii"
+        ? "Pick three consecutive tiles in one suit."
+        : "Tap a tile once to add all copies, then confirm.";
+  }
+}
+
+function renderMelds() {
+  const container = document.getElementById("calc-melds-list");
+  if (!container) return;
+
+  if (!currentMelds || currentMelds.length === 0) {
+    container.innerHTML = `<span class="text-xs italic text-ink-mute">No melds — fully closed hand</span>`;
+  } else {
+    container.innerHTML = currentMelds
+      .map((meld, idx) => {
+        const label = CALC_MELD_LABELS[meld.type] || meld.type;
+        return `<span class="calc-meld-chip">
+          <span class="calc-meld-type">${escapeHtml(label)}</span>
+          <span class="calc-meld-tiles">${meld.tiles.map(tileFaceSpan).join("")}</span>
+          <button type="button" onclick="removeMeld(${idx})" class="calc-meld-remove" aria-label="Remove ${escapeHtml(label)}">✕</button>
+        </span>`;
+      })
+      .join("");
+  }
+  renderMeldBuilder();
+}
+
+window.beginMeld = (type) => {
+  const normalized = type === "chi" ? "chii" : type;
+  if (!CALC_MELD_SIZES[normalized]) return;
+  if (normalized === "chii" && calcPlayersMode === 3) {
+    showCalcWarning("Chi is not available in Sanma.");
+    return;
+  }
+  buildingMeld = { type: normalized, tiles: [] };
+  setActiveTarget("meld");
+  renderMelds();
+  renderMeldBuilder();
+  renderPalette();
+  const hint = document.getElementById("calc-meld-hint");
+  if (hint) {
+    hint.textContent =
+      normalized === "chii"
+        ? "Pick three consecutive tiles in one suit."
+        : "Tap a tile once to add all copies, then confirm.";
+  }
+};
+
+function selectMeldTile(code) {
+  if (!buildingMeld) {
+    showCalcWarning("Choose a meld type first.");
+    return;
+  }
+  const size = CALC_MELD_SIZES[buildingMeld.type];
+
+  if (buildingMeld.type === "chii") {
+    if (buildingMeld.tiles.length >= size) {
+      showCalcWarning("This chi already has three tiles — confirm or clear it.");
+      return;
+    }
+    const suit = code.slice(-1);
+    if (buildingMeld.tiles.some((tile) => tile.slice(-1) !== suit)) {
+      showCalcWarning("A chi must stay in one suit.");
+      return;
+    }
+    if (
+      buildingMeld.tiles.some(
+        (tile) => calcRankKey(tile) === calcRankKey(code),
+      )
+    ) {
+      showCalcWarning("A chi needs three different ranks.");
+      return;
+    }
+    const check = canAddCopies(code, 1);
+    if (!check.ok) {
+      showCalcWarning(check.reason);
+      return;
+    }
+    buildingMeld.tiles.push(code);
+  } else {
+    if (buildingMeld.tiles.length > 0) {
+      showCalcWarning("Clear the current meld selection first.");
+      return;
+    }
+    const check = canAddCopies(code, size);
+    if (!check.ok) {
+      showCalcWarning(check.reason);
+      return;
+    }
+    const normal = code.startsWith("0") ? `5${code.slice(1)}` : code;
+    buildingMeld.tiles = Array.from({ length: size }, (_, i) =>
+      i === size - 1 ? code : normal,
+    );
+  }
+
+  renderMeldBuilder();
+  renderPalette();
+}
+
+window.clearMeldBuildTiles = () => {
+  if (!buildingMeld) return;
+  buildingMeld.tiles = [];
+  renderMeldBuilder();
+  renderPalette();
+};
+
+window.cancelMeldBuild = () => {
+  buildingMeld = null;
+  renderMelds();
+  renderPalette();
+  const hint = document.getElementById("calc-meld-hint");
+  if (hint) hint.textContent = "Choose a type, then tap tiles on the palette.";
+};
+
+window.confirmBuildingMeld = () => {
+  if (!buildingMeld) return;
+  const size = CALC_MELD_SIZES[buildingMeld.type];
+  if (buildingMeld.tiles.length !== size) {
+    showCalcWarning(`Select ${size} tiles for this meld.`);
+    return;
+  }
+
+  if (buildingMeld.type === "chii") {
+    const suits = new Set(buildingMeld.tiles.map((tile) => tile.slice(-1)));
+    const digits = buildingMeld.tiles
+      .map((tile) => parseInt(calcRankKey(tile), 10))
       .sort((a, b) => a - b);
     if (
       suits.size !== 1 ||
       digits[1] !== digits[0] + 1 ||
       digits[2] !== digits[0] + 2
     ) {
-      alert(
-        "That chi is not a valid consecutive run in one suit (an aka five counts as a five).",
-      );
+      showCalcWarning("That chi is not three consecutive tiles in one suit.");
       return;
     }
   }
+
   currentMelds.push({
-    type: pendingMeldType,
-    tiles: [...pendingMeldTiles],
+    type: buildingMeld.type,
+    tiles: [...buildingMeld.tiles],
   });
+  buildingMeld = null;
   renderMelds();
-  closeMeldBuilder();
+  renderHandTiles();
+  setActiveTarget("hand");
+  renderPalette();
   runCalculation();
 };
 
 window.removeMeld = (index) => {
   currentMelds.splice(index, 1);
   renderMelds();
+  renderHandTiles();
+  renderPalette();
   runCalculation();
 };
 
-function renderMelds() {
-  const container = document.getElementById("calc-melds-list");
-  if (!container) return;
+window.clearAllMelds = () => {
+  currentMelds = [];
+  buildingMeld = null;
+  renderMelds();
+  renderHandTiles();
+  renderPalette();
+  runCalculation();
+};
 
-  if (currentMelds.length === 0) {
-    container.innerHTML = `<span class="text-ink-mute italic">No melds added (Fully closed hand)</span>`;
-    return;
-  }
+/* -------------------------- Hand / dora -------------------------- */
 
-  container.innerHTML = currentMelds
-    .map((m, idx) => {
-      const tilesHTML = m.tiles
-        .map((code) => {
-          const face = TILE_FACES[code] || {
-            sym: code,
-            color: "text-slate-800",
-          };
-          return `
-                  <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border border-ink/20 rounded-md shadow-xs">
-                    <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${escapeHtml(face.sym)}</span>
-                    <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${escapeHtml(code)}</span>
-                  </div>`;
-        })
-        .join("");
-
-      return `
-              <span class="inline-flex items-center gap-2 rounded-xl border border-ink/15 bg-slate-100/80 p-2 shadow-sm">
-                <span class="uppercase text-[11px] text-jade-700 font-extrabold tracking-wider">[${escapeHtml(m.type)}]</span>
-                <div class="flex gap-1">${tilesHTML}</div>
-                <button type="button" onclick="removeMeld(${idx})" class="text-red-600 hover:text-red-800 font-bold text-base leading-none p-1">✕</button>
-              </span>`;
-    })
-    .join("");
+function handTileChip(code, index, isWin) {
+  const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+  return `<button
+    type="button"
+    class="calc-tile-chip${isWin ? " is-win" : ""}"
+    onclick="removeHandTile(${index})"
+    aria-label="Remove ${code}"
+    title="Remove ${code}"
+  >
+    <span class="sym ${face.color}">${escapeHtml(face.sym)}</span>
+    <span class="code">${escapeHtml(code)}</span>
+    <span class="x" aria-hidden="true">×</span>
+  </button>`;
 }
 
 function renderHandTiles() {
@@ -2309,187 +2681,247 @@ function renderHandTiles() {
   const displayContainer = document.getElementById("calc-hand-display");
   const winTileHidden = document.getElementById("calc-wintile");
   const winTileDisplay = document.getElementById("calc-wintile-display");
-  if (!displayContainer) return;
+  const countEl = document.getElementById("calc-hand-count");
+  const handSection = document.getElementById("hand-section");
+  const winSection = document.getElementById("wintype-section");
+  const winHint = document.getElementById("calc-wintype-hint");
+  if (!displayContainer || !hiddenInput) return;
 
-  const tiles = hiddenInput.value
-    ? hiddenInput.value.split(",").filter(Boolean)
-    : [];
+  const tiles = getCalcTiles("calc-hand");
+  const expected = handTargetSize();
+  const complete = tiles.length === expected && tiles.length > 0;
+  const lastTile = tiles[tiles.length - 1];
+
+  if (countEl) {
+    countEl.textContent = `${tiles.length} / ${expected} tiles${
+      complete ? " · complete" : ""
+    }`;
+  }
+
+  if (handSection) handSection.classList.toggle("is-complete", complete);
+  if (winSection) winSection.classList.toggle("is-complete", complete);
+  if (winHint) winHint.textContent = complete ? "Ready" : "";
 
   if (tiles.length === 0) {
-    displayContainer.innerHTML = `<span id="calc-hand-placeholder" class="text-xs text-ink-mute italic pl-1">Click tiles below to build hand...</span>`;
+    displayContainer.innerHTML = `<span id="calc-hand-placeholder" class="text-xs italic text-ink-mute">Tap this section, then build your hand on the palette.</span>`;
     if (winTileHidden) winTileHidden.value = "";
-    if (winTileDisplay)
-      winTileDisplay.innerHTML = `<span class="text-xs text-ink-mute italic">Auto</span>`;
+    if (winTileDisplay) {
+      winTileDisplay.innerHTML = `<span class="text-[9px] font-bold uppercase tracking-wider text-ink-mute">Auto</span>`;
+    }
+    renderPalette();
     return;
   }
 
-  const meldCount =
-    typeof currentMelds !== "undefined" ? currentMelds.length : 0;
-  const expectedHandSize = 14 - 3 * meldCount;
-  const lastTile = tiles[tiles.length - 1];
-
-  if (winTileHidden && winTileDisplay && tiles.length === expectedHandSize) {
-    winTileHidden.value = lastTile;
-    const face = TILE_FACES[lastTile] || {
-      sym: lastTile,
-      color: "text-slate-800",
-    };
-    winTileDisplay.innerHTML = `
-            <div class="inline-flex flex-col items-center justify-center w-full h-full bg-amber-50 border border-amber-300 rounded-2xl">
-              <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${escapeHtml(face.sym)}</span>
-              <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${escapeHtml(lastTile)}</span>
-            </div>`;
+  if (winTileHidden && winTileDisplay) {
+    if (complete) {
+      winTileHidden.value = lastTile;
+      const face = TILE_FACES[lastTile] || {
+        sym: lastTile,
+        color: "text-slate-800",
+      };
+      winTileDisplay.innerHTML = `<span class="sym ${face.color}" style="font-family:'Fraunces',serif;font-size:1.35rem;line-height:1">${escapeHtml(face.sym)}</span>`;
+    } else {
+      winTileHidden.value = "";
+      winTileDisplay.innerHTML = `<span class="text-[9px] font-bold uppercase tracking-wider text-ink-mute">Auto</span>`;
+    }
   }
 
   displayContainer.innerHTML = tiles
-    .map((code, idx) => {
-      const face = TILE_FACES[code] || {
-        sym: code,
-        color: "text-slate-800",
-      };
-      const isWinTile =
-        idx === tiles.length - 1 && tiles.length === expectedHandSize;
-      return `
-              <div class="inline-flex flex-col items-center justify-center w-12 h-16 bg-white border ${isWinTile ? "border-amber-400 ring-2 ring-amber-300" : "border-ink/20"} rounded-2xl shadow-xs relative group cursor-pointer" onclick="removeHandTile(${idx})">
-                ${isWinTile ? `<span class="absolute -top-2 -right-1.5 bg-amber-500 text-white text-[8px] font-extrabold px-1 rounded-full uppercase">Win</span>` : ""}
-                <span class="text-[3rem] leading-none font-serif font-bold ${face.color}">${escapeHtml(face.sym)}</span>
-                <span class="text-[9px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${escapeHtml(code)}</span>
-              </div>`;
-    })
+    .map((code, index) =>
+      handTileChip(code, index, complete && index === tiles.length - 1),
+    )
     .join("");
+
+  if (tiles.length > expected) {
+    showCalcWarning(
+      `Hand has ${tiles.length} tiles but only ${expected} fit with ${currentMelds.length} meld(s). Remove extras.`,
+    );
+  }
+  renderPalette();
 }
 
 window.removeHandTile = (index) => {
-  const hiddenInput = document.getElementById("calc-hand");
-  let tiles = hiddenInput.value
-    ? hiddenInput.value.split(",").filter(Boolean)
-    : [];
+  const tiles = getCalcTiles("calc-hand");
   tiles.splice(index, 1);
-  hiddenInput.value = tiles.join(",");
+  setCalcTiles("calc-hand", tiles);
   renderHandTiles();
+  renderPalette();
   runCalculation();
 };
 
-window.openDoraPicker = () => {
-  renderDoraPickerBoard();
-  const modal = document.getElementById("dora-builder-modal");
-  if (modal) {
-    modal.classList.remove("hidden");
-
-    // Auto-focus the first tile button once rendered
-    setTimeout(() => {
-      const firstTileBtn = modal.querySelector(".picker-tile");
-      if (firstTileBtn) {
-        firstTileBtn.focus();
-      } else {
-        modal.focus();
-      }
-    }, 50);
-  }
+window.clearCalcHand = () => {
+  setCalcTiles("calc-hand", []);
+  const win = document.getElementById("calc-wintile");
+  if (win) win.value = "";
+  renderHandTiles();
+  renderPalette();
+  runCalculation();
 };
 
-window.closeDoraPicker = () => {
-  const modal = document.getElementById("dora-builder-modal");
-  if (modal) modal.classList.add("hidden");
-};
-
-function renderDoraPickerBoard() {
-  const suits = calcTileSets();
-
-  for (const [suit, codes] of Object.entries(suits)) {
-    const container = document.getElementById(`dora-picker-${suit}`);
-    if (!container) continue;
-    container.innerHTML = "";
-    codes.forEach((code) => {
-      const face = TILE_FACES[code] || {
-        sym: code,
-        color: "text-slate-800",
-      };
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "picker-tile";
-      btn.innerHTML = `
-              <span class="text-[3rem] leading-none ${face.color}">${face.sym}</span>
-              <span class="text-[9px] font-bold text-slate-500 leading-none mt-0.5">${code}</span>
-            `;
-      btn.onclick = () => window.selectDoraTile(code);
-      container.appendChild(btn);
-    });
-  }
+function doraTileChip(code, index) {
+  const face = TILE_FACES[code] || { sym: code, color: "text-slate-800" };
+  return `<button
+    type="button"
+    class="calc-tile-chip"
+    onclick="removeDoraTile(${index})"
+    aria-label="Remove ${code}"
+    title="Remove ${code}"
+  >
+    <span class="sym ${face.color}">${escapeHtml(face.sym)}</span>
+    <span class="code">${escapeHtml(code)}</span>
+    <span class="x" aria-hidden="true">×</span>
+  </button>`;
 }
-
-window.selectDoraTile = (code) => {
-  const hiddenInput = document.getElementById("calc-dora");
-  let doras = hiddenInput.value
-    ? hiddenInput.value.split(",").filter(Boolean)
-    : [];
-  doras.push(code);
-  hiddenInput.value = doras.join(",");
-  renderDoraTiles();
-  closeDoraPicker();
-  runCalculation();
-};
 
 function renderDoraTiles() {
   const hiddenInput = document.getElementById("calc-dora");
   const displayContainer = document.getElementById("calc-dora-display");
-  if (!displayContainer || !hiddenInput) return;
+  if (!hiddenInput || !displayContainer) return;
 
-  const doras = hiddenInput.value
-    ? hiddenInput.value.split(",").filter(Boolean)
-    : [];
-
+  const doras = getCalcTiles("calc-dora");
   if (doras.length === 0) {
-    displayContainer.innerHTML = `<span class="text-xs text-ink-mute italic pl-1">Click + Add Dora to select indicators...</span>`;
+    displayContainer.innerHTML = `<span class="text-xs italic text-ink-mute">Tap this section, then pick indicators on the palette.</span>`;
     return;
   }
 
   displayContainer.innerHTML = doras
-    .map((code, idx) => {
-      const face = TILE_FACES[code] || {
-        sym: code,
-        color: "text-slate-800",
-      };
-      return `
-              <div class="inline-flex flex-col items-center justify-center w-10 h-14 bg-white border border-ink/20 rounded-xl shadow-xs relative group cursor-pointer" onclick="removeDoraTile(${idx})">
-                <span class="text-[2.5rem] leading-none ${face.color}">${escapeHtml(face.sym)}</span>
-                <span class="text-[8px] font-bold text-slate-500 leading-none -mt-1 mb-0.5">${escapeHtml(code)}</span>
-              </div>`;
-    })
+    .map((code, index) => doraTileChip(code, index))
     .join("");
 }
 
 window.removeDoraTile = (index) => {
-  const hiddenInput = document.getElementById("calc-dora");
-  let doras = hiddenInput.value
-    ? hiddenInput.value.split(",").filter(Boolean)
-    : [];
+  const doras = getCalcTiles("calc-dora");
   doras.splice(index, 1);
-  hiddenInput.value = doras.join(",");
+  setCalcTiles("calc-dora", doras);
   renderDoraTiles();
+  renderPalette();
   runCalculation();
 };
 
 window.clearDoraIndicators = () => {
-  document.getElementById("calc-dora").value = "";
+  setCalcTiles("calc-dora", []);
   renderDoraTiles();
+  renderPalette();
   runCalculation();
 };
+
+/* ------------------------ Controls / flags ----------------------- */
+
+function updateWindSegments(group) {
+  const inputId = group === "seat" ? "calc-seatwind" : "calc-roundwind";
+  const value = document.getElementById(inputId)?.value;
+  document
+    .querySelectorAll(`.calc-seg[data-wind-group="${group}"]`)
+    .forEach((btn) => {
+      const active = btn.dataset.wind === value;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-checked", active ? "true" : "false");
+    });
+}
+
+window.setWind = (el, value) => {
+  const group = el.dataset.windGroup || "seat";
+  const input = document.getElementById(
+    group === "seat" ? "calc-seatwind" : "calc-roundwind",
+  );
+  if (input) input.value = value;
+  updateWindSegments(group);
+  updateFlagAvailability();
+  runCalculation();
+};
+
+window.setRoundWind = (el, value) => window.setWind(el, value);
+
+window.setWinType = (el, value) => {
+  const group = el.closest(".calc-segmented");
+  if (group) {
+    group.querySelectorAll(".calc-seg").forEach((btn) => {
+      const active = btn.dataset.winType === value;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-checked", active ? "true" : "false");
+    });
+  }
+  const input = document.getElementById("calc-wintype");
+  if (input) input.value = value;
+  updateFlagAvailability();
+  runCalculation();
+};
+
+function updateFlagAvailability() {
+  const winType = document.getElementById("calc-wintype")?.value || "ron";
+  const seatWind = document.getElementById("calc-seatwind")?.value || "1z";
+  const riichiOn = Boolean(document.getElementById("calc-riichi")?.checked);
+  const doubleRiichiOn = Boolean(
+    document.getElementById("calc-doubleriichi")?.checked,
+  );
+  const hasRiichi = riichiOn || doubleRiichiOn;
+
+  const rules = {
+    "calc-riichi": { enabled: true },
+    "calc-doubleriichi": { enabled: true },
+    "calc-ippatsu": {
+      enabled: hasRiichi,
+      reason: "Ippatsu needs Riichi or Double Riichi.",
+    },
+    "calc-afterkan": {
+      enabled: winType === "tsumo",
+      reason: "Rinshan only applies on Tsumo.",
+    },
+    "calc-robbingkan": {
+      enabled: winType === "ron",
+      reason: "Chankan only applies on Ron.",
+    },
+    "calc-lasttile": { enabled: true },
+    "calc-tenhou": {
+      enabled: winType === "tsumo" && seatWind === "1z",
+      reason: "Tenhou needs a dealer tsumo on the first draw.",
+    },
+    "calc-chiihou": {
+      enabled: winType === "tsumo" && seatWind !== "1z",
+      reason: "Chiihou needs a non-dealer tsumo on the first draw.",
+    },
+    "calc-nagashi": { enabled: true },
+  };
+
+  for (const [id, rule] of Object.entries(rules)) {
+    const input = document.getElementById(id);
+    if (!input) continue;
+    input.disabled = !rule.enabled;
+    if (!rule.enabled) input.checked = false;
+    const chip = input.closest(".calc-chip");
+    if (chip) {
+      chip.classList.toggle("is-disabled", !rule.enabled);
+      chip.title = rule.enabled ? "" : rule.reason;
+    }
+  }
+}
+
+window.handleFlagChange = () => {
+  const riichi = document.getElementById("calc-riichi");
+  const doubleRiichi = document.getElementById("calc-doubleriichi");
+  if (doubleRiichi?.checked && riichi) riichi.checked = true;
+
+  const tenhou = document.getElementById("calc-tenhou");
+  const chiihou = document.getElementById("calc-chiihou");
+  if (tenhou?.checked && chiihou) chiihou.checked = false;
+  if (chiihou?.checked && tenhou) tenhou.checked = false;
+
+  updateFlagAvailability();
+  runCalculation();
+};
+
+/* --------------------------- Initialisation --------------------------- */
+
+function initTilePicker() {
+  renderPalette();
+}
 
 function initAutoCalculation() {
   const triggers = [
     "calc-wintype",
     "calc-seatwind",
     "calc-roundwind",
-    "calc-riichi",
-    "calc-doubleriichi",
-    "calc-ippatsu",
-    "calc-afterkan",
-    "calc-robbingkan",
-    "calc-lasttile",
-    "calc-tenhou",
-    "calc-chiihou",
-    "calc-nagashi",
+    "calc-honba-value",
     "calc-nukidora-value",
     "calc-tsumo-loss",
     "calc-ron-split",
@@ -2497,22 +2929,15 @@ function initAutoCalculation() {
 
   triggers.forEach((id) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener("change", () => runCalculation());
-      el.addEventListener("click", () => runCalculation());
-    }
-  });
-
-  const doubleRiichiEl = document.getElementById("calc-doubleriichi");
-  if (doubleRiichiEl) {
-    doubleRiichiEl.addEventListener("change", (e) => {
-      if (e.target.checked) {
-        const riichiEl = document.getElementById("calc-riichi");
-        if (riichiEl) riichiEl.checked = true;
-      }
+    if (!el) return;
+    el.addEventListener("change", () => {
+      if (id === "calc-honba-value") updateHonbaLabel();
       runCalculation();
     });
-  }
+    el.addEventListener("input", () => {
+      if (id === "calc-honba-value") updateHonbaLabel();
+    });
+  });
 }
 
 window.applyCalcToNote = () => {

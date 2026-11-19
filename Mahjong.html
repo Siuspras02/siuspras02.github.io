@@ -140,19 +140,20 @@
       class="fixed inset-0 z-[70] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
     >
       <div
-        class="fade-in flex min-h-0 max-h-[90vh] w-full flex-col rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift sm:p-8 custom-scrollbar overflow-y-auto"
+        id="calculator-shell"
+        class="fade-in flex min-h-0 w-full flex-col overflow-hidden rounded-3xl border border-white/70 bg-parchment shadow-lift"
       >
         <div
-          class="calc-head mb-5 flex items-center justify-between border-b border-ink/10 pb-4 sticky top-0 bg-parchment z-20"
+          class="calc-head flex items-center justify-between gap-3 border-b border-ink/10 bg-parchment px-4 py-3"
         >
-          <div class="flex items-center gap-3">
+          <div class="flex min-w-0 items-center gap-2.5">
             <div
-              class="grid h-10 w-10 place-items-center rounded-xl bg-jade-50 text-jade-700"
+              class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-jade-50 text-jade-700"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
+                width="18"
+                height="18"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -165,9 +166,9 @@
                 <line x1="8" y1="11" x2="16" y2="11"></line>
               </svg>
             </div>
-            <div>
+            <div class="min-w-0">
               <p class="label mb-0.5">Engine</p>
-              <h3 class="font-display text-xl font-semibold text-ink">
+              <h3 class="truncate font-display text-lg font-semibold text-ink sm:text-xl">
                 Hand Score Calculator
               </h3>
             </div>
@@ -175,615 +176,453 @@
           <button
             onclick="closeCalculatorModal()"
             aria-label="Close calculator"
-            class="grid h-9 w-9 place-items-center rounded-xl text-ink-mute hover:bg-ink/5 hover:text-ink"
+            class="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-ink-mute hover:bg-ink/5 hover:text-ink"
           >
             ✕
           </button>
         </div>
 
-        <!-- Game Mode Switch: 4 Players / 3 Players (Sanma) -->
-        <div
-          id="calc-mode-switch"
-          class="mb-4 flex items-center justify-between gap-3"
-        >
+        <div id="calc-body" class="calc-body custom-scrollbar">
+          <!-- Game Mode Switch: 4 Players / 3 Players (Sanma) -->
           <div
-            class="flex rounded-full border border-ink/10 bg-white p-1 shadow-xs"
-            role="tablist"
-            aria-label="Calculator game mode"
-          >
-            <button
-              type="button"
-              id="calc-mode-4"
-              role="tab"
-              aria-selected="true"
-              onclick="setCalcMode(4)"
-              class="calc-mode-btn px-4 py-1.5 text-xs font-extrabold rounded-full transition-colors"
-            >
-              4 Players
-            </button>
-            <button
-              type="button"
-              id="calc-mode-3"
-              role="tab"
-              aria-selected="false"
-              onclick="setCalcMode(3)"
-              class="calc-mode-btn px-4 py-1.5 text-xs font-extrabold rounded-full transition-colors"
-            >
-              3 Players (Sanma)
-            </button>
-          </div>
-        </div>
-
-        <!-- Sanma-only Settings (Nukidora, tsumo loss, ron split) -->
-        <div
-          id="calc-sanma-settings"
-          class="hidden mb-4 rounded-2xl border border-amber-200 bg-amber-50/60 p-4 space-y-3"
-        >
-          <div class="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <label class="label mb-1" for="calc-nukidora-value"
-                >Nukidora (declare North à 1 han)</label
-              >
-              <div class="flex items-center gap-2">
-                <button
-                  type="button"
-                  onclick="adjustNukidora(-1)"
-                  aria-label="Remove one nukidora"
-                  class="btn btn-soft h-8 w-8 p-0 text-sm"
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  id="calc-nukidora-value"
-                  value="0"
-                  min="0"
-                  max="4"
-                  class="field w-16 text-center py-1 text-sm font-bold"
-                />
-                <button
-                  type="button"
-                  onclick="adjustNukidora(1)"
-                  aria-label="Add one nukidora"
-                  class="btn btn-soft h-8 w-8 p-0 text-sm"
-                >
-                  ＋
-                </button>
-              </div>
-            </div>
-            <div class="min-w-0">
-              <label class="label mb-1" for="calc-ron-split">
-                Ron payment (double ron)</label
-              >
-              <select
-                id="calc-ron-split"
-                class="field px-3 py-2 text-sm min-w-[14rem]"
-              >
-                <option value="all">Both losers pay (double ron)</option>
-                <option value="headbump">Head bump — closest loser only</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label class="label mb-1" for="calc-tsumo-loss"
-              >Missing 4th seat on tsumo</label
-            >
-            <select id="calc-tsumo-loss" class="field px-3 py-2 text-sm w-full">
-              <option value="skip">
-                Tsumo loss — not paid (Tenhou default)
-              </option>
-              <option value="redistribute">
-                Redistribute — share split between the two payers
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Repeat sticks (honba) — applies to 4-player and Sanma -->
-        <div
-          class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white/60 p-4"
-        >
-          <div class="min-w-0">
-            <label class="label mb-1" for="calc-honba-value"
-              >Repeat sticks (honba)</label
-            >
-            <p class="text-[10px] font-semibold text-ink-mute">
-              +300 on ron · +100 per payer on tsumo
-            </p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button
-              type="button"
-              onclick="adjustHonba(-1)"
-              aria-label="Remove one repeat stick"
-              class="btn btn-soft h-8 w-8 p-0 text-sm"
-            >
-              −
-            </button>
-            <input
-              type="number"
-              id="calc-honba-value"
-              value="0"
-              min="0"
-              max="30"
-              class="field w-16 text-center py-1 text-sm font-bold"
-            />
-            <button
-              type="button"
-              onclick="adjustHonba(1)"
-              aria-label="Add one repeat stick"
-              class="btn btn-soft h-8 w-8 p-0 text-sm"
-            >
-              ＋
-            </button>
-          </div>
-        </div>
-
-        <!-- Meld Builder Modal -->
-        <div
-          id="meld-builder-modal"
-          class="fixed inset-0 z-[80] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
-        >
-          <div
-            class="fade-in flex min-h-0 w-full max-w-lg flex-col max-h-[90vh] overflow-y-auto rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift space-y-4"
+            id="calc-mode-switch"
+            class="mb-3 flex flex-wrap items-center justify-between gap-2"
           >
             <div
-              class="flex items-center justify-between border-b border-ink/10 pb-3"
+              class="flex rounded-full border border-ink/10 bg-white p-1 shadow-xs"
+              role="tablist"
+              aria-label="Calculator game mode"
             >
-              <h3
-                id="meld-modal-title"
-                class="font-display text-lg font-semibold text-ink"
-              >
-                Add Meld
-              </h3>
               <button
                 type="button"
-                onclick="closeMeldBuilder()"
-                class="text-ink-mute hover:text-ink font-bold"
+                id="calc-mode-4"
+                role="tab"
+                aria-selected="true"
+                onclick="setCalcMode(4)"
+                class="calc-mode-btn px-4 py-1.5 text-xs font-extrabold rounded-full transition-colors"
               >
-                ✕
-              </button>
-            </div>
-
-            <!-- Selected Meld Preview -->
-            <div
-              class="rounded-xl border border-ink/10 bg-white p-3 flex items-center justify-between"
-            >
-              <span class="text-xs font-bold text-ink-mute"
-                >Selected Tiles:</span
-              >
-              <div
-                id="meld-selected-tiles"
-                class="flex gap-1.5 font-mono text-sm font-bold text-jade-700"
-              ></div>
-            </div>
-
-            <!-- Interactive Tile Picker Board -->
-            <div
-              class="rounded-2xl border border-ink/10 bg-slate-900 p-4 text-white max-h-[50vh] overflow-y-auto custom-scrollbar"
-            >
-              <p
-                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
-              >
-                Manzu (m)
-              </p>
-              <div
-                id="meld-picker-m"
-                class="flex flex-wrap gap-1.5 mb-2.5"
-              ></div>
-
-              <p
-                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
-              >
-                Pinzu (p)
-              </p>
-              <div
-                id="meld-picker-p"
-                class="flex flex-wrap gap-1.5 mb-2.5"
-              ></div>
-
-              <p
-                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
-              >
-                Souzu (s)
-              </p>
-              <div
-                id="meld-picker-s"
-                class="flex flex-wrap gap-1.5 mb-2.5"
-              ></div>
-
-              <p
-                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
-              >
-                Honors (z)
-              </p>
-              <div id="meld-picker-z" class="flex flex-wrap gap-1.5"></div>
-            </div>
-
-            <div class="flex gap-2">
-              <button
-                type="button"
-                onclick="clearMeldSelection()"
-                class="btn btn-soft flex-1 py-2.5 text-xs"
-              >
-                Clear
+                4 Players
               </button>
               <button
                 type="button"
-                onclick="confirmMeldSelection()"
-                class="btn btn-primary flex-1 py-2.5 text-xs"
+                id="calc-mode-3"
+                role="tab"
+                aria-selected="false"
+                onclick="setCalcMode(3)"
+                class="calc-mode-btn px-4 py-1.5 text-xs font-extrabold rounded-full transition-colors"
               >
-                Confirm Meld
+                3 Players (Sanma)
               </button>
             </div>
+            <span class="hidden text-[10px] font-bold uppercase tracking-wider text-jade-700 sm:inline">
+              Scores update live
+            </span>
           </div>
-        </div>
 
-        <!-- Dora Indicator Picker Modal (Placed right after meld-builder-modal) -->
-        <div
-          id="dora-builder-modal"
-          tabindex="-1"
-          class="fixed inset-0 z-[80] hidden items-center justify-center bg-ink/50 p-4 backdrop-blur-md flex"
-        >
+          <!-- Sanma-only Settings (Nukidora, tsumo loss, ron split) -->
           <div
-            class="fade-in flex min-h-0 w-full max-w-lg flex-col max-h-[90vh] overflow-y-auto rounded-3xl border border-white/70 bg-parchment p-6 shadow-lift space-y-4"
+            id="calc-sanma-settings"
+            class="mb-3 hidden rounded-2xl border border-amber-200 bg-amber-50/60 p-3 space-y-3"
           >
-            <div
-              class="flex items-center justify-between border-b border-ink/10 pb-3"
-            >
-              <h3 class="font-display text-lg font-semibold text-ink">
-                Select Dora Indicator
-              </h3>
-              <button
-                type="button"
-                onclick="closeDoraPicker()"
-                class="text-ink-mute hover:text-ink font-bold"
-              >
-                ✕
-              </button>
-            </div>
-            <div
-              class="rounded-2xl border border-ink/10 bg-slate-900 p-4 text-white max-h-[50vh] overflow-y-auto custom-scrollbar"
-            >
-              <p
-                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
-              >
-                Manzu (m)
-              </p>
-              <div
-                id="dora-picker-m"
-                class="flex flex-wrap gap-1.5 mb-2.5"
-              ></div>
-              <p
-                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
-              >
-                Pinzu (p)
-              </p>
-              <div
-                id="dora-picker-p"
-                class="flex flex-wrap gap-1.5 mb-2.5"
-              ></div>
-              <p
-                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
-              >
-                Souzu (s)
-              </p>
-              <div
-                id="dora-picker-s"
-                class="flex flex-wrap gap-1.5 mb-2.5"
-              ></div>
-              <p
-                class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1"
-              >
-                Honors (z)
-              </p>
-              <div id="dora-picker-z" class="flex flex-wrap gap-1.5"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="space-y-4 pr-1">
-          <div
-            class="calc-panel rounded-2xl border border-ink/10 bg-white p-4 space-y-3"
-          >
-            <div class="flex items-center justify-between">
-              <label class="label mb-0">Open Melds / Calls</label>
-              <div class="flex gap-1.5">
-                <button
-                  type="button"
-                  id="calc-chi-btn"
-                  onclick="addMeldPrompt('chi')"
-                  class="btn btn-soft px-2.5 py-1 text-xs"
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label class="label mb-1" for="calc-nukidora-value"
+                  >Nukidora (North à 1 han)</label
                 >
-                  + Chi
-                </button>
-                <button
-                  type="button"
-                  onclick="addMeldPrompt('pon')"
-                  class="btn btn-soft px-2.5 py-1 text-xs"
-                >
-                  + Pon
-                </button>
-                <button
-                  type="button"
-                  onclick="addMeldPrompt('kan')"
-                  class="btn btn-soft px-2.5 py-1 text-xs"
-                >
-                  + Open Kan
-                </button>
-                <button
-                  type="button"
-                  onclick="addMeldPrompt('closed_kan')"
-                  class="btn btn-soft px-2.5 py-1 text-xs"
-                >
-                  + Ankan (Closed Kan)
-                </button>
-              </div>
-            </div>
-
-            <!-- List of active melds -->
-            <div
-              id="calc-melds-list"
-              class="flex flex-wrap gap-2 text-xs font-mono"
-            >
-              <span class="text-ink-mute italic"
-                >No melds added (Fully closed hand)</span
-              >
-            </div>
-          </div>
-          <div>
-            <label class="label"
-              >Hand Tiles (Click tiles below to build hand)</label
-            >
-            <div class="flex items-center gap-2">
-              <div
-                id="calc-hand-display"
-                class="flex flex-wrap gap-1.5 min-h-[4.5rem] p-2.5 rounded-2xl border border-ink/15 bg-white items-center"
-              >
-                <span
-                  id="calc-hand-placeholder"
-                  class="text-xs text-ink-mute italic pl-1"
-                  >Click tiles below to build hand...</span
-                >
-              </div>
-              <input type="hidden" id="calc-hand" value="" />
-              <button
-                onclick="clearCalcHand()"
-                class="btn btn-soft px-3 py-2 text-xs"
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-
-          <!-- VISUAL TILE PICKER BOARD -->
-          <div
-            class="rounded-2xl border border-ink/10 bg-slate-900 p-4 text-white"
-          >
-            <p
-              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
-            >
-              Manzu (Characters - m)
-            </p>
-            <div id="picker-m" class="flex flex-wrap gap-1.5 mb-2.5"></div>
-
-            <p
-              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
-            >
-              Pinzu (Circles - p)
-            </p>
-            <div id="picker-p" class="flex flex-wrap gap-1.5 mb-2.5"></div>
-
-            <p
-              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
-            >
-              Souzu (Bamboo - s)
-            </p>
-            <div id="picker-s" class="flex flex-wrap gap-1.5 mb-2.5"></div>
-
-            <p
-              class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5"
-            >
-              Honors (Winds &amp; Dragons - z)
-            </p>
-            <div id="picker-z" class="flex flex-wrap gap-1.5"></div>
-          </div>
-
-          <div class="flex-col gap-4">
-            <label class="label">Win Tile</label>
-            <div class="wintile-row flex items-center">
-              <!-- Container Display Tile Visual -->
-              <div
-                id="calc-wintile-display"
-                class="flex items-center justify-center w-12 h-16 bg-white border border-ink/20 rounded-2xl shadow-xs"
-              >
-                <span class="text-xs text-ink-mute italic">Auto</span>
-              </div>
-              <input type="hidden" id="calc-wintile" value="" />
-            </div>
-            <div>
-              <label class="label">Win Type</label>
-              <select id="calc-wintype" class="field px-4 py-2.5 text-sm">
-                <option value="ron">Ron</option>
-                <option value="tsumo">Tsumo</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- SEAT & ROUND WINDS -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="label">Seat Wind</label>
-              <select id="calc-seatwind" class="field px-4 py-2.5 text-sm">
-                <option value="1z">East (東)</option>
-                <option value="2z">South (南)</option>
-                <option value="3z">West (西)</option>
-                <option value="4z">North (北)</option>
-              </select>
-            </div>
-            <div>
-              <label class="label">Table Wind</label>
-              <select id="calc-roundwind" class="field px-4 py-2.5 text-sm">
-                <option value="1z">East (東)</option>
-                <option value="2z">South (南)</option>
-                <option value="3z">West (西)</option>
-                <option value="4z">North (北)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- SPECIAL HAND FLAGS & SITUATIONS -->
-          <div
-            class="calc-panel rounded-2xl border border-ink/10 bg-white p-4 space-y-3"
-          >
-            <div class="flex items-center justify-between">
-              <p
-                class="text-xs font-extrabold uppercase tracking-wider text-ink-mute"
-              >
-                Special Hand Flags &amp; Situations
-              </p>
-
-              <!-- NEW RECALCULATE BUTTON -->
-              <button
-                type="button"
-                onclick="runCalculation()"
-                class="btn btn-primary px-3 py-1.5 text-xs"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onclick="adjustNukidora(-1)"
+                    aria-label="Remove one nukidora"
+                    class="btn btn-soft h-11 w-11 p-0 text-base"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    id="calc-nukidora-value"
+                    value="0"
+                    min="0"
+                    max="4"
+                    class="field h-11 w-16 text-center py-1 text-sm font-bold"
                   />
-                </svg>
-                Recalculate Hand
-              </button>
-            </div>
-
-            <div
-              class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm font-semibold text-ink"
-            >
-              <label class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="calc-riichi"
-                  class="rounded accent-jade-600"
-                />
-                Riichi
-              </label>
-              <label class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="calc-doubleriichi"
-                  class="rounded accent-jade-600"
-                />
-                Double Riichi
-              </label>
-              <label class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="calc-ippatsu"
-                  class="rounded accent-jade-600"
-                />
-                Ippatsu
-              </label>
-              <label class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="calc-afterkan"
-                  class="rounded accent-jade-600"
-                />
-                After Kan (Rinshan)
-              </label>
-              <label class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="calc-robbingkan"
-                  class="rounded accent-jade-600"
-                />
-                Robbing Kan (Chankan)
-              </label>
-              <label class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="calc-lasttile"
-                  class="rounded accent-jade-600"
-                />
-                Under River (Haitei/Houtei)
-              </label>
-              <label class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="calc-tenhou"
-                  class="rounded accent-jade-600"
-                />
-                Blessing of Heaven
-              </label>
-              <label class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="calc-chiihou"
-                  class="rounded accent-jade-600"
-                />
-                Blessing of Earth
-              </label>
-              <label class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="calc-nagashi"
-                  class="rounded accent-jade-600"
-                  title="Optional table rule: ten tiles of every kind in your river at the round's end"
-                />
-                Nagashi Mangan
-              </label>
-            </div>
-          </div>
-
-          <div>
-            <label class="label">Dora Indicators</label>
-            <div class="flex items-center gap-2">
-              <div
-                id="calc-dora-display"
-                class="flex flex-wrap gap-1.5 min-h-[4rem] p-2 rounded-2xl border border-ink/15 bg-white items-center flex-1"
-              >
-                <span class="text-xs text-ink-mute italic pl-1"
-                  >Click + Add Dora to select indicators...</span
-                >
+                  <button
+                    type="button"
+                    onclick="adjustNukidora(1)"
+                    aria-label="Add one nukidora"
+                    class="btn btn-soft h-11 w-11 p-0 text-base"
+                  >
+                    ＋
+                  </button>
+                </div>
               </div>
-              <input type="hidden" id="calc-dora" value="" />
-              <button
-                type="button"
-                onclick="openDoraPicker()"
-                class="btn btn-soft px-3 py-2 text-xs"
+              <div class="min-w-0">
+                <label class="label mb-1" for="calc-ron-split"
+                  >Ron payment (double ron)</label
+                >
+                <select
+                  id="calc-ron-split"
+                  class="field w-full px-3 py-2 text-sm"
+                >
+                  <option value="all">Both losers pay (double ron)</option>
+                  <option value="headbump">Head bump — closest loser only</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="label mb-1" for="calc-tsumo-loss"
+                >Missing 4th seat on tsumo</label
               >
-                + Add Dora
-              </button>
-              <button
-                type="button"
-                onclick="clearDoraIndicators()"
-                class="btn btn-soft px-3 py-2 text-xs"
-              >
-                Clear
-              </button>
+              <select id="calc-tsumo-loss" class="field w-full px-3 py-2 text-sm">
+                <option value="skip">
+                  Tsumo loss — not paid (Tenhou default)
+                </option>
+                <option value="redistribute">
+                  Redistribute — share split between the two payers
+                </option>
+              </select>
             </div>
           </div>
 
-          <div
-            id="calc-output"
-            class="hidden mt-4 rounded-2xl border border-ink/10 bg-white p-4 space-y-2 text-sm"
-          ></div>
+          <div class="calc-layout">
+            <div class="calc-input-col space-y-3">
+              <!-- 1. Repeat sticks (honba) -->
+              <section class="calc-section" aria-labelledby="calc-honba-title">
+                <div class="calc-section-head">
+                  <span id="calc-honba-title" class="calc-section-title"
+                    >1 · Repeat sticks</span
+                  >
+                  <span class="calc-section-meta">+300 ron · +100/payer tsumo</span>
+                </div>
+                <div class="mt-2 flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onclick="adjustHonba(-1)"
+                    aria-label="Remove one repeat stick"
+                    class="calc-step-btn"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    id="calc-honba-value"
+                    value="0"
+                    min="0"
+                    max="30"
+                    class="calc-step-value"
+                    aria-label="Repeat sticks (honba)"
+                  />
+                  <button
+                    type="button"
+                    onclick="adjustHonba(1)"
+                    aria-label="Add one repeat stick"
+                    class="calc-step-btn"
+                  >
+                    ＋
+                  </button>
+                  <span id="calc-honba-label" class="text-xs font-semibold text-ink-mute"
+                    >No repeat sticks</span
+                  >
+                </div>
+              </section>
+
+              <!-- 2 + 3. Seat wind and table wind -->
+              <section class="calc-section" id="winds-section" aria-labelledby="calc-winds-title">
+                <div class="calc-section-head">
+                  <span id="calc-winds-title" class="calc-section-title"
+                    >2–3 · Winds</span
+                  >
+                  <span class="calc-section-meta">Seat · Table</span>
+                </div>
+                <div class="calc-winds-pair mt-2">
+                  <div class="min-w-0">
+                    <span class="calc-mini-label">Seat wind</span>
+                    <div
+                      class="calc-segmented"
+                      role="radiogroup"
+                      aria-label="Seat wind"
+                    >
+                      <button type="button" onclick="setWind(this,'1z')" class="calc-seg active" data-wind-group="seat" data-wind="1z" role="radio" aria-checked="true">東</button>
+                      <button type="button" onclick="setWind(this,'2z')" class="calc-seg" data-wind-group="seat" data-wind="2z" role="radio" aria-checked="false">南</button>
+                      <button type="button" onclick="setWind(this,'3z')" class="calc-seg" data-wind-group="seat" data-wind="3z" role="radio" aria-checked="false">西</button>
+                      <button type="button" onclick="setWind(this,'4z')" class="calc-seg" data-wind-group="seat" data-wind="4z" role="radio" aria-checked="false">北</button>
+                    </div>
+                    <input type="hidden" id="calc-seatwind" value="1z" />
+                  </div>
+                  <div class="min-w-0">
+                    <span class="calc-mini-label">Table wind</span>
+                    <div
+                      class="calc-segmented"
+                      role="radiogroup"
+                      aria-label="Table wind"
+                    >
+                      <button type="button" onclick="setRoundWind(this,'1z')" class="calc-seg active" data-wind-group="table" data-wind="1z" role="radio" aria-checked="true">東</button>
+                      <button type="button" onclick="setRoundWind(this,'2z')" class="calc-seg" data-wind-group="table" data-wind="2z" role="radio" aria-checked="false">南</button>
+                      <button type="button" onclick="setRoundWind(this,'3z')" class="calc-seg" data-wind-group="table" data-wind="3z" role="radio" aria-checked="false">西</button>
+                      <button type="button" onclick="setRoundWind(this,'4z')" class="calc-seg" data-wind-group="table" data-wind="4z" role="radio" aria-checked="false">北</button>
+                    </div>
+                    <input type="hidden" id="calc-roundwind" value="1z" />
+                  </div>
+                </div>
+              </section>
+
+              <!-- 4. Dora indicators -->
+              <section
+                id="dora-section"
+                class="calc-section"
+                data-target="dora"
+                aria-labelledby="calc-dora-title"
+              >
+                <div class="calc-section-head" onclick="setActiveTarget('dora')">
+                  <span id="calc-dora-title" class="calc-section-title">
+                    4 · Dora indicators
+                    <span class="calc-target-badge">Adding</span>
+                  </span>
+                  <button
+                    type="button"
+                    onclick="event.stopPropagation(); clearDoraIndicators()"
+                    class="calc-clear-btn"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div id="calc-dora-display" class="calc-tiles-row mt-2">
+                  <span class="text-xs italic text-ink-mute"
+                    >Tap this section, then pick indicators on the palette.</span
+                  >
+                </div>
+                <input type="hidden" id="calc-dora" value="" />
+              </section>
+
+              <!-- 5. Melds (inline step) -->
+              <section
+                id="melds-section"
+                class="calc-section"
+                data-target="meld"
+                aria-labelledby="calc-melds-title"
+              >
+                <div class="calc-section-head" onclick="setActiveTarget('meld')">
+                  <span id="calc-melds-title" class="calc-section-title">
+                    5 · Melds
+                    <span class="calc-target-badge">Adding</span>
+                  </span>
+                  <button
+                    type="button"
+                    onclick="event.stopPropagation(); clearAllMelds()"
+                    class="calc-clear-btn"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div id="calc-melds-list" class="calc-melds-list mt-2">
+                  <span class="text-xs italic text-ink-mute"
+                    >No melds — fully closed hand</span
+                  >
+                </div>
+                <div id="calc-meld-builder" class="calc-meld-builder hidden">
+                  <div class="flex items-center justify-between gap-2">
+                    <span id="calc-meld-builder-label" class="calc-mini-label"
+                      >Building meld</span
+                    >
+                    <button
+                      type="button"
+                      onclick="clearMeldBuildTiles()"
+                      class="calc-clear-btn"
+                    >
+                      Clear tiles
+                    </button>
+                  </div>
+                  <div id="calc-meld-preview" class="calc-tiles-row mt-1.5"></div>
+                  <div class="mt-2 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onclick="cancelMeldBuild()"
+                      class="btn btn-soft min-h-[44px] text-xs"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      id="calc-meld-confirm"
+                      onclick="confirmBuildingMeld()"
+                      class="btn btn-primary min-h-[44px] text-xs"
+                    >
+                      Add meld
+                    </button>
+                  </div>
+                </div>
+                <div id="calc-meld-hint" class="calc-hint mt-1.5"></div>
+                <div class="calc-meld-types mt-2">
+                  <button type="button" id="calc-chi-btn" data-meld-type="chii" onclick="beginMeld('chii')" class="calc-meld-btn">Chi</button>
+                  <button type="button" data-meld-type="pon" onclick="beginMeld('pon')" class="calc-meld-btn">Pon</button>
+                  <button type="button" data-meld-type="kan" onclick="beginMeld('kan')" class="calc-meld-btn">Open Kan</button>
+                  <button type="button" data-meld-type="closed_kan" onclick="beginMeld('closed_kan')" class="calc-meld-btn">Ankan</button>
+                </div>
+              </section>
+
+              <!-- 6. Hand tiles (with win tile) -->
+              <section
+                id="hand-section"
+                class="calc-section"
+                data-target="hand"
+                aria-labelledby="calc-hand-title"
+              >
+                <div class="calc-section-head" onclick="setActiveTarget('hand')">
+                  <span id="calc-hand-title" class="calc-section-title">
+                    6 · Hand tiles
+                    <span class="calc-target-badge">Adding</span>
+                  </span>
+                  <button
+                    type="button"
+                    onclick="event.stopPropagation(); clearCalcHand()"
+                    class="calc-clear-btn"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div id="calc-hand-display" class="calc-tiles-row mt-2">
+                  <span id="calc-hand-placeholder" class="text-xs italic text-ink-mute"
+                    >Tap this section, then build your hand on the palette.</span
+                  >
+                </div>
+                <input type="hidden" id="calc-hand" value="" />
+                <div class="mt-2 flex items-center justify-between gap-2">
+                  <span id="calc-hand-count" class="text-xs font-bold text-ink-mute" aria-live="polite"
+                    >0 / 14 tiles</span
+                  >
+                  <div class="flex items-center gap-1.5">
+                    <span class="calc-mini-label">Win</span>
+                    <div id="calc-wintile-display" class="calc-wintile" title="Win tile (the last tile added)">
+                      <span class="text-[9px] font-bold uppercase tracking-wider text-ink-mute">Auto</span>
+                    </div>
+                    <input type="hidden" id="calc-wintile" value="" />
+                  </div>
+                </div>
+              </section>
+
+              <!-- 7. Win type (Ron / Tsumo toggle) -->
+              <section
+                id="wintype-section"
+                class="calc-section"
+                aria-labelledby="calc-wintype-title"
+              >
+                <div class="calc-section-head">
+                  <span id="calc-wintype-title" class="calc-section-title">7 · Win type</span>
+                  <span id="calc-wintype-hint" class="calc-section-meta"></span>
+                </div>
+                <div class="calc-segmented calc-toggle-2 mt-2" role="radiogroup" aria-label="Win type">
+                  <button type="button" onclick="setWinType(this,'ron')" class="calc-seg active" data-win-type="ron" role="radio" aria-checked="true">Ron</button>
+                  <button type="button" onclick="setWinType(this,'tsumo')" class="calc-seg" data-win-type="tsumo" role="radio" aria-checked="false">Tsumo</button>
+                </div>
+                <input type="hidden" id="calc-wintype" value="ron" />
+              </section>
+
+              <!-- 8. Special hand flags (toggle chips, wrapping) -->
+              <section class="calc-section" aria-labelledby="calc-flags-title">
+                <div class="calc-section-head">
+                  <span id="calc-flags-title" class="calc-section-title">8 · Special flags</span>
+                  <span class="calc-section-meta">Only valid options are enabled</span>
+                </div>
+                <div class="calc-flag-grid mt-2" id="calc-flags-grid">
+                  <label class="calc-chip">
+                    <input type="checkbox" id="calc-riichi" onchange="handleFlagChange()" />
+                    <span class="calc-chip-label">Riichi</span>
+                  </label>
+                  <label class="calc-chip">
+                    <input type="checkbox" id="calc-doubleriichi" onchange="handleFlagChange()" />
+                    <span class="calc-chip-label">Double Riichi</span>
+                  </label>
+                  <label class="calc-chip">
+                    <input type="checkbox" id="calc-ippatsu" onchange="handleFlagChange()" />
+                    <span class="calc-chip-label">Ippatsu</span>
+                  </label>
+                  <label class="calc-chip">
+                    <input type="checkbox" id="calc-afterkan" onchange="handleFlagChange()" />
+                    <span class="calc-chip-label">Rinshan</span>
+                  </label>
+                  <label class="calc-chip">
+                    <input type="checkbox" id="calc-robbingkan" onchange="handleFlagChange()" />
+                    <span class="calc-chip-label">Chankan</span>
+                  </label>
+                  <label class="calc-chip">
+                    <input type="checkbox" id="calc-lasttile" onchange="handleFlagChange()" />
+                    <span class="calc-chip-label">Haitei / Houtei</span>
+                  </label>
+                  <label class="calc-chip">
+                    <input type="checkbox" id="calc-tenhou" onchange="handleFlagChange()" />
+                    <span class="calc-chip-label">Tenhou</span>
+                  </label>
+                  <label class="calc-chip">
+                    <input type="checkbox" id="calc-chiihou" onchange="handleFlagChange()" />
+                    <span class="calc-chip-label">Chiihou</span>
+                  </label>
+                  <label class="calc-chip">
+                    <input type="checkbox" id="calc-nagashi" onchange="handleFlagChange()" title="Optional table rule: ten tiles of every kind in your river at the round's end" />
+                    <span class="calc-chip-label">Nagashi Mangan</span>
+                  </label>
+                </div>
+              </section>
+
+              <div
+                id="calc-output"
+                class="hidden rounded-2xl border border-ink/10 bg-white p-4 space-y-2 text-sm"
+              ></div>
+            </div>
+
+
+          </div>
         </div>
+      <aside class="calc-side-col" aria-label="Live score and tile palette">
+              <!-- Sticky live result bar -->
+              <div id="calc-live-result" class="calc-live-result">
+                <div class="calc-live-top">
+                  <span id="calc-live-tier">Waiting for hand</span>
+                  <span id="calc-live-hanfu">0 / 14 tiles</span>
+                </div>
+                <div class="calc-live-bottom">
+                  <span id="calc-live-points">—</span>
+                  <span id="calc-live-payments">Tap a section, then use the palette.</span>
+                </div>
+                <div class="calc-live-foot">
+                  <span id="calc-live-warning" class="hidden"></span>
+                  <button
+                    type="button"
+                    onclick="runCalculation()"
+                    class="calc-recalc-btn"
+                    title="Recalculate"
+                  >
+                    ↻ Recalc
+                  </button>
+                </div>
+              </div>
+
+              <!-- Shared tile palette (fixed to bottom thumb zone on phones) -->
+              <div id="calc-palette" class="calc-palette">
+                <div class="calc-palette-top">
+                  <span id="calc-palette-target" class="calc-palette-target"
+                    >Adding to: Hand tiles</span
+                  >
+                  <button
+                    type="button"
+                    onclick="clearActiveTarget()"
+                    class="calc-clear-btn"
+                    title="Clear the active section"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div class="calc-suit-tabs" role="tablist" aria-label="Tile suit">
+                  <button type="button" onclick="switchSuit('m')" class="calc-suit-btn active" data-suit="m" role="tab" aria-selected="true">萬 Man</button>
+                  <button type="button" onclick="switchSuit('p')" class="calc-suit-btn" data-suit="p" role="tab" aria-selected="false">筒 Pin</button>
+                  <button type="button" onclick="switchSuit('s')" class="calc-suit-btn" data-suit="s" role="tab" aria-selected="false">索 Sou</button>
+                  <button type="button" onclick="switchSuit('z')" class="calc-suit-btn" data-suit="z" role="tab" aria-selected="false">字 Honor</button>
+                </div>
+                <div id="calc-palette-grid" class="calc-palette-grid mt-1.5"></div>
+                <div id="calc-palette-hint" class="calc-palette-hint"></div>
+              </div>
+            </aside>
       </div>
     </div>
-    
 
     <!-- Payout Calculator Modal -->
     <div

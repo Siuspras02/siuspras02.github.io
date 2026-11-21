@@ -173,13 +173,33 @@
               </h3>
             </div>
           </div>
-          <button
-            onclick="closeCalculatorModal()"
-            aria-label="Close calculator"
-            class="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-ink-mute hover:bg-ink/5 hover:text-ink"
-          >
-            ✕
-          </button>
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              onclick="clearCalcAll()"
+              aria-label="Clear all calculator inputs"
+              class="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-ink-mute hover:bg-ink/5 hover:text-ink"
+              title="Clear all"
+            >
+              🗑
+            </button>
+            <button
+              type="button"
+              onclick="scrollCalcToTop()"
+              aria-label="Scroll to top"
+              class="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-ink-mute hover:bg-ink/5 hover:text-ink"
+              title="Scroll to top"
+            >
+              ↑
+            </button>
+            <button
+              onclick="closeCalculatorModal()"
+              aria-label="Close calculator"
+              class="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-ink-mute hover:bg-ink/5 hover:text-ink"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <div id="calc-body" class="calc-body custom-scrollbar">
@@ -518,11 +538,16 @@
               </section>
 
               <!-- 8. Special hand flags (toggle chips, wrapping) -->
-              <section class="calc-section" aria-labelledby="calc-flags-title">
+              <section
+                id="flags-section"
+                class="calc-section"
+                aria-labelledby="calc-flags-title"
+              >
                 <div class="calc-section-head">
                   <span id="calc-flags-title" class="calc-section-title">8 · Special flags</span>
                   <span class="calc-section-meta">Only valid options are enabled</span>
                 </div>
+                <span id="calc-flags-hint" class="calc-flags-hint">Complete your hand to choose flags</span>
                 <div class="calc-flag-grid mt-2" id="calc-flags-grid">
                   <label class="calc-chip">
                     <input type="checkbox" id="calc-riichi" onchange="handleFlagChange()" />

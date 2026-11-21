@@ -1847,6 +1847,47 @@ window.adjustHonba = (delta) => {
   runCalculation();
 };
 
+window.clearCalcAll = () => {
+  // Clear hand, melds, dora
+  clearCalcHand();
+  clearAllMelds();
+  clearDoraIndicators();
+  // Clear honba
+  const honbaInput = document.getElementById("calc-honba-value");
+  if (honbaInput) honbaInput.value = "0";
+  // Clear flags
+  ["calc-riichi", "calc-doubleriichi", "calc-ippatsu", "calc-afterkan", "calc-robbingkan", "calc-lasttile", "calc-tenhou", "calc-chiihou", "calc-nagashi"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = false;
+  });
+  // Reset win type to Ron
+  const winType = document.getElementById("calc-wintype");
+  if (winType) winType.value = "ron";
+  document.querySelectorAll(".calc-seg[data-win-type]").forEach((btn) => {
+    const active = btn.dataset.winType === "ron";
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-checked", active ? "true" : "false");
+  });
+  // Reset winds to East
+  const seatWind = document.getElementById("calc-seatwind");
+  const roundWind = document.getElementById("calc-roundwind");
+  if (seatWind) seatWind.value = "1z";
+  if (roundWind) roundWind.value = "1z";
+  document.querySelectorAll(".calc-seg[data-wind-group]").forEach((btn) => {
+    const active = btn.dataset.wind === "1z";
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-checked", active ? "true" : "false");
+  });
+  updateFlagAvailability();
+  runCalculation();
+};
+
+window.scrollCalcToTop = () => {
+  window.scrollTo(0, 0);
+  const calcBody = document.getElementById("calc-body");
+  if (calcBody) calcBody.scrollTop = 0;
+};
+
 window.openCalculatorModal = () => {
   // Restore the saved mode, defaulting to the room's player count.
   const stored = readStoredCalcMode();
@@ -1861,6 +1902,8 @@ window.openCalculatorModal = () => {
   updateFlagAvailability();
   setActiveTarget(buildingMeld ? "meld" : "hand");
   runCalculation();
+  // Scroll to top (no smooth scroll) — keep all inputs as-is
+  scrollCalcToTop();
 };
 
 window.closeCalculatorModal = () => {
@@ -2698,8 +2741,20 @@ function renderHandTiles() {
     }`;
   }
 
+  const flagsSection = document.getElementById("flags-section");
+  const flagsHint = document.getElementById("calc-flags-hint");
+
   if (handSection) handSection.classList.toggle("is-complete", complete);
   if (winSection) winSection.classList.toggle("is-complete", complete);
+  if (flagsSection) {
+    flagsSection.classList.toggle("is-complete", complete);
+    flagsSection.setAttribute("aria-disabled", complete ? "false" : "true");
+    // Enable transition after first render (prevents flash on reopen)
+    if (!flagsSection.dataset.initialized) {
+      flagsSection.dataset.initialized = "true";
+    }
+  }
+  if (flagsHint) flagsHint.classList.toggle("hidden", complete);
   if (winHint) winHint.textContent = complete ? "Ready" : "";
 
   if (tiles.length === 0) {

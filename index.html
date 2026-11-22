@@ -10,6 +10,9 @@
     />
     <title>Riichi Tracker — Scorekeeper</title>
     <link rel="canonical" href="/Mahjong.html" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-192.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
     <!-- Instant redirect to the scorekeeper app -->
     <meta http-equiv="refresh" content="0; url=Mahjong.html" />
     <style>
@@ -86,5 +89,14 @@
       <div class="tile" aria-hidden="true">中</div>
       <p>Opening the scorekeeper… <a href="Mahjong.html">Continue</a></p>
     </main>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW registered:', reg.scope))
+            .catch(err => console.warn('SW registration failed:', err));
+        });
+      }
+    </script>
   </body>
 </html>

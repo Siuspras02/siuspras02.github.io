@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0d3b2e" />
     <title>Riichi Tracker — Page not found</title>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-192.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
     <!-- GitHub Pages serves this for any unknown path: send everything to the app -->
     <meta http-equiv="refresh" content="0; url=/Mahjong.html" />
     <script>
@@ -57,5 +60,14 @@
         <a href="/Mahjong.html">Riichi Tracker scorekeeper</a>…
       </p>
     </main>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW registered:', reg.scope))
+            .catch(err => console.warn('SW registration failed:', err));
+        });
+      }
+    </script>
   </body>
 </html>

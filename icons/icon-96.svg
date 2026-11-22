@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fffdfa"/>
+      <stop offset="100%" stop-color="#f4f2ec"/>
+    </linearGradient>
+    <linearGradient id="tileGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fdf3cf"/>
+      <stop offset="100%" stop-color="#e5c25a"/>
+    </linearGradient>
+    <linearGradient id="shineGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.3)"/>
+      <stop offset="50%" stop-color="rgba(255,255,255,0)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="96" height="96" fill="url(#bgGrad)"/>
+  <!-- Tile -->
+  <rect x="16.991999999999997" y="16.991999999999997" width="62.016000000000005" height="62.016000000000005" rx="9.3024" ry="9.3024" fill="url(#tileGrad)" stroke="rgba(20,35,30,0.18)" stroke-width="1.44"/>
+  <!-- Character "中" -->
+  <text x="48" y="49.24032" text-anchor="middle" dominant-baseline="middle" font-family="'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', 'SimHei', sans-serif" font-size="34.1088" font-weight="bold" fill="#0e3328">中</text>
+  <!-- Shine overlay -->
+  <rect x="16.991999999999997" y="16.991999999999997" width="62.016000000000005" height="62.016000000000005" rx="9.3024" ry="9.3024" fill="url(#shineGrad)"/>
+</svg>

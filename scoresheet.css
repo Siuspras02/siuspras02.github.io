@@ -1,6 +1,6 @@
 /* ==========================================================================
    RIICHI SCORESHEET — visual layer
-   Loaded after styles.css (Mahjong.html only).
+   Loaded after styles.css / inline styles (Mahjong.html + Mahjong-cheatsheet.html).
 
    Direction: a printed tournament score sheet. Paper ground, ink type, one
    vermilion seal. Hairline rules instead of cards-and-glow, tabular numerals
@@ -1605,5 +1605,267 @@ body.ss {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Cheat sheet (body.ss.cs)
+   Same paper-and-ink system applied to the self-contained reference page.
+   Scoped with .cs so none of these rules can leak into the tracker.
+   ========================================================================== */
+body.cs {
+  --ink: var(--ss-ink);
+  --ink-soft: var(--ss-ink-soft);
+  --ink-mute: var(--ss-mute);
+  --ivory: var(--ss-paper);
+  --parchment: var(--ss-sheet);
+  --jade-50: #edf0e8;
+  --jade-100: #dfe6d9;
+  --jade-200: #c5cfbe;
+  --jade-500: var(--ss-pine);
+  --jade-600: #173d30;
+  --jade-700: #173d30;
+  --gold-50: var(--ss-seal-soft);
+  --gold-100: #f3dcd2;
+  --gold-200: #dfb6a6;
+  --gold-300: var(--ss-seal);
+  --gold-700: var(--ss-seal-dark);
+  --line: var(--ss-rule);
+  --line-soft: rgba(25, 23, 16, 0.09);
+  --felt: var(--ss-pine);
+}
+
+.cs .site-header {
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--ss-rule-strong);
+}
+.cs .brand-tile {
+  border-radius: 2px;
+  background: var(--ss-seal);
+  color: #fffaf2;
+  font-family: var(--ss-sans);
+  box-shadow: none;
+}
+.cs .site-header h1 {
+  font-family: var(--ss-sans);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.cs .site-subtitle {
+  font-family: var(--ss-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ss-mute);
+}
+
+.cs .hero-banner {
+  background: var(--ss-sheet-2);
+  color: var(--ss-ink);
+  border: 1px solid var(--ss-rule-strong);
+  border-bottom: 3px solid var(--ss-seal);
+  border-radius: 2px;
+  box-shadow: 5px 5px 0 rgba(25, 23, 16, 0.08);
+  padding: 1rem 1.25rem;
+}
+.cs .hero-banner h2 {
+  font-family: var(--ss-sans);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.cs .hero-banner p {
+  color: var(--ss-ink-soft);
+  font-size: 0.8rem;
+}
+.cs .pill {
+  background: transparent;
+  border: 1px solid var(--ss-rule-strong);
+  border-radius: 2px;
+  color: var(--ss-ink);
+  font-family: var(--ss-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+.cs .pill-tag {
+  border-radius: 2px;
+  font-family: var(--ss-mono);
+}
+.cs .pill-tag.gold {
+  background: var(--ss-seal-soft);
+  color: var(--ss-seal-dark);
+}
+.cs .pill-tag.jade {
+  background: #e9ede4;
+  color: var(--ss-pine);
+}
+
+.cs .jump-nav {
+  gap: 0.25rem;
+  padding-bottom: 0;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--ss-rule-strong);
+}
+.cs .jump-link {
+  min-height: 2.25rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid transparent;
+  color: var(--ss-mute);
+  font-family: var(--ss-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cs .jump-link:hover {
+  background: rgba(25, 23, 16, 0.04);
+  color: var(--ss-ink);
+}
+.cs .jump-link[aria-current="true"] {
+  background: transparent;
+  border-bottom-color: var(--ss-seal);
+  color: var(--ss-seal);
+}
+
+.cs .card {
+  background: var(--ss-sheet);
+  border: 1px solid var(--ss-rule-strong);
+  border-radius: 2px;
+  box-shadow: 5px 5px 0 rgba(25, 23, 16, 0.06);
+}
+.cs .card-head,
+.cs .card-head.amber,
+.cs .card-head.rose,
+.cs .card-head.slate {
+  background: var(--ss-sheet-2);
+  border-bottom: 1px solid var(--ss-rule-strong);
+  padding: 0.75rem 1rem;
+}
+.cs .card-title,
+.cs .card-head.amber .card-title,
+.cs .card-head.rose .card-title,
+.cs .card-head.slate .card-title {
+  color: var(--ss-ink);
+  font-family: var(--ss-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.cs .badge {
+  background: transparent;
+  border: 1px solid var(--ss-rule-strong);
+  border-radius: 2px;
+  color: var(--ss-mute);
+  font-family: var(--ss-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.cs .card-body {
+  color: var(--ss-ink-soft);
+  font-size: 0.8rem;
+}
+
+.cs .t,
+.cs .t-md {
+  font-family: "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji",
+    sans-serif;
+}
+.cs .red {
+  color: var(--ss-seal);
+}
+.cs .grn {
+  color: var(--ss-pine);
+}
+.cs .mono {
+  font-family: var(--ss-mono);
+}
+.cs .suit-item {
+  background: transparent;
+  border: 1px solid var(--ss-rule);
+  border-radius: 2px;
+}
+.cs .suit-label {
+  color: var(--ss-ink);
+}
+
+.cs th,
+.cs td {
+  border-bottom: 1px solid var(--ss-rule);
+}
+.cs th {
+  background: var(--ss-sheet-2);
+  color: var(--ss-mute);
+  font-family: var(--ss-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+}
+.cs tbody tr:hover {
+  background: rgba(25, 23, 16, 0.03);
+}
+.cs .sub-note {
+  color: var(--ss-mute);
+}
+.cs .yaku-grid table:first-child {
+  border-right: 1px solid var(--ss-rule);
+}
+.cs .han-badge {
+  background: var(--ss-seal-soft);
+  border: 1px solid rgba(178, 58, 31, 0.35);
+  border-radius: 2px;
+  color: var(--ss-seal-dark);
+  font-family: var(--ss-mono);
+  font-size: 0.68rem;
+}
+
+.cs ul.clean li::before {
+  color: var(--ss-seal);
+}
+.cs .callout {
+  background: var(--ss-sheet-2);
+  border: 1px solid var(--ss-rule);
+  border-left: 3px solid var(--ss-seal);
+  border-radius: 2px;
+}
+.cs .site-footer {
+  border-top: 1px solid var(--ss-rule);
+  color: var(--ss-mute);
+  font-family: var(--ss-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  padding-top: 1rem;
+  text-transform: uppercase;
+}
+
+@media print {
+  body.cs {
+    background: #fff !important;
+  }
+  .cs .ss-topbar {
+    display: none !important;
+  }
+  .cs .hero-banner {
+    background: transparent !important;
+    border-color: var(--ss-rule-strong) !important;
+    box-shadow: none !important;
+    color: var(--ss-ink) !important;
+  }
+  .cs .card {
+    border-color: #b9b2a1 !important;
+    box-shadow: none !important;
+  }
+  .cs .badge,
+  .cs .han-badge,
+  .cs .pill {
+    border-color: #b9b2a1 !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .cs .site-header h1 {
+    font-size: 1.1rem;
+  }
+  .cs .hero-banner {
+    box-shadow: 3px 3px 0 rgba(25, 23, 16, 0.08);
   }
 }

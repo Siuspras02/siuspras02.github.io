@@ -246,7 +246,7 @@ async function init() {
       DOM.setup.classList.remove("hidden");
     };
     window.cancelSetup = () => {
-      DOM.setup.classList.remove("hidden");
+      DOM.setup.classList.add("hidden");
       DOM.lobby.classList.remove("hidden");
     };
 

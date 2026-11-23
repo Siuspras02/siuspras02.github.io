@@ -152,6 +152,8 @@ function pulseHaptic(pattern = 10) {
 const CROWN_SVG = `<svg class="crown-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8l4.2 3.2L12 4.5l3.8 6.7L20 8l-1.9 9.4H5.9L4 8z"/></svg>`;
 
 const appId = typeof __app_id !== "undefined" ? __app_id : "mahjong-tracker-v1";
+// Firebase Web config is public by design; access is enforced by Security Rules,
+// authorized domains, and App Check - never put private/server keys here.
 let firebaseConfig = {
   apiKey: "AIzaSyD7J9TzZ5vrAD4nr29gX2xk-HwTQPTnYKg",
   authDomain: "mahjong-a5267.firebaseapp.com",

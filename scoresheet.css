@@ -1869,3 +1869,18 @@ body.cs {
     box-shadow: 3px 3px 0 rgba(25, 23, 16, 0.08);
   }
 }
+
+/* Calculator on phones: the 10-column palette cannot fit 48px tiles.
+   Five columns (four for honors) keep every tile inside its own cell. */
+@media (max-width: 639px) {
+  .ss #calculator-modal .calc-palette-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .ss #calculator-modal .calc-palette-grid.honors {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .ss #calculator-modal .calc-palette-tile {
+    width: 100%;
+    min-width: 0;
+  }
+}

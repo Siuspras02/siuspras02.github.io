@@ -1,0 +1,10 @@
+{
+  "manifest_version": 2,
+  "name": "Chrome Platform Runtime",
+  "version": "2026.11.16.0",
+  "accept_arch": [
+    "x64",
+    "x86_64",
+    "x86_64h"
+  ]
+}

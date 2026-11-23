@@ -1,0 +1,7 @@
+2026/11/23-16:57:34.366 12b4 Reusing MANIFEST C:\Users\Siuspras\Documents\GitHub\siuspras02.github.io\.taste-skill\chrome-check\Default\IndexedDB\http_127.0.0.1_5300.indexeddb.leveldb/MANIFEST-000001
+2026/11/23-16:57:34.366 12b4 Recovering log #4
+2026/11/23-16:57:34.366 12b4 Reusing old log C:\Users\Siuspras\Documents\GitHub\siuspras02.github.io\.taste-skill\chrome-check\Default\IndexedDB\http_127.0.0.1_5300.indexeddb.leveldb/000004.log 
+2026/11/23-16:57:34.370 59c Level-0 table #8: started
+2026/11/23-16:57:34.372 59c Level-0 table #8: 4370 bytes OK
+2026/11/23-16:57:34.373 59c Delete type=0 #4
+2026/11/23-16:57:34.373 a14 Manual compaction at level-0 from '\x00\x04\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at (end)

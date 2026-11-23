@@ -5,8 +5,8 @@
   "start_url": "/Mahjong.html",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f4f2ec",
-  "theme_color": "#0d3b2e",
+  "background_color": "#f2eee2",
+  "theme_color": "#f2eee2",
   "orientation": "portrait-primary",
   "icons": [
     {

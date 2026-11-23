@@ -1,0 +1,6 @@
+2026/11/23-17:04:23.464 5934 Creating DB C:\Users\Siuspras\Documents\GitHub\siuspras02.github.io\.taste-skill\chrome-sheet2\Default\IndexedDB\http_127.0.0.1_5300.indexeddb.leveldb since it was missing.
+2026/11/23-17:04:23.470 5934 Reusing MANIFEST C:\Users\Siuspras\Documents\GitHub\siuspras02.github.io\.taste-skill\chrome-sheet2\Default\IndexedDB\http_127.0.0.1_5300.indexeddb.leveldb/MANIFEST-000001
+2026/11/23-17:04:23.479 2398 Level-0 table #5: started
+2026/11/23-17:04:23.482 2398 Level-0 table #5: 1286 bytes OK
+2026/11/23-17:04:23.483 2398 Delete type=0 #3
+2026/11/23-17:04:23.484 5934 Manual compaction at level-0 from '\x00\x01\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x02\x00\x00\x00' @ 0 : 0; will stop at (end)

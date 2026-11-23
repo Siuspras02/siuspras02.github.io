@@ -1,5 +1,5 @@
 // Service Worker for Riichi Tracker - Offline-first caching
-const CACHE_NAME = 'riichi-tracker-v2';
+const CACHE_NAME = 'riichi-tracker-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -8,7 +8,6 @@ const STATIC_ASSETS = [
   '/404.html',
   '/app.js',
   '/styles.css',
-  '/scoresheet.css',
   '/manifest.json',
   '/riichi/score.js',
   '/riichi/yaku.js',
@@ -16,7 +15,8 @@ const STATIC_ASSETS = [
   '/riichi/fu.js',
   '/riichi/decompose.js',
   // Fonts
-  'https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap',
+  'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap',
+  'https://fonts.gstatic.com/s/fraunces/v24/0vFvMxwPbGFvk-gsYU0.woff2',
   // Tailwind CDN
   'https://cdn.tailwindcss.com'
 ];

@@ -2576,10 +2576,6 @@ footer {
   position: relative;
   z-index: 2;
 }
-#lobby-section .sheet {
-  position: relative;
-  z-index: 1;
-}
 .lobby-tile {
   position: absolute;
   opacity: 0.18;
@@ -2613,6 +2609,97 @@ footer {
   .lobby-tile {
     animation: none;
     opacity: 0.04;
+  }
+}
+
+/* Room view: swimming tiles across the whole game screen */
+#game-section {
+  position: relative;
+}
+.game-tile-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+#game-section > :not(.game-tile-bg) {
+  position: relative;
+  z-index: 1;
+}
+.game-swim-tile {
+  position: absolute;
+  left: -10%;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  font-family: "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+  line-height: 1;
+  color: var(--ds-jade);
+  opacity: 0;
+  animation: gameTileSwim linear infinite;
+  will-change: left, transform, opacity;
+}
+.game-swim-tile.swim-1 {
+  top: 12%;
+  font-size: 2.4rem;
+  animation-duration: 15s;
+}
+.game-swim-tile.swim-2 {
+  top: 34%;
+  font-size: 1.8rem;
+  animation-duration: 19s;
+  animation-delay: -6s;
+}
+.game-swim-tile.swim-3 {
+  top: 62%;
+  font-size: 2.1rem;
+  animation-duration: 13s;
+  animation-delay: -3s;
+}
+.game-swim-tile.swim-4 {
+  top: 84%;
+  font-size: 1.6rem;
+  animation-duration: 17s;
+  animation-delay: -10s;
+}
+@keyframes gameTileSwim {
+  0% {
+    left: -10%;
+    transform: translateY(-50%) rotate(-14deg);
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 0.14;
+  }
+  50% {
+    transform: translateY(-90%) rotate(12deg);
+    opacity: 0.1;
+  }
+  100% {
+    left: 104%;
+    transform: translateY(-50%) rotate(8deg);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-swim-tile {
+    animation: none;
+    opacity: 0.04;
+  }
+  .game-swim-tile.swim-1 {
+    left: 14%;
+  }
+  .game-swim-tile.swim-2 {
+    left: 38%;
+  }
+  .game-swim-tile.swim-3 {
+    left: 62%;
+  }
+  .game-swim-tile.swim-4 {
+    left: 86%;
   }
 }
 

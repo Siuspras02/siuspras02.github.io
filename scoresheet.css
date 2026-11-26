@@ -278,7 +278,7 @@ body.ss {
   font-weight: 700;
   line-height: 1;
   transform: none;
-  animation: none;
+  animation: sealIdle 3.2s ease-in-out 1s infinite;
 }
 .ss .brand-tile:hover {
   transform: none;

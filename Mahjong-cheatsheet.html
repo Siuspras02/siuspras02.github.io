@@ -88,6 +88,7 @@
         background: var(--ivory);
         color: var(--ink);
         min-height: 100vh;
+        font-size: 17px;
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
       }
@@ -101,9 +102,9 @@
       }
 
       .container {
-        max-width: 1360px;
+        max-width: 1520px;
         margin: 0 auto;
-        padding: 28px 20px 48px;
+        padding: 32px 24px 56px;
       }
 
       /* Top Header matching Mahjong.html */
@@ -139,7 +140,7 @@
 
       .site-header h1 {
         font-family: "Archivo", "Segoe UI", system-ui, sans-serif;
-        font-size: 28px;
+        font-size: 32px;
         font-weight: 600;
         letter-spacing: -0.01em;
         color: var(--ink);
@@ -214,7 +215,7 @@
 
       .hero-banner h2 {
         font-family: "Archivo", "Segoe UI", system-ui, sans-serif;
-        font-size: 20px;
+        font-size: 24px;
         font-weight: 600;
       }
 
@@ -348,7 +349,7 @@
 
       .card-title {
         font-family: "Archivo", "Segoe UI", system-ui, sans-serif;
-        font-size: 17px;
+        font-size: 20px;
         font-weight: 600;
         color: var(--jade-700);
       }
@@ -377,15 +378,15 @@
       }
 
       .card-body {
-        padding: 18px 20px;
-        font-size: 14px;
+        padding: 20px 22px;
+        font-size: 16px;
         line-height: 1.55;
         color: var(--ink);
       }
 
       /* Large Legible Unicode Tiles */
       .t {
-        font-size: 26px;
+        font-size: 32px;
         line-height: 1.1;
         vertical-align: middle;
         letter-spacing: -1px;
@@ -394,10 +395,39 @@
       }
 
       .t-md {
-        font-size: 22px;
+        font-size: 27px;
         line-height: 1.1;
         vertical-align: middle;
         letter-spacing: -1px;
+      }
+
+      /* Manzu (Characters) tiles with numbers underneath */
+      .manzu-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: flex-end;
+        justify-content: flex-start;
+      }
+
+      .manzu-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        min-width: 2.2rem;
+      }
+
+      .manzu-col .t {
+        font-size: 32px;
+        line-height: 1.1;
+      }
+
+      .manzu-num {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--ink-mute);
+        font-family: "SFMono-Regular", Consolas, monospace;
       }
 
       .red {
@@ -442,7 +472,7 @@
       }
 
       .suit-label {
-        font-size: 13.5px;
+        font-size: 16px;
       }
 
       .suit-label span {
@@ -466,9 +496,10 @@
       th,
       td {
         border-bottom: 1px solid var(--line-soft);
-        padding: 10px 14px;
+        padding: 12px 16px;
         text-align: left;
         vertical-align: middle;
+        font-size: 16px;
       }
 
       tr:last-child td {
@@ -477,7 +508,7 @@
 
       th {
         background: #f7f9f8;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.08em;
@@ -490,7 +521,7 @@
 
       .sub-note {
         display: block;
-        font-size: 12px;
+        font-size: 14px;
         color: var(--ink-mute);
         font-weight: 500;
       }
@@ -517,13 +548,13 @@
 
       .han-badge {
         display: inline-block;
-        padding: 3px 8px;
+        padding: 4px 10px;
         border-radius: 8px;
         background: var(--gold-50);
         border: 1px solid var(--gold-200);
         color: var(--gold-700);
         font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 12.5px;
+        font-size: 14.5px;
         font-weight: 800;
         white-space: nowrap;
       }
@@ -553,11 +584,11 @@
 
       .callout {
         margin-top: 12px;
-        padding: 12px 14px;
+        padding: 14px 16px;
         border-radius: 12px;
         background: #ffffff;
         border: 1px solid var(--line-soft);
-        font-size: 13.5px;
+        font-size: 16px;
       }
 
       .site-footer {
@@ -828,6 +859,24 @@
           letter-spacing: -0.5px;
         }
 
+        .manzu-row {
+          gap: 0.6mm;
+        }
+
+        .manzu-col {
+          min-width: 0;
+          gap: 0;
+        }
+
+        .manzu-col .t {
+          font-size: 10.5pt;
+        }
+
+        .manzu-num {
+          font-size: 5.6pt;
+          line-height: 1;
+        }
+
         .t-md {
           font-size: 9.5pt;
           line-height: 0.92;
@@ -996,8 +1045,16 @@
                   <div class="suit-label">
                     <b>Manzu</b> <span>(Characters 1–9)</span>
                   </div>
-                  <div class="t">
-                    🀇🀈🀉🀊<span class="red">🀋</span>🀌🀍🀎🀏
+                  <div class="manzu-row">
+                    <div class="manzu-col"><span class="t">🀇</span><span class="manzu-num">1</span></div>
+                    <div class="manzu-col"><span class="t">🀈</span><span class="manzu-num">2</span></div>
+                    <div class="manzu-col"><span class="t">🀉</span><span class="manzu-num">3</span></div>
+                    <div class="manzu-col"><span class="t">🀊</span><span class="manzu-num">4</span></div>
+                    <div class="manzu-col"><span class="t red">🀋</span><span class="manzu-num">5</span></div>
+                    <div class="manzu-col"><span class="t">🀌</span><span class="manzu-num">6</span></div>
+                    <div class="manzu-col"><span class="t">🀍</span><span class="manzu-num">7</span></div>
+                    <div class="manzu-col"><span class="t">🀎</span><span class="manzu-num">8</span></div>
+                    <div class="manzu-col"><span class="t">🀏</span><span class="manzu-num">9</span></div>
                   </div>
                 </div>
                 <div class="suit-item">

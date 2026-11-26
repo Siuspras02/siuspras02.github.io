@@ -241,13 +241,24 @@ async function init() {
       }
     });
 
+    const vt = (fn) => {
+      if (typeof document.startViewTransition === "function") {
+        document.startViewTransition(() => fn()).finished.catch(() => {});
+      } else {
+        fn();
+      }
+    };
     window.showSetup = () => {
-      DOM.lobby.classList.add("hidden");
-      DOM.setup.classList.remove("hidden");
+      vt(() => {
+        DOM.lobby.classList.add("hidden");
+        DOM.setup.classList.remove("hidden");
+      });
     };
     window.cancelSetup = () => {
-      DOM.setup.classList.add("hidden");
-      DOM.lobby.classList.remove("hidden");
+      vt(() => {
+        DOM.setup.classList.add("hidden");
+        DOM.lobby.classList.remove("hidden");
+      });
     };
 
     window.createRoom = handleCreateRoom;
@@ -577,7 +588,16 @@ async function handleCreateRoom() {
     };
 
     await setDoc(roomRef, initialData);
-    DOM.setup.classList.add("hidden");
+    const vt = (fn) => {
+      if (typeof document.startViewTransition === "function") {
+        document.startViewTransition(() => fn()).finished.catch(() => {});
+      } else {
+        fn();
+      }
+    };
+    vt(() => {
+      DOM.setup.classList.add("hidden");
+    });
     enterRoom(code);
   } catch (err) {
     console.error("Create room error:", err);
@@ -638,8 +658,17 @@ function enterRoom(code) {
   previousPot = null;
   previousHistoryLength = 0;
   previousLeaderId = null;
-  DOM.lobby.classList.add("hidden");
-  DOM.game.classList.remove("hidden");
+  const vt = (fn) => {
+    if (typeof document.startViewTransition === "function") {
+      document.startViewTransition(() => fn()).finished.catch(() => {});
+    } else {
+      fn();
+    }
+  };
+  vt(() => {
+    DOM.lobby.classList.add("hidden");
+    DOM.game.classList.remove("hidden");
+  });
   DOM.displayRoomCode.textContent = code;
 
   const roomRef = doc(db, "artifacts", appId, "public", "data", "rooms", code);
@@ -683,8 +712,17 @@ function handleLeaveRoom() {
       previousPot = null;
       previousHistoryLength = 0;
       previousLeaderId = null;
-      DOM.game.classList.add("hidden");
-      DOM.lobby.classList.remove("hidden");
+      const vt = (fn) => {
+        if (typeof document.startViewTransition === "function") {
+          document.startViewTransition(() => fn()).finished.catch(() => {});
+        } else {
+          fn();
+        }
+      };
+      vt(() => {
+        DOM.game.classList.add("hidden");
+        DOM.lobby.classList.remove("hidden");
+      });
       document.getElementById("join-room-code").value = "";
     },
   );

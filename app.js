@@ -712,6 +712,9 @@ function handleLeaveRoom() {
       previousPot = null;
       previousHistoryLength = 0;
       previousLeaderId = null;
+      if (window.SwimTiles && window.SwimTiles.refresh) {
+        window.SwimTiles.refresh([]);
+      }
       const vt = (fn) => {
         if (typeof document.startViewTransition === "function") {
           document.startViewTransition(() => fn()).finished.catch(() => {});
@@ -985,6 +988,11 @@ function renderGameUI() {
   dashHTML += `</div>`;
   DOM.scoreDashboard.innerHTML = dashHTML;
   if (DOM.roundCount) DOM.roundCount.textContent = history.length;
+
+  // Refresh swimming tiles animation with current player scores
+  if (window.SwimTiles && window.SwimTiles.refresh) {
+    window.SwimTiles.refresh(players);
+  }
 
   // Animate the numerals after the new scoreboard is in the DOM.
   requestAnimationFrame(() => {

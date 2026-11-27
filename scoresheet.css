@@ -945,6 +945,8 @@ body.ss {
   box-shadow: none;
   color: var(--ss-ink);
   transition: background-color 140ms ease;
+  position: relative;
+  z-index: 1;
 }
 .ss .score-card::before {
   display: none;
